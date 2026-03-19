@@ -1,0 +1,212 @@
+<!-- src/app/shared/components/pagination/pagination.component.html -->
+<div class="pagination-container" [class]="'size-' + size + ' align-' + align + ' responsive'"
+  [class.loading]="isLoading" [class.no-results]="!hasResults">
+
+  <!-- Cabecera informativa -->
+  <div class="pagination-header">
+    <!-- Información de registros - Versión desktop -->
+    <div *ngIf="showInfo" class="pagination-info desktop-info">
+      <div class="info-card">
+        <i class="bi bi-database info-icon"></i>
+        <div class="info-content">
+          <div class="info-main">
+            Mostrando <span class="info-highlight">{{ showingFrom }}</span> -
+            <span class="info-highlight">{{ showingTo }}</span> de
+            <span class="info-total">{{ totalItems | number }}</span> registros
+          </div>
+          <div *ngIf="totalPages > 1" class="info-secondary">
+            <span class="page-indicator">
+              <i class="bi bi-file-text me-1"></i>
+              Página <span class="current-page-num">{{ currentPage + 1 }}</span> de {{ totalPages }}
+            </span>
+          </div>
+        </div>
+      </div>
+      <button *ngIf="showNavigation" class="btn btn-refresh" (click)="onRefresh()" [disabled]="isLoading || !totalItems"
+        [title]="'Actualizar datos'" [class.loading]="isLoading">
+        <i class="bi" [class.bi-arrow-clockwise]="!isLoading" [class.bi-hourglass-split]="isLoading"></i>
+        <span class="refresh-text">Actualizar</span>
+      </button>
+    </div>
+
+    <!-- Información de registros - Versión móvil -->
+    <div *ngIf="showInfo" class="pagination-info mobile-info">
+      <div class="mobile-summary">
+        <div class="mobile-stats">
+          <i class="bi bi-card-checklist"></i>
+          <span class="mobile-count">{{ showingFrom }}-{{ showingTo }}</span>
+          <span class="mobile-total">de {{ totalItems | number }}</span>
+        </div>
+        <div *ngIf="totalPages > 1" class="mobile-pages">
+          <span class="mobile-page-info">
+            Página <strong>{{ currentPage + 1 }}</strong> / {{ totalPages }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Panel de controles -->
+  <div class="pagination-panel">
+
+    <!-- Selector de tamaño de página -->
+    <div *ngIf="showSizeSelector" class="panel-section page-size-section">
+      <div class="section-label">
+        <i class="bi bi-list-ul"></i>
+        <span>Registros por página</span>
+      </div>
+      <div class="custom-select-wrapper">
+        <select class="custom-select" [(ngModel)]="pageSize" (change)="changePageSize(pageSize)" [disabled]="isLoading"
+          [title]="'Cambiar cantidad de registros por página'">
+          <option *ngFor="let size of pageSizes" [value]="size">
+            {{ size }}
+          </option>
+        </select>
+        <i class="bi bi-chevron-down select-arrow"></i>
+      </div>
+    </div>
+
+    <!-- Controles de navegación -->
+    <div *ngIf="showNavigation && hasResults" class="panel-section navigation-section">
+
+      <!-- Navegación principal -->
+      <div class="navigation-main">
+        <!-- Primera página -->
+        <button class="nav-btn first-page" (click)="goToFirstPage()" [disabled]="isFirstPage || isLoading"
+          [title]="'Ir a la primera página'">
+          <i class="bi bi-chevron-bar-left"></i>
+          <span class="btn-text">Primera</span>
+        </button>
+
+        <!-- Página anterior -->
+        <button class="nav-btn prev-page" (click)="goToPrevPage()" [disabled]="isFirstPage || isLoading"
+          [title]="'Página anterior'">
+          <i class="bi bi-chevron-left"></i>
+          <span class="btn-text">Anterior</span>
+        </button>
+
+        <!-- Indicador de página actual -->
+        <div *ngIf="showPageNumbers" class="page-indicator">
+          <div class="current-page-display" (click)="toggleJumpInput()" *ngIf="!showJumpInput">
+            <span class="page-label">Página</span>
+            <span class="page-number">{{ currentPage + 1 }}</span>
+            <span class="page-separator">/</span>
+            <span class="total-pages">{{ totalPages }}</span>
+            <i class="bi bi-pencil-square edit-icon"></i>
+          </div>
+
+          <!-- Input para saltar a página -->
+          <div *ngIf="showJumpInput && !isMobile" class="jump-input-wrapper">
+            <input type="number" class="jump-input" [(ngModel)]="jumpToPage" (keydown.enter)="jumpToSpecificPage()"
+              (keydown.escape)="showJumpInput = false" [min]="1" [max]="totalPages" placeholder="Página" autofocus>
+            <button class="jump-go-btn" (click)="jumpToSpecificPage()"
+              [disabled]="!jumpToPage || jumpToPage < 1 || jumpToPage > totalPages" [title]="'Ir a página'">
+              <i class="bi bi-arrow-right"></i>
+            </button>
+            <button class="jump-cancel-btn" (click)="showJumpInput = false" [title]="'Cancelar'">
+              <i class="bi bi-x"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Salto rápido a página -->
+        <button *ngIf="showJumpToPage && !showJumpInput && totalPages > 5" class="nav-btn jump-btn"
+          (click)="toggleJumpInput()" [title]="'Ir a página específica'">
+          <i class="bi bi-skip-forward"></i>
+          <span class="btn-text">Ir a</span>
+        </button>
+
+        <!-- Página siguiente -->
+        <button class="nav-btn next-page" (click)="goToNextPage()" [disabled]="isLastPage || isLoading"
+          [title]="'Página siguiente'">
+          <span class="btn-text">Siguiente</span>
+          <i class="bi bi-chevron-right"></i>
+        </button>
+
+        <!-- Última página -->
+        <button class="nav-btn last-page" (click)="goToLastPage()" [disabled]="isLastPage || isLoading"
+          [title]="'Ir a la última página'">
+          <span class="btn-text">Última</span>
+          <i class="bi bi-chevron-bar-right"></i>
+        </button>
+      </div>
+
+      <!-- Indicador de progreso -->
+      <div *ngIf="totalPages > 1" class="navigation-progress">
+        <div class="progress-bar">
+          <div class="progress-fill" [style.width.%]="((currentPage + 1) / totalPages) * 100"></div>
+        </div>
+        <div class="progress-text">
+          {{ currentPage + 1 }} de {{ totalPages }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Sin resultados -->
+    <div *ngIf="!hasResults && !isLoading" class="no-results-message">
+      <i class="bi bi-inbox"></i>
+      <span>No se encontraron registros</span>
+    </div>
+
+    <!-- Botón de salto rápido móvil -->
+    <button *ngIf="showJumpToPage && isMobile && hasResults" class="mobile-jump-btn" (click)="toggleJumpInput()"
+      [title]="'Ir a página específica'">
+      <i class="bi bi-arrow-up-right-square"></i>
+      <span>Ir a</span>
+    </button>
+  </div>
+
+  <!-- Modal de salto a página para móvil -->
+  <div *ngIf="showJumpInput && isMobile" class="mobile-jump-modal">
+    <div class="modal-backdrop" (click)="closeMobileModal()"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-icon">
+          <i class="bi bi-file-text"></i>
+        </div>
+        <h6 class="modal-title">Navegar a página</h6>
+        <button type="button" class="btn-close" (click)="closeMobileModal()" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <div class="page-input-group">
+          <div class="input-label">
+            <span>Introduce el número de página</span>
+            <span class="page-range">(1 - {{ totalPages }})</span>
+          </div>
+          <div class="input-wrapper">
+            <input type="number" class="form-control" [(ngModel)]="jumpToPage" (keydown.enter)="jumpToSpecificPage()"
+              [min]="1" [max]="totalPages" placeholder="Ej. 5" autofocus>
+            <div class="input-actions">
+              <button class="btn-go" (click)="jumpToSpecificPage()"
+                [disabled]="!jumpToPage || jumpToPage < 1 || jumpToPage > totalPages">
+                <i class="bi bi-check-lg"></i>
+                <span>Ir</span>
+              </button>
+            </div>
+          </div>
+          <div class="quick-actions">
+            <button class="quick-btn" (click)="jumpToPage = 1">
+              <i class="bi bi-chevron-bar-left"></i>
+              <span>Primera</span>
+            </button>
+            <button class="quick-btn" (click)="jumpToPage = totalPages">
+              <i class="bi bi-chevron-bar-right"></i>
+              <span>Última</span>
+            </button>
+            <button class="quick-btn" (click)="jumpToPage = Math.max(1, Math.floor(totalPages / 2))">
+              <i class="bi bi-dash-lg"></i>
+              <span>Mitad</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closeMobileModal()">
+          <i class="bi bi-x-lg"></i>
+          <span>Cancelar</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
