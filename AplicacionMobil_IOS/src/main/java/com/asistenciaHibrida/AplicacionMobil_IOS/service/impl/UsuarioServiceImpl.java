@@ -68,4 +68,11 @@ public class UsuarioServiceImpl implements UsuarioService {
         Usuario usuario = buscarPorId(id);
         usuarioRepository.delete(usuario);
     }
+
+    @Override
+    public Usuario login(String username, String password) {
+        return usuarioRepository.findByUsername(username)
+                .filter(u -> u.getPassword().equals(password))
+                .orElseThrow(() -> new RuntimeException("Credenciales inválidas"));
+    }
 }

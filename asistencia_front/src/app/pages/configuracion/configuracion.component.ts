@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ThemeService, ThemeColors } from '../../services/theme.service';
 import { NotificationService } from '../../services/notification.service';
 import { FormsModule } from '@angular/forms';
+import { ConfiguracionService } from '../../services/configuracion.service';
 
 @Component({
   selector: 'app-configuracion',
@@ -31,9 +32,17 @@ import { FormsModule } from '@angular/forms';
                   <div class="nav-icon-circle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg></div>
                   <span>Apariencia</span>
                </button>
-               <button class="config-nav-item" [class.active]="activeTab === 'geolocalizacion'" (click)="activeTab = 'geolocalizacion'">
+               <button class="config-nav-item" [class.active]="activeTab === 'presencial'" (click)="activeTab = 'presencial'">
+                  <div class="nav-icon-circle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg></div>
+                  <span>Presencial / Híbrido</span>
+               </button>
+               <button class="config-nav-item" [class.active]="activeTab === 'remoto'" (click)="activeTab = 'remoto'; loadRemotoData()">
+                  <div class="nav-icon-circle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg></div>
+                  <span>Virtual / Remoto</span>
+               </button>
+               <button class="config-nav-item" [class.active]="activeTab === 'terreno'" (click)="activeTab = 'terreno'; loadTerrenoData()">
                   <div class="nav-icon-circle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg></div>
-                  <span>Geolocalización</span>
+                  <span>Terreno (Campo)</span>
                </button>
                <button class="config-nav-item" [class.active]="activeTab === 'avanzado'" (click)="activeTab = 'avanzado'">
                   <div class="nav-icon-circle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></div>
@@ -150,17 +159,17 @@ import { FormsModule } from '@angular/forms';
             </div>
           </div>
 
-          <!-- SECCION GEOLOCALIZACION -->
-          <div *ngIf="activeTab === 'geolocalizacion'" class="animate-fade">
+          <!-- SECCION PRESENCIAL -->
+          <div *ngIf="activeTab === 'presencial'" class="animate-fade">
              <div class="glass-card main-list-card p-5">
                <div class="row align-items-center mb-5 pb-3 border-bottom">
                   <div class="col-md-9">
-                    <h4 class="fw-bold mb-1">Parámetros de Geovalla</h4>
-                    <p class="text-secondary opacity-75">Configura el punto geográfico central de marcación y su perímetro de tolerancia permitido.</p>
+                    <h4 class="fw-bold mb-1">Parámetros Oficina Principal</h4>
+                    <p class="text-secondary opacity-75">Configura el punto central de asistencia para trabajadores presenciales e híbridos.</p>
                   </div>
                   <div class="col-md-3 text-md-end">
                      <button class="btn btn-primary-grad px-4 shadow" (click)="saveGeo()">
-                        Actualizar GPS
+                        Actualizar Oficina
                      </button>
                   </div>
                </div>
@@ -170,26 +179,26 @@ import { FormsModule } from '@angular/forms';
                     <div class="row g-4">
                       <div class="col-md-6">
                          <div class="form-field">
-                           <label class="small fw-bold text-uppercase ls-1 text-muted mb-2">Latitud Central</label>
+                           <label class="small fw-bold text-uppercase ls-1 text-muted mb-2">Latitud Oficina</label>
                            <div class="input-with-icon">
                               <svg class="field-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path></svg>
-                              <input type="number" [(ngModel)]="geoConfig.latitude" class="form-input-base ps-5" step="any">
+                              <input type="number" [(ngModel)]="geoConfig.officeLat" class="form-input-base ps-5" step="any">
                            </div>
                          </div>
                       </div>
                       <div class="col-md-6">
                          <div class="form-field">
-                           <label class="small fw-bold text-uppercase ls-1 text-muted mb-2">Longitud Central</label>
+                           <label class="small fw-bold text-uppercase ls-1 text-muted mb-2">Longitud Oficina</label>
                            <div class="input-with-icon">
                               <svg class="field-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"></path></svg>
-                              <input type="number" [(ngModel)]="geoConfig.longitude" class="form-input-base ps-5" step="any">
+                              <input type="number" [(ngModel)]="geoConfig.officeLng" class="form-input-base ps-5" step="any">
                            </div>
                          </div>
                       </div>
                       <div class="col-12 mt-4">
                          <div class="form-field">
                            <div class="d-flex justify-content-between align-items-center mb-3">
-                              <label class="small fw-bold text-uppercase ls-1 text-muted">Radio de Acción (Metros)</label>
+                              <label class="small fw-bold text-uppercase ls-1 text-muted">Radio Permitido (Metros)</label>
                               <span class="badge-pill">{{ geoConfig.radius }}m</span>
                            </div>
                            <div class="p-4 bg-deep rounded-4 border">
@@ -205,23 +214,105 @@ import { FormsModule } from '@angular/forms';
                     </div>
                   </div>
                   <div class="col-lg-5">
-                    <div class="status-card-geo p-4 rounded-4 h-100">
-                       <h6 class="fw-bold mb-4">Ayuda de Configuración</h6>
-                       <div class="d-flex gap-3 mb-4">
-                          <div class="icon-circle-box blur-blue"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></div>
-                          <p class="small text-secondary mb-0">El radio recomendado para oficinas es de entre <strong>30m y 50m</strong>.</p>
-                       </div>
-                       <div class="d-flex gap-3 mb-4">
-                          <div class="icon-circle-box blur-cyan"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg></div>
-                          <p class="small text-secondary mb-0">Usa el botón de detección para obtener las coordenadas si te encuentras en el punto físico.</p>
-                       </div>
-                       <button class="btn btn-outline-primary btn-sm w-100 rounded-pill py-2 mt-auto" (click)="detectLocation()">
+                     <div class="status-card-geo p-4 rounded-4 h-100">
+                       <h6 class="fw-bold mb-4">Herramientas</h6>
+                       <button class="btn btn-outline-primary btn-sm w-100 rounded-pill py-2 mb-3" (click)="detectLocation()">
                           Detectar mi posición real ahora
                        </button>
-                    </div>
+                       <p class="small text-muted mt-3">Utiliza esto si estás configurando la oficina desde el lugar físico.</p>
+                     </div>
                   </div>
                </div>
              </div>
+          </div>
+
+          <!-- SECCION REMOTO -->
+          <div *ngIf="activeTab === 'remoto'" class="animate-fade">
+            <div class="glass-card main-list-card p-5">
+              <header class="mb-5 border-bottom pb-3">
+                 <h4 class="fw-bold mb-1">Gestión de Marcación Virtual</h4>
+                 <p class="text-secondary opacity-75">Monitoreo de coordenadas registradas por trabajadores remotos.</p>
+              </header>
+
+              <div class="table-responsive">
+                 <table class="table table-custom align-middle">
+                   <thead>
+                     <tr>
+                       <th>Trabajador</th>
+                       <th>Coordenadas Registradas</th>
+                       <th>Estado</th>
+                       <th class="text-end">Acciones</th>
+                     </tr>
+                   </thead>
+                   <tbody>
+                     <tr *ngFor="let t of trabajadoresRemotos">
+                       <td>
+                         <div class="fw-bold">{{ t.nombres }} {{ t.apellidos }}</div>
+                         <div class="small text-muted">{{ t.email }}</div>
+                       </td>
+                       <td>
+                         <span class="badge bg-light text-dark border" *ngIf="t.latitudVirtual">
+                            {{ t.latitudVirtual | number:'1.4-4' }}, {{ t.longitudVirtual | number:'1.4-4' }}
+                         </span>
+                       </td>
+                       <td>
+                          <span class="status-pill online">REGISTRADO</span>
+                       </td>
+                       <td class="text-end">
+                          <button class="btn btn-soft-danger btn-sm rounded-pill px-3" (click)="resetRemoto(t.id)">
+                             Resetear Ubicación
+                          </button>
+                       </td>
+                     </tr>
+                     <tr *ngIf="trabajadoresRemotos.length === 0">
+                        <td colspan="4" class="text-center py-5 text-muted">No hay trabajadores con ubicación remota registrada aún.</td>
+                     </tr>
+                   </tbody>
+                 </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECCION TERRENO -->
+          <div *ngIf="activeTab === 'terreno'" class="animate-fade">
+            <div class="glass-card main-list-card p-5">
+              <header class="mb-5 border-bottom pb-3">
+                 <h4 class="fw-bold mb-1">Puntos Dynamic (Terreno)</h4>
+                 <p class="text-secondary opacity-75">Última ubicación establecida por los líderes de campo.</p>
+              </header>
+
+              <div *ngIf="puntoTerrenoActual" class="terrain-status-box p-4 rounded-4 border bg-deep">
+                 <div class="row align-items-center">
+                   <div class="col-md-2 text-center border-end">
+                      <div class="icon-circle-box blur-blue mx-auto mb-2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path></svg></div>
+                      <span class="small fw-bold">Punto Activo</span>
+                   </div>
+                   <div class="col-md-6 px-4">
+                      <h5 class="fw-bold mb-1">{{ puntoTerrenoActual.nombreUbicacion }}</h5>
+                      <p class="mb-2 text-primary fw-semibold">{{ puntoTerrenoActual.latitud }}, {{ puntoTerrenoActual.longitud }}</p>
+                      <div class="small text-muted">
+                         Actualizado el: {{ puntoTerrenoActual.fechaActualizacion | date:'medium' }}
+                      </div>
+                   </div>
+                   <div class="col-md-4 text-md-end">
+                      <div class="small text-muted mb-1">Establecido por:</div>
+                      <div class="fw-bold fs-5">{{ puntoTerrenoActual.actualizadoPor?.nombres }} {{ puntoTerrenoActual.actualizadoPor?.apellidos }}</div>
+                   </div>
+                 </div>
+              </div>
+
+               <div *ngIf="!puntoTerrenoActual" class="text-center py-5">
+                  <p class="text-muted">No hay puntos de terreno registrados actualmente.</p>
+               </div>
+
+              <div class="mt-5 p-4 bg-soft-primary rounded-4 border">
+                 <h6 class="fw-bold mb-3 d-flex align-items-center">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                    ¿Cómo funciona el modo Terreno?
+                 </h6>
+                 <p class="small text-secondary mb-0">Los trabajadores asignados a modalidad **Terreno** solo pueden marcar asistencia si se encuentran dentro del radio permitido respecto a la ubicación establecida por el **Jefe de Terreno**. Esta ubicación es dinámica y puede ser actualizada en cualquier momento por el líder desde su App móvil.</p>
+              </div>
+            </div>
           </div>
 
           <!-- SECCION AVANZADO (SEGURIDAD/QR) -->
@@ -262,15 +353,6 @@ import { FormsModule } from '@angular/forms';
                          </div>
                       </div>
                    </div>
-                   <div class="col-12 mt-4 px-4 py-3 bg-soft-warning border-dashed rounded-4">
-                      <div class="d-flex gap-3 align-items-center">
-                         <div class="alert-icon-circle bg-warning text-white">!</div>
-                         <div>
-                            <span class="d-block fw-bold small">Nota de Administración</span>
-                            <p class="extra-small mb-0 opacity-75">Cualquier cambio en los protocolos de encriptación o tiempos de refresco afectarán a todos los nodos conectados actualmente.</p>
-                         </div>
-                      </div>
-                   </div>
                 </div>
              </div>
           </div>
@@ -281,7 +363,6 @@ import { FormsModule } from '@angular/forms';
   styles: [`
     .ls-1 { letter-spacing: 0.1rem; }
     .extra-small { font-size: 0.7rem; }
-    .ls-1 { letter-spacing: 0.1rem; }
     
     .icon-box-primary {
       padding: 12px; background: var(--grad-main); color: white;
@@ -294,7 +375,6 @@ import { FormsModule } from '@angular/forms';
       box-shadow: var(--shadow-xl); background: var(--bg-surface);
     }
 
-    /* Side Nav Interior */
     .config-nav { display: flex; flex-direction: column; gap: 8px; }
     .config-nav-item {
       display: flex; align-items: center; gap: 15px; padding: 12px 16px;
@@ -316,7 +396,6 @@ import { FormsModule } from '@angular/forms';
     }
     .active .nav-icon-circle { background: var(--grad-main); color: white; border-color: transparent; }
 
-    /* Theme Section */
     .theme-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 20px; }
     .theme-option-card {
       cursor: pointer; display: flex; flex-direction: column; gap: 10px;
@@ -339,7 +418,6 @@ import { FormsModule } from '@angular/forms';
     }
     .color-hex { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; font-weight: 600; color: var(--text-muted); }
 
-    /* Preview Section */
     .preview-stage { background: var(--bg-deep); border: 1px solid var(--glass-border); }
     .preview-header { border-bottom: 1px solid var(--glass-border); display: flex; align-items: center; }
     .p-circle { width: 8px; height: 8px; border-radius: 50%; }
@@ -354,7 +432,6 @@ import { FormsModule } from '@angular/forms';
     }
     .glow-effect { position: absolute; inset: 0; pointer-events: none; }
 
-    /* Geo Section */
     .input-with-icon { position: relative; width: 100%; }
     .field-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--accent-primary); opacity: 0.7; }
     .custom-range::-webkit-slider-thumb { background: var(--accent-primary); }
@@ -366,7 +443,6 @@ import { FormsModule } from '@angular/forms';
     .blur-blue { background: rgba(37,99,235,0.25); color: #3b82f6; }
     .blur-cyan { background: rgba(6,182,212,0.25); color: #0891b2; }
 
-    /* Advanced section */
     .settings-premium-box {
        padding: 30px; background: var(--bg-deep); border-radius: 20px; border: 1.5px solid var(--glass-border);
        transition: all 0.3s ease; height: 100%;
@@ -378,7 +454,6 @@ import { FormsModule } from '@angular/forms';
     .bg-primary-grad-mini { background: var(--grad-main); color: white; font-size: 0.6rem; }
     .status-indicator { display: inline-flex; align-items: center; gap: 6px; font-size: 0.65rem; font-weight: 800; }
     .status-indicator.online::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #10b981; }
-    .alert-icon-circle { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; }
     .bg-soft-warning { background: rgba(245,158,11,0.05); color: #d97706; }
 
     .btn-primary-grad {
@@ -386,6 +461,17 @@ import { FormsModule } from '@angular/forms';
       border-radius: 14px; font-weight: 700; transition: all 0.3s ease;
     }
     .btn-primary-grad:hover { transform: translateY(-2px); filter: brightness(1.1); }
+
+    .table-custom { border-collapse: separate; border-spacing: 0 10px; }
+    .table-custom tr { background: var(--bg-deep); transition: all 0.2s; }
+    .table-custom td { border: none; padding: 15px; border-top: 1px solid var(--glass-border); border-bottom: 1px solid var(--glass-border); }
+    .table-custom td:first-child { border-left: 1px solid var(--glass-border); border-radius: 15px 0 0 15px; }
+    .table-custom td:last-child { border-right: 1px solid var(--glass-border); border-radius: 0 15px 15px 0; }
+    
+    .status-pill { padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 800; }
+    .status-pill.online { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+
+    .terrain-status-box { background: rgba(37, 99, 235, 0.03); }
   `]
 })
 export class ConfiguracionComponent implements OnInit {
@@ -408,9 +494,14 @@ export class ConfiguracionComponent implements OnInit {
     isDark: false
   };
 
+  geoConfig: any = { officeLat: -12.046374, officeLng: -77.042793, radius: 50 };
+  trabajadoresRemotos: any[] = [];
+  puntoTerrenoActual: any = null;
+
   constructor(
     private themeService: ThemeService,
-    private notify: NotificationService
+    private notify: NotificationService,
+    private configService: ConfiguracionService
   ) { }
 
   ngOnInit(): void {
@@ -431,12 +522,38 @@ export class ConfiguracionComponent implements OnInit {
     this.notify.success('Configuración personalizada de Layout guardada');
   }
 
-  // --- GPS CONFIG LOGIC ---
-  geoConfig = { latitude: -12.046374, longitude: -77.042793, radius: 50 };
+  // --- LOGIC FOR TABS ---
+  loadGeoConfig(): void {
+    this.configService.obtener().subscribe({
+      next: (data) => this.geoConfig = data,
+      error: () => this.notify.error('Error al cargar parámetros GPS')
+    });
+  }
 
-  private loadGeoConfig(): void {
-    const saved = localStorage.getItem('async_geo_config');
-    if (saved) this.geoConfig = JSON.parse(saved);
+  loadRemotoData(): void {
+    this.configService.getRemotoTrabajadores().subscribe({
+      next: (data) => this.trabajadoresRemotos = data,
+      error: () => this.notify.error('Error al cargar datos remotos')
+    });
+  }
+
+  loadTerrenoData(): void {
+    this.configService.getTerreno().subscribe({
+      next: (data) => this.puntoTerrenoActual = data,
+      error: () => this.puntoTerrenoActual = null
+    });
+  }
+
+  resetRemoto(id: number): void {
+    if (confirm('¿Estás seguro de resetear la ubicación de este trabajador? Deberá registrarla nuevamente en su próximo ingreso.')) {
+      this.configService.resetUbicacionVirtual(id).subscribe({
+        next: () => {
+          this.notify.success('Ubicación reseteada');
+          this.loadRemotoData();
+        },
+        error: () => this.notify.error('No se pudo resetear la ubicación')
+      });
+    }
   }
 
   detectLocation(): void {
@@ -448,8 +565,8 @@ export class ConfiguracionComponent implements OnInit {
     this.notify.info('Solicitando ubicación...');
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        this.geoConfig.latitude = pos.coords.latitude;
-        this.geoConfig.longitude = pos.coords.longitude;
+        this.geoConfig.officeLat = pos.coords.latitude;
+        this.geoConfig.officeLng = pos.coords.longitude;
         this.notify.success('Ubicación detectada correctamente');
       },
       () => this.notify.error('No se pudo obtener la ubicación. Verifique permisos.')
@@ -457,7 +574,9 @@ export class ConfiguracionComponent implements OnInit {
   }
 
   saveGeo(): void {
-    localStorage.setItem('async_geo_config', JSON.stringify(this.geoConfig));
-    this.notify.success('Parámetros de geovalla actualizados');
+    this.configService.actualizar(this.geoConfig).subscribe({
+      next: () => this.notify.success('Parámetros actualizados en el servidor'),
+      error: () => this.notify.error('No se pudo guardar la configuración GPS')
+    });
   }
 }

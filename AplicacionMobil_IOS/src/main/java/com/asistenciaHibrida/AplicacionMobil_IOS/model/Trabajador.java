@@ -41,4 +41,20 @@ public class Trabajador {
 
     @Column(nullable = false)
     private Boolean activo = true;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "modalidad_id")
+    private Modalidad modalidad;
+
+    @Column(name = "es_jefe_terreno")
+    private Boolean esJefeTerreno = false;
+
+    @Column(name = "latitud_virtual", precision = 10, scale = 8)
+    private java.math.BigDecimal latitudVirtual;
+
+    @Column(name = "longitud_virtual", precision = 11, scale = 8)
+    private java.math.BigDecimal longitudVirtual;
+
+    @Column(name = "dias_presencial", length = 50)
+    private String diasPresencial;
 }

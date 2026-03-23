@@ -55,9 +55,9 @@ import { CommonModule } from '@angular/common';
     }
 
     .content-wrapper {
-      max-width: 1400px;
       width: 100%;
-      margin: 0 auto;
+      margin: 0;
+      padding: 0 1rem;
     }
 
     .mobile-backdrop {

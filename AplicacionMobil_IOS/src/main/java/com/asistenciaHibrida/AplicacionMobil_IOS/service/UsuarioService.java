@@ -12,4 +12,5 @@ public interface UsuarioService {
     Usuario guardar(Usuario usuario);
     Usuario buscarPorId(Integer id);
     void eliminar(Integer id);
+    Usuario login(String username, String password);
 }

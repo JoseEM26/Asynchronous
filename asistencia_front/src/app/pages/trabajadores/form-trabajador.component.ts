@@ -2,6 +2,8 @@ import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TrabajadorRequest, TrabajadorResponse } from '../../models/trabajador.interface';
+import { ModalidadService } from '../../services/modalidad.service';
+import { ModalidadResponse } from '../../models/modalidad.interface';
 
 @Component({
   selector: 'app-form-trabajador',
@@ -20,6 +22,7 @@ import { TrabajadorRequest, TrabajadorResponse } from '../../models/trabajador.i
         <form [formGroup]="form" (ngSubmit)="onSubmit()">
           <div class="modal-body-base">
             <div class="row g-4">
+              <!-- Datos Personales -->
               <div class="col-md-6 form-field">
                 <label class="form-label-base">Nombres</label>
                 <input type="text" formControlName="nombres" class="form-input-base" placeholder="Ej: Juan">
@@ -36,22 +39,54 @@ import { TrabajadorRequest, TrabajadorResponse } from '../../models/trabajador.i
                 <div *ngIf="showError('dni')" class="form-error-base">DNI inválido (8 números)</div>
               </div>
               <div class="col-md-8 form-field">
-                <label class="form-label-base">Email Personal / Corporativo</label>
+                <label class="form-label-base">Email Corporativo</label>
                 <input type="email" formControlName="email" class="form-input-base" placeholder="usuario@ejemplo.com">
                 <div *ngIf="showError('email')" class="form-error-base">Ingrese un email válido</div>
               </div>
+
+              <!-- Configuración de Modalidad -->
+              <div class="col-12 mt-2">
+                <div class="p-3 bg-deep rounded-4 border">
+                  <h6 class="fw-bold mb-3 text-primary">Esquema de Trabajo</h6>
+                  <div class="row g-3">
+                    <div class="col-md-6 form-field">
+                      <label class="form-label-base">Modalidad</label>
+                      <select formControlName="modalidadId" class="form-input-base">
+                        <option [ngValue]="null" disabled>Seleccione modalidad...</option>
+                        <option *ngFor="let mod of modalidades" [value]="mod.id">{{ mod.nombre }}</option>
+                      </select>
+                    </div>
+
+                    <!-- Condicional para Híbrido -->
+                    <div class="col-md-6 form-field" *ngIf="form.get('modalidadId')?.value == 3">
+                      <label class="form-label-base">Días Presencial</label>
+                      <input type="text" formControlName="diasPresencial" class="form-input-base" placeholder="Ej: Lunes, Miércoles">
+                    </div>
+
+                    <!-- Condicional para Terreno -->
+                    <div class="col-md-6 d-flex align-items-end" *ngIf="form.get('modalidadId')?.value == 4">
+                       <label class="d-flex align-items-center gap-2 cursor-pointer pb-2">
+                          <input type="checkbox" formControlName="esJefeTerreno" class="form-check-input mt-0" style="width: 20px; height: 20px;">
+                          <span class="form-label-base mb-0" style="text-transform: none;">Este trabajador es <b>Jefe de Terreno</b></span>
+                       </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <div class="col-md-6 form-field">
-                <label class="form-label-base">Teléfono de contacto</label>
+                <label class="form-label-base">Teléfono</label>
                 <input type="text" formControlName="telefono" class="form-input-base" placeholder="Ej: 987654321">
               </div>
               <div class="col-md-6 form-field">
-                <label class="form-label-base">Área o Departamento</label>
+                <label class="form-label-base">Área / Cargo</label>
                 <input type="text" formControlName="direccion" class="form-input-base" placeholder="Ej: Operaciones">
               </div>
+              
               <div class="col-12">
                 <label class="d-flex align-items-center gap-2 cursor-pointer">
                   <input type="checkbox" formControlName="activo" class="form-check-input mt-0" style="width: 18px; height: 18px;">
-                  <span class="form-label-base mb-0" style="text-transform: none;">Trabajador con acceso activo</span>
+                  <span class="form-label-base mb-0" style="text-transform: none;">Trabajador con acceso activo al sistema</span>
                 </label>
               </div>
             </div>
@@ -93,6 +128,7 @@ import { TrabajadorRequest, TrabajadorResponse } from '../../models/trabajador.i
     .btn-light { background: #e2e8f0; color: #475569; }
     .btn-light:hover { background: #cbd5e1; }
     .cursor-pointer { cursor: pointer; }
+    .form-error-base { color: var(--accent-danger); font-size: 0.75rem; margin-top: 4px; }
   `]
 
 })
@@ -103,8 +139,12 @@ export class FormTrabajadorComponent implements OnInit {
   @Output() save = new EventEmitter<TrabajadorRequest>();
 
   form: FormGroup;
+  modalidades: ModalidadResponse[] = [];
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private modalidadService: ModalidadService
+  ) {
     this.form = this.fb.group({
       nombres: ['', Validators.required],
       apellidos: ['', Validators.required],
@@ -112,14 +152,25 @@ export class FormTrabajadorComponent implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       telefono: [''],
       direccion: [''],
-      activo: [true]
+      activo: [true],
+      modalidadId: [null, Validators.required],
+      esJefeTerreno: [false],
+      diasPresencial: ['']
     });
   }
 
   ngOnInit(): void {
+    this.loadModalidades();
     if (this.editData) {
       this.form.patchValue(this.editData);
     }
+  }
+
+  loadModalidades(): void {
+    this.modalidadService.listar().subscribe({
+      next: (data) => this.modalidades = data,
+      error: (err) => console.error('Error cargando modalidades', err)
+    });
   }
 
   showError(control: string): boolean {
@@ -129,7 +180,10 @@ export class FormTrabajadorComponent implements OnInit {
 
   onSubmit(): void {
     if (this.form.valid) {
-      this.save.emit(this.form.value);
+      const payload = { ...this.form.value };
+      // Ajuste de tipos si es necesario
+      if (payload.modalidadId) payload.modalidadId = Number(payload.modalidadId);
+      this.save.emit(payload);
     }
   }
 

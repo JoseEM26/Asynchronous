@@ -1,29 +1,40 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface GeoConfig {
-  latitude: number;
-  longitude: number;
-  radius: number; // in meters
+  id?: number;
+  officeLat: number;
+  officeLng: number;
+  radius: number;
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class ConfiguracionService {
-  private readonly STORAGE_KEY = 'async_geo_config';
+  private apiUrl = `${environment.apiUrl}/configuracion`;
 
-  private defaultConfig: GeoConfig = {
-    latitude: -12.046374, // Lima default
-    longitude: -77.042793,
-    radius: 50 // 50 meters
-  };
+  constructor(private http: HttpClient) { }
 
-  getGeoConfig(): GeoConfig {
-    const saved = localStorage.getItem(this.STORAGE_KEY);
-    return saved ? JSON.parse(saved) : this.defaultConfig;
+  obtener(): Observable<any> {
+    return this.http.get<any>(this.apiUrl);
   }
 
-  saveGeoConfig(config: GeoConfig): void {
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(config));
+  actualizar(config: any): Observable<any> {
+    return this.http.put<any>(this.apiUrl, config);
+  }
+
+  getTerreno(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/terreno`);
+  }
+
+  getRemotoTrabajadores(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/remoto/trabajadores`);
+  }
+
+  resetUbicacionVirtual(id: number): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/remoto/trabajador/${id}`);
   }
 }

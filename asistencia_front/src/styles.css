@@ -28,22 +28,24 @@
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-2xl: 0 35px 60px -15px rgba(0, 0, 0, 0.3);
 
   /* Gradients */
-  --grad-main: linear-gradient(135deg, var(--accent-primary), #1d4ed8);
+  --grad-main: linear-gradient(135deg, var(--accent-primary), #4f46e5);
   /* Deeper Blue */
-  --grad-surface: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  --grad-surface: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
 
   /* Dimensions */
-  --sidebar-width: 280px;
+  --sidebar-width: 290px;
   --sidebar-mini-width: 80px;
-  --header-height: 72px;
-  --border-radius-lg: 16px;
-  --border-radius-md: 12px;
-  --border-radius-sm: 8px;
+  --header-height: 80px;
+  --border-radius-lg: 24px;
+  --border-radius-md: 16px;
+  --border-radius-sm: 12px;
 
-  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-fast: all 0.15s ease;
+  --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: all 0.2s ease;
 }
 
 /* Dark Theme - High Quality */
@@ -172,35 +174,37 @@ body::after {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.6); /* Slightly darker for better focus */
-  backdrop-filter: blur(12px); /* Higher blur for premium feel */
-  -webkit-backdrop-filter: blur(12px);
-  z-index: 9999; /* Make sure it's above everything */
+  background: radial-gradient(circle at center, rgba(15, 23, 42, 0.5) 0%, rgba(15, 23, 42, 0.8) 100%);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  z-index: 9999;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1.5rem;
-  animation: fadeIn 0.3s ease-out;
+  padding: 2rem;
+  animation: fadeIn 0.4s ease-out;
 }
 
 .modal-panel {
   width: 100%;
-  max-width: 650px; /* Slightly wider */
+  max-width: 800px;
+  /* Wider for better data layout */
   background: var(--bg-surface);
   border: 1px solid var(--glass-border);
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
-  border-radius: 20px;
+  box-shadow: var(--shadow-2xl);
+  border-radius: var(--border-radius-lg);
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  animation: modalIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation: modalIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 @keyframes modalIn {
   from {
-    transform: scale(0.9) translateY(20px);
+    transform: scale(0.95) translateY(30px);
     opacity: 0;
   }
+
   to {
     transform: scale(1) translateY(0);
     opacity: 1;
@@ -220,7 +224,10 @@ body::after {
 .modal-header-base::after {
   content: '';
   position: absolute;
-  bottom: 0; left: 0; width: 40px; height: 3px;
+  bottom: 0;
+  left: 0;
+  width: 40px;
+  height: 3px;
   background: var(--grad-main);
   border-radius: 3px 3px 0 0;
 }

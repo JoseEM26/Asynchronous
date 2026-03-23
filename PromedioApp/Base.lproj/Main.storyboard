@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24504"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--Promedio View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="PromedioViewController" customModule="PromedioApp" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Calculador de Promedio" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pqv-DB-B98">
+                                <rect key="frame" x="24" y="177" width="345" height="33"/>
+                                <fontDescription key="fontDescription" name="ArialRoundedMTBold" family="Arial Rounded MT Bold" pointSize="28"/>
+                                <color key="textColor" name="AccentColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Resultado aqui:" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6MK-vb-u4A">
+                                <rect key="frame" x="16" y="530" width="345" height="12"/>
+                                <fontDescription key="fontDescription" type="italicSystem" pointSize="10"/>
+                                <color key="textColor" name="AccentColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Ingresa Nota 1:" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="QDs-0G-Br6">
+                                <rect key="frame" x="24" y="294" width="345" height="34"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
+                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Ingresa Nota 2:" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="8MB-lg-j1h">
+                                <rect key="frame" x="24" y="358" width="345" height="34"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
+                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Ingresa tu nombre:" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="LCa-aZ-OSP">
+                                <rect key="frame" x="24" y="237" width="345" height="34"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
+                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Nota3:" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="MrT-Io-OGB">
+                                <rect key="frame" x="32" y="634" width="329" height="34"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ltb-6s-dUg">
+                                <rect key="frame" x="32" y="431" width="329" height="35"/>
+                                <color key="tintColor" systemColor="systemBlueColor"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="filled" title="Calcular Promedio"/>
+                                <connections>
+                                    <action selector="btnCalcularPromedio:" destination="BYZ-38-t0r" eventType="touchUpInside" id="V17-H5-sy4"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="MrT-Io-OGB" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="32" id="49o-6H-xtP"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="pqv-DB-B98" secondAttribute="trailing" constant="24" id="4QD-VS-Dgb"/>
+                            <constraint firstItem="6MK-vb-u4A" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="DcC-TE-XDq"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="ltb-6s-dUg" secondAttribute="trailing" constant="32" id="Dn6-MN-dO5"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="LCa-aZ-OSP" secondAttribute="trailing" constant="24" id="KeI-PY-bxl"/>
+                            <constraint firstItem="QDs-0G-Br6" firstAttribute="top" secondItem="LCa-aZ-OSP" secondAttribute="bottom" constant="23" id="NC6-mT-Xir"/>
+                            <constraint firstItem="pqv-DB-B98" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="24" id="Ns5-bq-Vqs"/>
+                            <constraint firstItem="LCa-aZ-OSP" firstAttribute="top" secondItem="pqv-DB-B98" secondAttribute="bottom" constant="27" id="O66-Cs-WtT"/>
+                            <constraint firstItem="ltb-6s-dUg" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="32" id="Tf9-eK-Ovk"/>
+                            <constraint firstItem="QDs-0G-Br6" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="24" id="YBo-lo-FvK"/>
+                            <constraint firstItem="6MK-vb-u4A" firstAttribute="top" secondItem="ltb-6s-dUg" secondAttribute="bottom" constant="64" id="YSH-cv-P1Y"/>
+                            <constraint firstItem="MrT-Io-OGB" firstAttribute="top" secondItem="6MK-vb-u4A" secondAttribute="bottom" constant="92" id="ZeH-wc-Uxi"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="6MK-vb-u4A" secondAttribute="trailing" constant="32" id="a68-qG-ITc"/>
+                            <constraint firstItem="8MB-lg-j1h" firstAttribute="top" secondItem="QDs-0G-Br6" secondAttribute="bottom" constant="30" id="bIV-Ah-Sq9"/>
+                            <constraint firstItem="pqv-DB-B98" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="59" id="cXc-I7-gF5"/>
+                            <constraint firstItem="LCa-aZ-OSP" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="24" id="efq-i2-d4i"/>
+                            <constraint firstItem="ltb-6s-dUg" firstAttribute="top" secondItem="8MB-lg-j1h" secondAttribute="bottom" constant="39" id="h8A-uB-HK1"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="8MB-lg-j1h" secondAttribute="trailing" constant="24" id="hCu-DA-lxs"/>
+                            <constraint firstItem="8MB-lg-j1h" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="24" id="nhf-Cw-Sc5"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="MrT-Io-OGB" secondAttribute="trailing" constant="32" id="tIx-ez-8F4"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="QDs-0G-Br6" secondAttribute="trailing" constant="24" id="zX2-hW-0aV"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="lblResultado" destination="6MK-vb-u4A" id="WsB-OZ-aqn"/>
+                        <outlet property="txtNombre" destination="LCa-aZ-OSP" id="NEa-B8-fy8"/>
+                        <outlet property="txtNota1" destination="QDs-0G-Br6" id="KE7-0o-obV"/>
+                        <outlet property="txtNota2" destination="8MB-lg-j1h" id="Jvq-ZA-sAV"/>
+                        <outlet property="txtNota3" destination="MrT-Io-OGB" id="Frf-zB-znF"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="362.59541984732823" y="90.845070422535215"/>
+        </scene>
+    </scenes>
+    <resources>
+        <namedColor name="AccentColor">
+            <color red="0.0" green="0.46000000000000002" blue="0.89000000000000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+        <systemColor name="systemBlueColor">
+            <color red="0.0" green="0.53333333333333333" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+    </resources>
+</document>

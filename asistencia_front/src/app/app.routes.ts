@@ -7,10 +7,15 @@ import { AsistenciasListComponent } from './pages/asistencias/asistencias-list.c
 import { ConfiguracionComponent } from './pages/configuracion/configuracion.component';
 import { QrAsistenciaComponent } from './pages/asistencias/qr-asistencia.component';
 
+import { LoginComponent } from './pages/login/login.component';
+import { AuthGuard } from './services/auth.guard';
+
 export const routes: Routes = [
+  { path: 'login', component: LoginComponent },
   {
     path: '',
     component: AsynchronousLayoutComponent,
+    canActivate: [AuthGuard],
     children: [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'trabajadores', component: TrabajadoresListComponent },
@@ -21,5 +26,5 @@ export const routes: Routes = [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ]
   },
-  { path: '**', redirectTo: '' }
+  { path: '**', redirectTo: 'login' }
 ];

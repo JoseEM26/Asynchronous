@@ -81,4 +81,32 @@ public class TrabajadorServiceImpl implements TrabajadorService {
         trabajador.setActivo(detalles.getActivo());
         return trabajadorRepository.save(trabajador);
     }
+
+    @Override
+    public void actualizarUbicacionVirtual(Integer trabajadorId, java.math.BigDecimal lat, java.math.BigDecimal lng) {
+        Trabajador t = buscarPorId(trabajadorId);
+        t.setLatitudVirtual(lat);
+        t.setLongitudVirtual(lng);
+        trabajadorRepository.save(t);
+    }
+
+    @Autowired
+    private com.asistenciaHibrida.AplicacionMobil_IOS.repository.PuntoTerrenoRepository puntoTerrenoRepository;
+
+    @Override
+    public void registrarPuntoTerreno(Integer jefeId, java.math.BigDecimal lat, java.math.BigDecimal lng, String nombre) {
+        Trabajador jefe = buscarPorId(jefeId);
+        if (!Boolean.TRUE.equals(jefe.getEsJefeTerreno())) {
+            throw new RuntimeException("El trabajador no tiene permisos de Jefe de Terreno");
+        }
+        
+        com.asistenciaHibrida.AplicacionMobil_IOS.model.PuntoTerreno p = new com.asistenciaHibrida.AplicacionMobil_IOS.model.PuntoTerreno();
+        p.setLatitud(lat);
+        p.setLongitud(lng);
+        p.setActualizadoPor(jefe);
+        p.setFechaActualizacion(java.time.LocalDateTime.now());
+        p.setNombreUbicacion(nombre != null ? nombre : "Ubicación Campo - " + jefe.getNombres());
+        
+        puntoTerrenoRepository.save(p);
+    }
 }

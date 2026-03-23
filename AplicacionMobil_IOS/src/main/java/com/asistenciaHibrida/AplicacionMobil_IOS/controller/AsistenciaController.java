@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
@@ -66,13 +65,42 @@ public class AsistenciaController {
         return mapToPageResponseDTO(pageResponse);
     }
 
+    @Autowired
+    private com.asistenciaHibrida.AplicacionMobil_IOS.service.QrSecureService qrSecureService;
+
+    @PostMapping("/registrar-qr")
+    public ResponseEntity<?> registrarConQr(@RequestBody com.asistenciaHibrida.AplicacionMobil_IOS.dto.request.AsistenciaQrRequestDTO request) {
+        if (!qrSecureService.isValidToken(request.getQrToken())) {
+            return ResponseEntity.status(401).body("QR Token inválido o expirado. Por favor escanee de nuevo.");
+        }
+
+        try {
+            Asistencia.TipoAsistencia tipoEnum = Asistencia.TipoAsistencia.valueOf(request.getTipo().toUpperCase());
+
+            // Si el token es válido, procedemos con el registro normal
+            Asistencia asistencia = asistenciaService.registrarAsistencia(
+                    request.getTrabajadorId(),
+                    null, // La modalidad se detectará automáticamente en el service
+                    tipoEnum,
+                    request.getLatitud(),
+                    request.getLongitud(),
+                    "Registro por código QR móvil");
+            
+            return ResponseEntity.ok(asistenciaMapper.toResponseDTO(asistencia));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Tipo de asistencia inválido (Debe ser ENTRADA o SALIDA)");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error al registrar: " + e.getMessage());
+        }
+    }
+
     @GetMapping("/qr")
     public ResponseEntity<QrResponseDTO> getQrToken() {
         QrResponseDTO response = QrResponseDTO.builder()
-                .token(UUID.randomUUID().toString())
+                .token(qrSecureService.getActiveToken())
                 .timestamp(LocalDateTime.now())
                 .status("ACTIVE")
-                .expiresIn(300)
+                .expiresIn((int) qrSecureService.getSecondsUntilNextRotation())
                 .build();
         return ResponseEntity.ok(response);
     }

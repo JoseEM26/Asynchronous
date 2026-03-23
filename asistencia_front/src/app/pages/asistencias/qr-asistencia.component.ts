@@ -125,14 +125,7 @@ export class QrAsistenciaComponent implements OnInit, OnDestroy {
     
     this.asistenciaService.obtenerQr().subscribe({
       next: (resp) => {
-        const data = JSON.stringify({
-          system: 'ASYNCHRONOUS',
-          token: resp.token,
-          ts: resp.timestamp,
-          source: 'BACKEND'
-        });
-        
-        this.qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(data)}&bgcolor=FFFFFF&color=0F172A&margin=2`;
+        this.qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${resp.token}&bgcolor=FFFFFF&color=0F172A&margin=2`;
         this.lastUpdate = new Date(resp.timestamp);
         this.currentTime = resp.expiresIn || this.totalTime;
         this.isRefreshing = false;

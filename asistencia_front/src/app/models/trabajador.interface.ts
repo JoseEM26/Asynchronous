@@ -7,6 +7,11 @@ export interface TrabajadorRequest {
   direccion: string;
   fechaIngreso: string;
   activo: boolean;
+  modalidadId?: number;
+  esJefeTerreno?: boolean;
+  latitudVirtual?: number;
+  longitudVirtual?: number;
+  diasPresencial?: string;
 }
 
 export interface TrabajadorResponse {
@@ -19,4 +24,9 @@ export interface TrabajadorResponse {
   direccion: string;
   fechaIngreso: string;
   activo: boolean;
+  modalidadId?: number;
+  esJefeTerreno?: boolean;
+  latitudVirtual?: number;
+  longitudVirtual?: number;
+  diasPresencial?: string;
 }

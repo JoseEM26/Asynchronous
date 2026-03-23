@@ -43,8 +43,9 @@ import { FormTrabajadorComponent } from './form-trabajador.component';
                 <tr>
                   <th class="ps-4 py-3 text-uppercase small ls-1">Información Personal</th>
                   <th class="py-3 text-uppercase small ls-1">Identificación</th>
+                  <th class="py-3 text-uppercase small ls-1">Modalidad</th>
                   <th class="py-3 text-uppercase small ls-1 d-none d-lg-table-cell">Contacto</th>
-                  <th class="py-3 text-uppercase small ls-1">Estado de Cuenta</th>
+                  <th class="py-3 text-uppercase small ls-1">Estado</th>
                   <th class="text-end pe-4 py-3 text-uppercase small ls-1">Operaciones</th>
                 </tr>
               </thead>
@@ -54,6 +55,9 @@ import { FormTrabajadorComponent } from './form-trabajador.component';
                     <div class="d-flex align-items-center gap-3 py-1">
                       <div class="avatar-box">
                         <span class="avatar-text">{{ t.nombres ? t.nombres[0] : '?' }}</span>
+                        <div *ngIf="t.esJefeTerreno" class="leader-badge" title="Jefe de Terreno">
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+                        </div>
                       </div>
                       <div class="user-info">
                         <div class="fw-bold text-primary-hover lh-1 mb-1">{{ t.nombres }}</div>
@@ -64,16 +68,22 @@ import { FormTrabajadorComponent } from './form-trabajador.component';
                   <td>
                     <span class="badge-code">{{ t.dni }}</span>
                   </td>
+                  <td>
+                    <div class="modality-badge" [ngClass]="getModalidadClass(t.modalidadId)">
+                      <i [innerHTML]="getModalidadIcon(t.modalidadId)"></i>
+                      <span>{{ getModalidadLabel(t.modalidadId) }}</span>
+                    </div>
+                  </td>
                   <td class="d-none d-lg-table-cell">
                     <div class="d-flex flex-column">
                       <span class="small fw-semibold">{{ t.email }}</span>
-                      <span class="text-muted extra-small">Corporativo / Personal</span>
+                      <span class="text-muted extra-small">Email Laboral</span>
                     </div>
                   </td>
                   <td>
                     <div class="status-pill" [class.active]="t.activo">
                       <span class="status-dot"></span>
-                      {{ t.activo ? 'Vigente' : 'Suspendido' }}
+                      {{ t.activo ? 'Vigente' : 'Inactivo' }}
                     </div>
                   </td>
                   <td class="text-end pe-4">
@@ -197,6 +207,24 @@ import { FormTrabajadorComponent } from './form-trabajador.component';
       z-index: 100;
     }
 
+    .modality-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 10px; border-radius: 8px; font-size: 0.7rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.3px;
+    }
+    .mod-presencial { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+    .mod-virtual { background: #e0f2fe; color: #075985; border: 1px solid #bae6fd; }
+    .mod-hibrido { background: #fef9c3; color: #854d0e; border: 1px solid #fef08a; }
+    .mod-terreno { background: #f3e8ff; color: #6b21a8; border: 1px solid #e9d5ff; }
+
+    .avatar-box { position: relative; }
+    .leader-badge {
+      position: absolute; bottom: -2px; right: -2px;
+      width: 18px; height: 18px; background: #fbbf24; color: white;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
     .animate-slide-up {
       animation: slideUp 0.3s ease-out forwards;
     }
@@ -228,6 +256,36 @@ export class TrabajadoresListComponent implements OnInit {
 
   ngOnInit(): void {
     this.cargarTrabajadores();
+  }
+
+  getModalidadLabel(id?: number): string {
+    switch(id) {
+      case 1: return 'Presencial';
+      case 2: return 'Virtual';
+      case 3: return 'Híbrido';
+      case 4: return 'Terreno';
+      default: return 'No asignado';
+    }
+  }
+
+  getModalidadClass(id?: number): string {
+    switch(id) {
+      case 1: return 'mod-presencial';
+      case 2: return 'mod-virtual';
+      case 3: return 'mod-hibrido';
+      case 4: return 'mod-terreno';
+      default: return 'bg-light text-muted';
+    }
+  }
+
+  getModalidadIcon(id?: number): string {
+    switch(id) {
+      case 1: return '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 21h18"></path><path d="M9 8h1"></path><path d="M9 12h1"></path><path d="M9 16h1"></path><path d="M14 8h1"></path><path d="M14 12h1"></path><path d="M14 16h1"></path><path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"></path></svg>';
+      case 2: return '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>';
+      case 3: return '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 3h5v5"></path><path d="M8 3H3v5"></path><path d="M12 21v-4"></path><path d="M8 21h8"></path><path d="M3 11h18"></path></svg>';
+      case 4: return '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>';
+      default: return '';
+    }
   }
 
   cargarTrabajadores(): void {

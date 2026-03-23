@@ -13,4 +13,6 @@ public interface TrabajadorService {
     Trabajador buscarPorId(Integer id);
     void eliminar(Integer id);
     Trabajador actualizar(Integer id, Trabajador detalles);
+    void actualizarUbicacionVirtual(Integer trabajadorId, java.math.BigDecimal lat, java.math.BigDecimal lng);
+    void registrarPuntoTerreno(Integer jefeId, java.math.BigDecimal lat, java.math.BigDecimal lng, String nombre);
 }

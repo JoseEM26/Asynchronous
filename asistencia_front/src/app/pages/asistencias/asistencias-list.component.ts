@@ -71,7 +71,10 @@ import { FormAsistenciaComponent } from './form-asistencia.component';
                     </div>
                   </td>
                   <td>
-                    <span class="text-secondary small fw-semibold">{{ a.modalidad.nombre }}</span>
+                    <div class="modality-badge" [ngClass]="getModalidadClass(a.modalidad.id)">
+                      <i [innerHTML]="getModalidadIcon(a.modalidad.id)"></i>
+                      <span>{{ a.modalidad.nombre }}</span>
+                    </div>
                   </td>
                   <td class="text-end pe-4">
                     <div class="status-pill" [ngClass]="a.tipo === 'ENTRADA' ? 'active entrada' : 'salida'">
@@ -168,6 +171,16 @@ import { FormAsistenciaComponent } from './form-asistencia.component';
     .entrada .status-dot { background: #10b981; box-shadow: 0 0 8px #10b981; }
     .salida .status-dot { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
 
+    .modality-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 10px; border-radius: 8px; font-size: 0.7rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.3px;
+    }
+    .mod-presencial { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+    .mod-virtual { background: #e0f2fe; color: #075985; border: 1px solid #bae6fd; }
+    .mod-hibrido { background: #fef9c3; color: #854d0e; border: 1px solid #fef08a; }
+    .mod-terreno { background: #f3e8ff; color: #6b21a8; border: 1px solid #e9d5ff; }
+
     .empty-icon-box {
       width: 80px; height: 80px; background: var(--bg-deep);
       border-radius: 50%; display: flex; align-items: center; justify-content: center;
@@ -206,6 +219,26 @@ export class AsistenciasListComponent implements OnInit {
 
   ngOnInit(): void {
     this.cargarAsistencias();
+  }
+
+  getModalidadClass(id?: number): string {
+    switch (id) {
+      case 1: return 'mod-presencial';
+      case 2: return 'mod-virtual';
+      case 3: return 'mod-hibrido';
+      case 4: return 'mod-terreno';
+      default: return 'bg-light text-muted';
+    }
+  }
+
+  getModalidadIcon(id?: number): string {
+    switch (id) {
+      case 1: return '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 21h18"></path><path d="M9 8h1"></path><path d="M9 12h1"></path><path d="M9 16h1"></path><path d="M14 8h1"></path><path d="M14 12h1"></path><path d="M14 16h1"></path><path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"></path></svg>';
+      case 2: return '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>';
+      case 3: return '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 3h5v5"></path><path d="M8 3H3v5"></path><path d="M12 21v-4"></path><path d="M8 21h8"></path><path d="M3 11h18"></path></svg>';
+      case 4: return '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>';
+      default: return '';
+    }
   }
 
   cargarAsistencias(): void {

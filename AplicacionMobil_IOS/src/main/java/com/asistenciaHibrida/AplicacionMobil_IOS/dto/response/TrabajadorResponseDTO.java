@@ -14,4 +14,9 @@ public class TrabajadorResponseDTO {
     private String direccion;
     private LocalDate fechaIngreso;
     private Boolean activo;
+    private Integer modalidadId;
+    private Boolean esJefeTerreno;
+    private java.math.BigDecimal latitudVirtual;
+    private java.math.BigDecimal longitudVirtual;
+    private String diasPresencial;
 }

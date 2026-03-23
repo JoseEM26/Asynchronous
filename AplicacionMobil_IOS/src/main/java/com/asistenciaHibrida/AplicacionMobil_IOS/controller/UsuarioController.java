@@ -63,10 +63,22 @@ public class UsuarioController {
                 .build();
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<?> login(
+            @RequestBody com.asistenciaHibrida.AplicacionMobil_IOS.dto.request.LoginRequestDTO request) {
+        try {
+            Usuario usuario = usuarioService.login(request.getUsername(), request.getPassword());
+            return ResponseEntity.ok(usuarioMapper.toResponseDTO(usuario));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(401).body(e.getMessage());
+        }
+    }
+
     @PostMapping
     public UsuarioResponseDTO crear(@RequestBody UsuarioRequestDTO request) {
         Usuario usuario = usuarioMapper.toEntity(request);
-        // Nota: El service debería manejar la asociación de Rol y Trabajador basándose en IDs si fuera necesario,
+        // Nota: El service debería manejar la asociación de Rol y Trabajador basándose
+        // en IDs si fuera necesario,
         // o podemos hacerlo aquí si el service espera la entidad completa.
         // Asumiendo que el service guarda lo que recibe.
         return usuarioMapper.toResponseDTO(usuarioService.guardar(usuario));
