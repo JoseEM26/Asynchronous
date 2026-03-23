@@ -12,124 +12,122 @@ import { ModalidadService } from '../../services/modalidad.service';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   template: `
-    <div class="modal-backdrop animate-fade" (click)="onClose()">
-      <div class="modal-container glass-card scale-in" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <h2 class="h4 mb-0">Registrar Asistencia</h2>
-          <button class="btn-close-modal" (click)="onClose()">✕</button>
-        </div>
+    <div class="modal-overlay" (click)="onClose()">
+      <div class="modal-panel animate-fade" (click)="$event.stopPropagation()" style="max-width: 480px;">
+        <header class="modal-header-base">
+          <h2 class="modal-title-base">Registrar Nueva Asistencia</h2>
+          <button class="btn-close-modal" (click)="onClose()" aria-label="Close">
+             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </header>
 
-        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="modal-body">
-          <div class="row g-3">
-            <div class="col-12">
-              <label class="form-label">Trabajador</label>
-              <select formControlName="trabajadorId" class="form-input">
-                <option [value]="null" disabled>Seleccione trabajador</option>
-                <option *ngFor="let t of trabajadores" [value]="t.id">
-                  {{ t.dni }} - {{ t.nombres }} {{ t.apellidos }}
-                </option>
-              </select>
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label">Modalidad</label>
-              <div class="d-flex gap-2">
-                <button type="button" *ngFor="let m of modalidades" 
-                  class="btn-select flex-grow-1"
-                  [class.active]="form.get('modalidadId')?.value === m.id"
-                  (click)="form.get('modalidadId')?.setValue(m.id)">
-                  {{ m.nombre }}
-                </button>
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+          <div class="modal-body-base">
+            <div class="row g-4">
+              <div class="col-12 form-field">
+                <label class="form-label-base">Seleccionar Trabajador</label>
+                <select formControlName="trabajadorId" class="form-input-base">
+                  <option [value]="null" disabled>Desfina el colaborador</option>
+                  <option *ngFor="let t of trabajadores" [value]="t.id">
+                    {{ t.dni }} — {{ t.nombres }} {{ t.apellidos }}
+                  </option>
+                </select>
               </div>
-            </div>
 
-            <div class="col-md-6">
-              <label class="form-label">Tipo de Marcación</label>
-              <div class="d-flex gap-2">
-                <button type="button" 
-                  class="btn-select flex-grow-1"
-                  [class.active]="form.get('tipo')?.value === 'ENTRADA'"
-                  (click)="form.get('tipo')?.setValue('ENTRADA')">
-                  Entrada
-                </button>
-                <button type="button" 
-                  class="btn-select flex-grow-1"
-                  [class.active]="form.get('tipo')?.value === 'SALIDA'"
-                  (click)="form.get('tipo')?.setValue('SALIDA')">
-                  Salida
-                </button>
+              <div class="col-12 form-field">
+                <label class="form-label-base">Modalidad de Trabajo</label>
+                <div class="selector-grid">
+                  <button type="button" *ngFor="let m of modalidades" 
+                    class="selector-opt"
+                    [class.active]="form.get('modalidadId')?.value === m.id"
+                    (click)="form.get('modalidadId')?.setValue(m.id)">
+                    {{ m.nombre }}
+                  </button>
+                </div>
               </div>
-            </div>
 
-            <div class="col-12 mt-3">
-              <div class="info-alert small">
-                <span class="me-2">ℹ️</span>
-                La fecha y hora se registrarán automáticamente según el servidor.
+              <div class="col-12 form-field">
+                <label class="form-label-base">Tipo de Marcación</label>
+                <div class="selector-grid">
+                  <button type="button" 
+                    class="selector-opt"
+                    [class.active]="form.get('tipo')?.value === 'ENTRADA'"
+                    (click)="form.get('tipo')?.setValue('ENTRADA')">
+                    <span class="dot" style="background: #10b981;"></span>
+                    Entrada
+                  </button>
+                  <button type="button" 
+                    class="selector-opt"
+                    [class.active]="form.get('tipo')?.value === 'SALIDA'"
+                    (click)="form.get('tipo')?.setValue('SALIDA')">
+                    <span class="dot" style="background: #ef4444;"></span>
+                    Salida
+                  </button>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <div class="server-info">
+                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="opacity-50"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                   <span>El registro usará la estampa de tiempo oficial del servidor corporativo.</span>
+                </div>
               </div>
             </div>
           </div>
 
-          <div class="modal-footer mt-4">
+          <footer class="modal-footer-base">
             <button type="button" class="btn btn-light" (click)="onClose()">Cancelar</button>
-            <button type="submit" class="btn btn-primary-grad" [disabled]="form.invalid || isLoading">
-              {{ isLoading ? 'Registrando...' : 'Confirmar Marcación' }}
+            <button type="submit" class="btn btn-primary-grad px-4" [disabled]="form.invalid || isLoading">
+              {{ isLoading ? 'Enviando...' : 'Confirmar Registro' }}
             </button>
-          </div>
+          </footer>
         </form>
       </div>
     </div>
   `,
   styles: [`
-    .modal-backdrop {
-      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(8px);
-      z-index: 1100; display: flex; align-items: center; justify-content: center; padding: 20px;
+    .btn-close-modal {
+      background: none; border: none; color: var(--text-muted); cursor: pointer;
+      display: flex; padding: 5px; border-radius: 6px; transition: var(--transition-fast);
     }
-    .modal-container { width: 100%; max-width: 450px; background: var(--bg-surface); border: 1px solid var(--glass-border); }
-    .scale-in { animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
-    @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-    .modal-header { padding: 1.5rem; border-bottom: 1px solid rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; }
-    .modal-body { padding: 1.5rem; }
-    .modal-footer { display: flex; justify-content: flex-end; gap: 12px; padding-top: 1.5rem; border-top: 1px solid rgba(0,0,0,0.05); }
-    .btn-close-modal { background: none; border: none; font-size: 1.25rem; color: var(--text-secondary); cursor: pointer; }
+    .btn-close-modal:hover { background: var(--bg-deep); color: var(--accent-danger); }
+
+    .selector-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     
-    .form-label { display: block; margin-bottom: 0.5rem; font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); }
-    .form-input { 
-      width: 100%; padding: 10px 16px; border-radius: 12px; 
-      border: 1.5px solid rgba(0,0,0,0.08); background: var(--bg-deep); 
-      color: var(--text-primary); transition: var(--transition-smooth);
-    }
-    
-    .btn-select {
-      background: var(--bg-deep);
-      border: 1.5px solid rgba(0,0,0,0.05);
-      padding: 10px;
-      border-radius: 10px;
+    .selector-opt {
+      background: var(--bg-surface);
+      border: 1.5px solid var(--glass-border);
+      padding: 12px;
+      border-radius: var(--border-radius-sm);
       font-size: 0.85rem;
-      font-weight: 500;
+      font-weight: 600;
       color: var(--text-secondary);
-      transition: var(--transition-smooth);
+      transition: var(--transition-fast);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
     }
-    .btn-select.active {
+    
+    .selector-opt.active {
       background: var(--accent-primary);
       color: white;
       border-color: var(--accent-primary);
-      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
     }
 
-    .info-alert {
-      padding: 12px;
-      background: rgba(99, 102, 241, 0.05);
-      border-radius: 10px;
-      color: var(--accent-primary);
-      border-left: 3px solid var(--accent-primary);
+    .dot { width: 8px; height: 8px; border-radius: 50%; }
+
+    .server-info {
+      display: flex; align-items: center; gap: 10px; padding: 12px;
+      background: rgba(37, 99, 235, 0.05); border-radius: 8px;
+      color: var(--accent-primary); font-size: 0.75rem; font-weight: 500;
     }
 
-    .btn { padding: 10px 24px; border-radius: 12px; font-weight: 600; transition: var(--transition-smooth); border: none; }
-    .btn-light { background: var(--bg-deep); color: var(--text-primary); }
-    .btn-primary-grad { background: var(--grad-main); color: white; box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.4); }
-    .btn-primary-grad:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn { padding: 0.6rem 1.25rem; border-radius: var(--border-radius-sm); font-weight: 600; font-size: 0.875rem; border: none; }
+    .btn-light { background: #e2e8f0; color: #475569; }
   `]
+
 })
 export class FormAsistenciaComponent implements OnInit {
   @Input() isLoading: boolean = false;

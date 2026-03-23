@@ -22,3 +22,9 @@ export interface AsistenciaResponse {
   longitud: number;
   notas: string;
 }
+export interface QrResponse {
+  token: string;
+  timestamp: string;
+  status: string;
+  expiresIn: number;
+}

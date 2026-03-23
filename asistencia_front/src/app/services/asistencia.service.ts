@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { AsistenciaRequest, AsistenciaResponse } from '../models/asistencia.interface';
+import { AsistenciaRequest, AsistenciaResponse, QrResponse } from '../models/asistencia.interface';
 import { PageRequest, PageResponse } from '../models/pagination.interface';
 
 import { environment } from '../../environments/environment';
@@ -32,5 +32,9 @@ export class AsistenciaService {
 
   listarPorTrabajadorPaginado(id: number, pageRequest: PageRequest): Observable<PageResponse<AsistenciaResponse>> {
     return this.http.post<PageResponse<AsistenciaResponse>>(`${this.apiUrl}/trabajador/${id}/paged`, pageRequest);
+  }
+
+  obtenerQr(): Observable<QrResponse> {
+    return this.http.get<QrResponse>(`${this.apiUrl}/qr`);
   }
 }

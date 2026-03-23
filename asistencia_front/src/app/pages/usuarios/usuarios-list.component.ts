@@ -12,66 +12,87 @@ import { FormUsuarioComponent } from './form-usuario.component';
   standalone: true,
   imports: [CommonModule, PaginationComponent, FormUsuarioComponent],
   template: `
-    <div class="container-fluid animate-fade">
-      <div class="row mb-4 align-items-center">
-        <div class="col-md-7 text-start">
-          <h1 class="display-6 fw-bold">Gestión de Usuarios</h1>
-          <p class="text-secondary mb-0">Control de accesos y perfiles del sistema.</p>
+    <div class="container-fluid animate-fade px-4 py-4">
+      <div class="row mb-5 align-items-end">
+        <div class="col-md-8">
+          <div class="d-flex align-items-center gap-3 mb-2">
+            <div class="icon-box-secondary">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            </div>
+            <h1 class="h2 fw-bold mb-0">Gestión de Accesos</h1>
+          </div>
+          <p class="text-secondary fs-6 opacity-75">Configura las credenciales, roles y permisos de los usuarios administrativos.</p>
         </div>
-        <div class="col-md-5 text-md-end mt-3 mt-md-0">
-          <button class="btn btn-primary-grad px-4 py-2" (click)="onNuevo()">
-            <span class="me-2">+</span> Nuevo Usuario
+        <div class="col-md-4 text-md-end">
+          <button class="btn btn-primary-grad shadow-sm d-inline-flex align-items-center gap-2" (click)="onNuevo()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Nuevo Acceso
           </button>
         </div>
       </div>
 
-      <div class="glass-card overflow-hidden">
+      <div class="glass-card main-list-card">
         <div class="position-relative">
-          <div *ngIf="isLoading" class="loading-overlay">
+          <div *ngIf="isLoading" class="loading-overlay rounded-4">
             <div class="spinner-border text-primary" role="status"></div>
           </div>
           
           <div class="table-responsive">
-            <table class="table table-hover mb-0">
+            <table class="table table-custom mb-0">
               <thead>
                 <tr>
-                  <th class="ps-4">Usuario</th>
-                  <th>Username</th>
-                  <th>Roles</th>
-                  <th>Estado</th>
-                  <th class="text-end pe-4">Acciones</th>
+                  <th class="ps-4 py-3 text-uppercase small ls-1">Usuario Vinculado</th>
+                  <th class="py-3 text-uppercase small ls-1">Identificador</th>
+                  <th class="py-3 text-uppercase small ls-1">Rol / Nivel</th>
+                  <th class="py-3 text-uppercase small ls-1">Estado</th>
+                  <th class="text-end pe-4 py-3 text-uppercase small ls-1">Operaciones</th>
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let u of (usuarios || [])" class="align-middle">
+                <tr *ngFor="let u of (usuarios || [])" class="list-row animate-slide-up">
                   <td class="ps-4">
-                    <div class="d-flex align-items-center gap-3">
-                      <div class="avatar-sm">{{ u.username ? u.username[0].toUpperCase() : '?' }}</div>
-                      <div *ngIf="u.trabajador">
-                        <div class="fw-bold">{{ u.trabajador.nombres }} {{ u.trabajador.apellidos }}</div>
-                        <div class="small text-secondary">{{ u.trabajador.dni }}</div>
+                    <div class="d-flex align-items-center gap-3 py-1">
+                      <div class="avatar-box secondary">
+                        <span class="avatar-text">{{ u.username ? u.username[0].toUpperCase() : '?' }}</span>
+                      </div>
+                      <div class="user-info" *ngIf="u.trabajador">
+                        <div class="fw-bold text-primary-hover lh-1 mb-1">{{ u.trabajador.nombres }} {{ u.trabajador.apellidos }}</div>
+                        <div class="small text-secondary fw-medium opacity-75">{{ u.trabajador.dni }}</div>
                       </div>
                     </div>
                   </td>
-                  <td class="font-monospace">{{ u.username }}</td>
                   <td>
-                    <span class="badge bg-soft-primary">{{ u.rol.nombre }}</span>
+                    <span class="badge-code">{{ u.username }}</span>
                   </td>
                   <td>
-                    <span class="status-badge active">Habilitado</span>
+                    <span class="badge-role">{{ u.rol.nombre }}</span>
+                  </td>
+                  <td>
+                    <div class="status-pill active">
+                      <span class="status-dot"></span>
+                      Habilitado
+                    </div>
                   </td>
                   <td class="text-end pe-4">
                     <div class="d-flex gap-2 justify-content-end">
-                      <button class="btn btn-icon-light" (click)="onVer(u)" title="Editar">✏️</button>
-                      <button class="btn btn-icon-light text-danger" (click)="onEliminar(u)" title="Eliminar">🗑️</button>
+                      <button class="action-btn edit" (click)="onVer(u)" title="Editar Acceso">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4L18.5 2.5z"></path></svg>
+                      </button>
+                      <button class="action-btn delete" (click)="onEliminar(u)" title="Revocar Acceso">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                      </button>
                     </div>
                   </td>
                 </tr>
-                <tr *ngIf="(usuarios?.length || 0) === 0 && !isLoading">
+                <tr *ngIf="(usuarios.length || 0) === 0 && !isLoading">
                   <td colspan="5" class="text-center py-5">
-                    <div class="py-4">
-                      <div class="mb-3 fs-1 opacity-25">👥</div>
-                      <p class="text-secondary">No hay usuarios registrados que mostrar.</p>
+                    <div class="empty-state py-5">
+                      <div class="empty-icon-box mx-auto mb-4">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="opacity-25"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
+                      </div>
+                      <h5 class="fw-bold mb-1">Sin Usuarios</h5>
+                      <p class="text-secondary small">No hay cuentas de acceso configuradas todavía.</p>
+                      <button class="btn btn-outline-primary btn-sm mt-3 px-4 rounded-pill" (click)="onNuevo()">Crear primer acceso</button>
                     </div>
                   </td>
                 </tr>
@@ -80,7 +101,7 @@ import { FormUsuarioComponent } from './form-usuario.component';
           </div>
         </div>
 
-        <div class="p-3 border-top bg-light-subtle">
+        <div class="pagination-footer px-4 py-3 border-top">
           <app-pagination
             [currentPage]="currentPage"
             [pageSize]="pageSize"
@@ -104,71 +125,80 @@ import { FormUsuarioComponent } from './form-usuario.component';
     </div>
   `,
   styles: [`
-    h1 { background: var(--grad-main); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .btn-primary-grad {
-      background: var(--grad-main);
-      border: none;
-      color: white;
-      padding: 10px 24px;
-      border-radius: 12px;
-      font-weight: 600;
-      transition: var(--transition-smooth);
-      box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.4);
-    }
-    .btn-primary-grad:hover { transform: translateY(-2px); box-shadow: 0 15px 25px -5px rgba(99, 102, 241, 0.5); }
-    
-    .status-badge {
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      background: rgba(0,0,0,0.05);
-      color: var(--text-secondary);
-    }
-    .status-badge.active { background: rgba(16, 185, 129, 0.1); color: #059669; }
-    
-    .bg-soft-primary {
-      background: rgba(99, 102, 241, 0.1);
-      color: #4f46e5;
-      font-size: 0.7rem;
-      font-weight: 600;
+    .ls-1 { letter-spacing: 0.05rem; }
+    .ls-1 { letter-spacing: 0.05rem; }
+    .ls-1 { letter-spacing: 0.05rem; }
+
+    .icon-box-secondary {
+      padding: 10px; background: var(--grad-secondary); color: white;
+      border-radius: 12px; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 12px rgba(6, 182, 212, 0.25);
     }
 
-    .avatar-sm {
-      width: 32px;
-      height: 32px;
-      background: var(--grad-secondary);
-      color: white;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.8rem;
-      font-weight: 700;
+    .main-list-card {
+      border-radius: 20px; border: 1px solid var(--glass-border);
+      box-shadow: var(--shadow-xl); background: var(--bg-surface);
     }
 
-    .btn-icon-light {
-      background: rgba(0,0,0,0.03);
-      border: none;
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      transition: var(--transition-smooth);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
+    .table-custom { border-collapse: separate; border-spacing: 0; }
+    .table-custom thead th {
+      background: var(--bg-deep); border-bottom: 2px solid var(--glass-border);
+      color: var(--text-secondary); font-weight: 700;
+      text-transform: uppercase;
     }
-    .btn-icon-light:hover { background: rgba(0,0,0,0.08); transform: translateY(-2px); }
+
+    .list-row { transition: background 0.2s ease; border-bottom: 1px solid var(--glass-border); }
+    .list-row:hover { background: rgba(37,99,235,0.02); }
+
+    .avatar-box {
+      width: 42px; height: 42px; background: var(--bg-deep);
+      border-radius: 12px; display: flex; align-items: center; justify-content: center;
+      border: 1px solid var(--glass-border); color: var(--accent-primary);
+      font-weight: 800; font-size: 1.1rem;
+    }
+    .avatar-box.secondary { color: var(--accent-secondary); }
+
+    .badge-code {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; font-weight: 600;
+      background: var(--bg-deep); padding: 4px 10px; border-radius: 6px;
+      color: var(--text-primary);
+    }
+
+    .badge-role {
+      background: rgba(99, 102, 241, 0.1); color: #4f46e5;
+      padding: 4px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 700;
+    }
+
+    .status-pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 14px; border-radius: 30px; font-size: 0.75rem; font-weight: 700;
+      background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0;
+    }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #10b981; box-shadow: 0 0 8px #10b981; }
+
+    .action-btn {
+      width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--glass-border);
+      background: white; display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .action-btn.edit:hover { background: var(--accent-primary); color: white; border-color: var(--accent-primary); transform: scale(1.1); }
+    .action-btn.delete:hover { background: #ef4444; color: white; border-color: #ef4444; transform: scale(1.1); }
+
+    .empty-icon-box {
+      width: 80px; height: 80px; background: var(--bg-deep);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    }
 
     .loading-overlay {
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(255, 255, 255, 0.7);
-      backdrop-filter: blur(2px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 10;
+      position: absolute; inset: 0; background: rgba(255,255,255,0.7);
+      backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center;
+      z-index: 100;
+    }
+
+    .animate-slide-up { animation: slideUp 0.3s ease-out forwards; }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   `]
 })
@@ -259,7 +289,7 @@ export class UsuariosListComponent implements OnInit {
     };
 
     if (this.selectedUsuario) {
-      this.usuarioService.crear(request).subscribe(observer);
+      this.usuarioService.actualizar(this.selectedUsuario.id, request).subscribe(observer);
     } else {
       this.usuarioService.crear(request).subscribe(observer);
     }

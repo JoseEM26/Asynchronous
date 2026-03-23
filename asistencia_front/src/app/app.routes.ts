@@ -5,6 +5,7 @@ import { TrabajadoresListComponent } from './pages/trabajadores/trabajadores-lis
 import { UsuariosListComponent } from './pages/usuarios/usuarios-list.component';
 import { AsistenciasListComponent } from './pages/asistencias/asistencias-list.component';
 import { ConfiguracionComponent } from './pages/configuracion/configuracion.component';
+import { QrAsistenciaComponent } from './pages/asistencias/qr-asistencia.component';
 
 export const routes: Routes = [
   {
@@ -15,6 +16,7 @@ export const routes: Routes = [
       { path: 'trabajadores', component: TrabajadoresListComponent },
       { path: 'usuarios', component: UsuariosListComponent },
       { path: 'asistencias', component: AsistenciasListComponent },
+      { path: 'qr-generator', component: QrAsistenciaComponent },
       { path: 'configuracion', component: ConfiguracionComponent },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ]

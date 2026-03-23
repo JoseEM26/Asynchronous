@@ -12,66 +12,82 @@ import { FormAsistenciaComponent } from './form-asistencia.component';
   standalone: true,
   imports: [CommonModule, PaginationComponent, FormAsistenciaComponent],
   template: `
-    <div class="container-fluid animate-fade">
-      <div class="row mb-4 align-items-center">
-        <div class="col-md-7 text-start">
-          <h1 class="display-6 fw-bold">Registro de Asistencias</h1>
-          <p class="text-secondary mb-0">Historial completo de entradas y salidas.</p>
+    <div class="container-fluid animate-fade px-4 py-4">
+      <div class="row mb-5 align-items-end">
+        <div class="col-md-7">
+          <div class="d-flex align-items-center gap-3 mb-2">
+            <div class="icon-box-primary">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            </div>
+            <h1 class="h2 fw-bold mb-0">Registro de Asistencias</h1>
+          </div>
+          <p class="text-secondary fs-6 opacity-75">Historial cronológico de registros de entrada y salida del personal.</p>
         </div>
-        <div class="col-md-5 text-md-end mt-3 mt-md-0 d-flex gap-2 justify-content-md-end">
-          <button class="btn btn-light-grad px-4 py-2" (click)="cargarAsistencias()">
-            <span class="me-2">🔄</span> Actualizar
+        <div class="col-md-5 text-md-end d-flex gap-3 justify-content-md-end">
+          <button class="btn btn-light shadow-sm d-inline-flex align-items-center gap-2" (click)="cargarAsistencias()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+            Actualizar
           </button>
-          <button class="btn btn-primary-grad px-4 py-2" (click)="onNuevo()">
-            <span class="me-2">+</span> Nuevo Registro
+          <button class="btn btn-primary-grad shadow-sm d-inline-flex align-items-center gap-2" (click)="onNuevo()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Nuevo Registro
           </button>
         </div>
       </div>
 
-      <div class="glass-card overflow-hidden">
+      <div class="glass-card main-list-card">
         <div class="position-relative">
-          <div *ngIf="isLoading" class="loading-overlay">
+          <div *ngIf="isLoading" class="loading-overlay rounded-4">
             <div class="spinner-border text-primary" role="status"></div>
           </div>
           
           <div class="table-responsive">
-            <table class="table table-hover mb-0">
+            <table class="table table-custom mb-0">
               <thead>
                 <tr>
-                  <th class="ps-4">Trabajador</th>
-                  <th>Fecha y Hora</th>
-                  <th>Modalidad</th>
-                  <th class="text-end pe-4">Movimiento</th>
+                  <th class="ps-4 py-3 text-uppercase small ls-1">Trabajador</th>
+                  <th class="py-3 text-uppercase small ls-1">Fecha y Hora</th>
+                  <th class="py-3 text-uppercase small ls-1">Modalidad</th>
+                  <th class="text-end pe-4 py-3 text-uppercase small ls-1">Tipo de Movimiento</th>
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let a of (asistencias || [])" class="align-middle">
+                <tr *ngFor="let a of (asistencias || [])" class="list-row animate-slide-up">
                   <td class="ps-4">
-                    <div class="d-flex align-items-center gap-3" *ngIf="a.trabajador">
-                      <div class="avatar-sm">{{ a.trabajador.nombres ? a.trabajador.nombres[0] : '?' }}</div>
-                      <div>
-                        <div class="fw-bold">{{ a.trabajador.nombres }} {{ a.trabajador.apellidos }}</div>
-                        <div class="small text-secondary">{{ a.trabajador.dni }}</div>
+                    <div class="d-flex align-items-center gap-3 py-1" *ngIf="a.trabajador">
+                      <div class="avatar-box">
+                        <span class="avatar-text">{{ a.trabajador.nombres ? a.trabajador.nombres[0] : '?' }}</span>
+                      </div>
+                      <div class="user-info">
+                        <div class="fw-bold text-primary-hover lh-1 mb-1">{{ a.trabajador.nombres }} {{ a.trabajador.apellidos }}</div>
+                        <div class="small text-secondary fw-medium opacity-75">{{ a.trabajador.dni }}</div>
                       </div>
                     </div>
                   </td>
-                  <td class="font-monospace small">
-                    {{ a.fechaHora | date:'dd/MM/yyyy HH:mm:ss' }}
+                  <td>
+                    <div class="d-flex flex-column lh-1">
+                      <span class="fw-bold small text-primary mb-1">{{ a.fechaHora | date:'EEEE d, MMM' | uppercase }}</span>
+                      <span class="badge-code">{{ a.fechaHora | date:'HH:mm:ss' }}</span>
+                    </div>
                   </td>
                   <td>
-                    <span class="text-secondary small">{{ a.modalidad.nombre }}</span>
+                    <span class="text-secondary small fw-semibold">{{ a.modalidad.nombre }}</span>
                   </td>
                   <td class="text-end pe-4">
-                    <span class="badge" [ngClass]="a.tipo === 'ENTRADA' ? 'bg-soft-success' : 'bg-soft-danger'">
+                    <div class="status-pill" [ngClass]="a.tipo === 'ENTRADA' ? 'active entrada' : 'salida'">
+                      <span class="status-dot"></span>
                       {{ a.tipo }}
-                    </span>
+                    </div>
                   </td>
                 </tr>
-                <tr *ngIf="(asistencias?.length || 0) === 0 && !isLoading">
+                <tr *ngIf="(asistencias.length || 0) === 0 && !isLoading">
                   <td colspan="5" class="text-center py-5">
-                    <div class="py-4">
-                      <div class="mb-3 fs-1 opacity-25">📅</div>
-                      <p class="text-secondary">No hay registros de asistencia hoy.</p>
+                    <div class="empty-state py-5">
+                      <div class="empty-icon-box mx-auto mb-4">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="opacity-25"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                      </div>
+                      <h5 class="fw-bold mb-1">Sin Actividad</h5>
+                      <p class="text-secondary small">No hay registros de asistencia para el período seleccionado.</p>
                     </div>
                   </td>
                 </tr>
@@ -80,7 +96,7 @@ import { FormAsistenciaComponent } from './form-asistencia.component';
           </div>
         </div>
 
-        <div class="p-3 border-top bg-light-subtle">
+        <div class="pagination-footer px-4 py-3 border-top">
           <app-pagination
             [currentPage]="currentPage"
             [pageSize]="pageSize"
@@ -103,55 +119,70 @@ import { FormAsistenciaComponent } from './form-asistencia.component';
     </div>
   `,
   styles: [`
-    h1 { background: var(--grad-main); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .btn-primary-grad {
-      background: var(--grad-main);
-      border: none;
-      color: white;
-      padding: 10px 24px;
-      border-radius: 12px;
-      font-weight: 600;
-      transition: var(--transition-smooth);
-    }
-    .btn-primary-grad:hover { transform: translateY(-2px); box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.4); }
-    
-    .btn-light-grad {
-      background: var(--bg-deep);
-      border: 1px solid rgba(0,0,0,0.05);
-      color: var(--text-primary);
-      padding: 10px 24px;
-      border-radius: 12px;
-      font-weight: 600;
-      transition: var(--transition-smooth);
-    }
-    .btn-light-grad:hover { background: rgba(0,0,0,0.08); }
+    .ls-1 { letter-spacing: 0.05rem; }
+    .ls-1 { letter-spacing: 0.05rem; }
 
-    .bg-soft-success { background: rgba(16, 185, 129, 0.1); color: #059669; }
-    .bg-soft-warning { background: rgba(245, 158, 11, 0.1); color: #d97706; }
-    .bg-soft-danger { background: rgba(239, 68, 68, 0.1); color: #dc2626; }
+    .icon-box-primary {
+      padding: 10px; background: var(--grad-main); color: white;
+      border-radius: 12px; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+    }
+
+    .main-list-card {
+      border-radius: 20px; border: 1px solid var(--glass-border);
+      box-shadow: var(--shadow-xl); background: var(--bg-surface);
+    }
+
+    .table-custom { border-collapse: separate; border-spacing: 0; }
+    .table-custom thead th {
+      background: var(--bg-deep); border-bottom: 2px solid var(--glass-border);
+      color: var(--text-secondary); font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .list-row { transition: background 0.2s ease; border-bottom: 1px solid var(--glass-border); }
+    .list-row:hover { background: rgba(37,99,235,0.02); }
+
+    .avatar-box {
+      width: 42px; height: 42px; background: var(--bg-deep);
+      border-radius: 12px; display: flex; align-items: center; justify-content: center;
+      border: 1px solid var(--glass-border); color: var(--accent-primary);
+      font-weight: 800; font-size: 1.1rem;
+    }
+
+    .badge-code {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; font-weight: 600;
+      background: var(--bg-deep); padding: 2px 8px; border-radius: 4px;
+      color: var(--accent-primary); width: fit-content;
+    }
+
+    .status-pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 14px; border-radius: 30px; font-size: 0.75rem; font-weight: 700;
+      background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0;
+    }
+    .status-pill.entrada { background: #ecfdf5; color: #065f46; border-color: #a7f3d0; }
+    .status-pill.salida { background: #fff1f2; color: #be123c; border-color: #fecdd3; }
     
-    .avatar-sm {
-      width: 32px;
-      height: 32px;
-      background: var(--grad-main);
-      color: white;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.8rem;
-      font-weight: 700;
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #94a3b8; }
+    .entrada .status-dot { background: #10b981; box-shadow: 0 0 8px #10b981; }
+    .salida .status-dot { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
+
+    .empty-icon-box {
+      width: 80px; height: 80px; background: var(--bg-deep);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
     }
 
     .loading-overlay {
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(255, 255, 255, 0.7);
-      backdrop-filter: blur(2px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 10;
+      position: absolute; inset: 0; background: rgba(255,255,255,0.7);
+      backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center;
+      z-index: 100;
+    }
+
+    .animate-slide-up { animation: slideUp 0.3s ease-out forwards; }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   `]
 })

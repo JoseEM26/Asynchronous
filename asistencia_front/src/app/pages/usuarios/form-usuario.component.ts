@@ -12,140 +12,92 @@ import { RolService } from '../../services/rol.service';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   template: `
-    <div class="modal-backdrop animate-fade" (click)="onClose()">
-      <div class="modal-container glass-card scale-in" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <h2 class="h4 mb-0">{{ editData ? 'Editar Acceso' : 'Nuevo Acceso' }}</h2>
-          <button class="btn-close-modal" (click)="onClose()">✕</button>
-        </div>
+    <div class="modal-overlay" (click)="onClose()">
+      <div class="modal-panel animate-fade" (click)="$event.stopPropagation()" style="max-width: 500px;">
+        <header class="modal-header-base">
+          <h2 class="modal-title-base">{{ editData ? 'Configurar Acceso' : 'Nuevo Usuario' }}</h2>
+          <button class="btn-close-modal" (click)="onClose()" aria-label="Close">
+             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </header>
 
-        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="modal-body">
-          <div class="row g-3">
-            <div class="col-12">
-              <label class="form-label">Trabajador</label>
-              <select formControlName="trabajadorId" class="form-input">
-                <option [value]="null" disabled>Seleccione un trabajador</option>
-                <option *ngFor="let t of trabajadores" [value]="t.id">
-                  {{ t.dni }} - {{ t.nombres }} {{ t.apellidos }}
-                </option>
-              </select>
-              <div *ngIf="showError('trabajadorId')" class="error-msg">Requerido</div>
-            </div>
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+          <div class="modal-body-base">
+            <div class="row g-4">
+              <div class="col-12 form-field">
+                <label class="form-label-base">Trabajador Vinculado</label>
+                <select formControlName="trabajadorId" class="form-input-base">
+                  <option [value]="null" disabled>Seleccione un trabajador de la lista</option>
+                  <option *ngFor="let t of trabajadores" [value]="t.id">
+                    {{ t.dni }} — {{ t.nombres }} {{ t.apellidos }}
+                  </option>
+                </select>
+                <div *ngIf="showError('trabajadorId')" class="form-error-base">Debe seleccionar un trabajador</div>
+              </div>
 
-            <div class="col-md-6">
-              <label class="form-label">Nombre de Usuario</label>
-              <input type="text" formControlName="username" class="form-input" placeholder="Ej: jpererz">
-              <div *ngIf="showError('username')" class="error-msg">Requerido</div>
-            </div>
+              <div class="col-md-7 form-field">
+                <label class="form-label-base">Nombre de Usuario</label>
+                <div class="input-group-custom">
+                  <span class="input-prefix">@</span>
+                  <input type="text" formControlName="username" class="form-input-base" placeholder="ej: jsmith">
+                </div>
+                <div *ngIf="showError('username')" class="form-error-base">El nombre de usuario es obligatorio</div>
+              </div>
 
-            <div class="col-md-6">
-              <label class="form-label">Rol de Sistema</label>
-              <select formControlName="rolId" class="form-input">
-                <option [value]="null" disabled>Seleccione un rol</option>
-                <option *ngFor="let r of roles" [value]="r.id">{{ r.nombre }}</option>
-              </select>
-              <div *ngIf="showError('rolId')" class="error-msg">Requerido</div>
-            </div>
+              <div class="col-md-5 form-field">
+                <label class="form-label-base">Rol Asignado</label>
+                <select formControlName="rolId" class="form-input-base">
+                  <option [value]="null" disabled>Elegir rol</option>
+                  <option *ngFor="let r of roles" [value]="r.id">{{ r.nombre }}</option>
+                </select>
+                <div *ngIf="showError('rolId')" class="form-error-base">Rol requerido</div>
+              </div>
 
-            <div class="col-12" *ngIf="!editData">
-              <label class="form-label">Contraseña</label>
-              <input type="password" formControlName="password" class="form-input" placeholder="••••••••">
-              <div *ngIf="showError('password')" class="error-msg">Mínimo 6 caracteres</div>
-            </div>
+              <div class="col-12 form-field" *ngIf="!editData">
+                <label class="form-label-base">Contraseña Inicial</label>
+                <input type="password" formControlName="password" class="form-input-base" placeholder="Mínimo 6 caracteres">
+                <div *ngIf="showError('password')" class="form-error-base">La contraseña es demasiado corta</div>
+              </div>
 
-            <div class="col-12" *ngIf="editData">
-              <p class="small text-secondary mb-0">Para cambiar la contraseña, usa la opción de recuperación.</p>
+              <div class="col-12" *ngIf="editData">
+                <div class="info-note">
+                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                   <span>Para cambios de seguridad, use el módulo de perfiles.</span>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div class="modal-footer mt-4">
+          <footer class="modal-footer-base">
             <button type="button" class="btn btn-light" (click)="onClose()">Cancelar</button>
-            <button type="submit" class="btn btn-primary-grad" [disabled]="form.invalid || isLoading">
-              {{ isLoading ? 'Guardando...' : 'Guardar Cambios' }}
+            <button type="submit" class="btn btn-primary-grad px-4" [disabled]="form.invalid || isLoading">
+              {{ isLoading ? 'Guardando...' : (editData ? 'Actualizar Acceso' : 'Crear Usuario') }}
             </button>
-          </div>
+          </footer>
         </form>
       </div>
     </div>
   `,
   styles: [`
-    .modal-backdrop {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(15, 23, 42, 0.4);
-      backdrop-filter: blur(8px);
-      z-index: 1100;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-
-    .modal-container {
-      width: 100%;
-      max-width: 500px;
-      background: var(--bg-surface);
-      border: 1px solid var(--glass-border);
-    }
-
-    .scale-in {
-      animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-    }
-
-    @keyframes scaleIn {
-      from { transform: scale(0.9); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
-
-    .modal-header {
-      padding: 1.5rem;
-      border-bottom: 1px solid rgba(0,0,0,0.05);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .modal-body { padding: 1.5rem; }
-
-    .modal-footer {
-      display: flex;
-      justify-content: flex-end;
-      gap: 12px;
-      padding-top: 1.5rem;
-      border-top: 1px solid rgba(0,0,0,0.05);
-    }
-
     .btn-close-modal {
-      background: none; border: none; font-size: 1.25rem; color: var(--text-secondary); cursor: pointer;
+      background: none; border: none; color: var(--text-muted); cursor: pointer;
+      display: flex; padding: 5px; border-radius: 6px; transition: var(--transition-fast);
     }
+    .btn-close-modal:hover { background: var(--bg-deep); color: var(--accent-danger); }
+    
+    .input-group-custom { position: relative; display: flex; align-items: center; }
+    .input-prefix { position: absolute; left: 12px; color: var(--text-muted); font-weight: 700; }
+    .input-group-custom .form-input-base { padding-left: 30px; }
 
-    .form-label {
-      display: block; margin-bottom: 0.5rem; font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);
+    .btn { padding: 0.6rem 1.25rem; border-radius: var(--border-radius-sm); font-weight: 600; font-size: 0.875rem; border: none; }
+    .btn-light { background: #e2e8f0; color: #475569; }
+
+    .info-note {
+      display: flex; align-items: flex-start; gap: 8px; padding: 12px;
+      background: var(--bg-deep); border-radius: 8px; color: var(--text-secondary); font-size: 0.8rem;
     }
-
-    .form-input {
-      width: 100%; padding: 10px 16px; border-radius: 12px;
-      border: 1.5px solid rgba(0,0,0,0.08); background: var(--bg-deep);
-      color: var(--text-primary); transition: var(--transition-smooth);
-    }
-    .form-input:focus {
-      outline: none; border-color: var(--accent-primary);
-      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
-    }
-
-    .error-msg { font-size: 0.75rem; color: #ef4444; margin-top: 4px; }
-
-    .btn { padding: 10px 24px; border-radius: 12px; font-weight: 600; transition: var(--transition-smooth); border: none; }
-    .btn-light { background: var(--bg-deep); color: var(--text-primary); }
-
-    .btn-primary-grad {
-      background: var(--grad-main); color: white;
-      box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.4);
-    }
-    .btn-primary-grad:disabled { opacity: 0.6; cursor: not-allowed; }
-
-    [data-theme='dark'] .form-input { border-color: rgba(255,255,255,0.1); }
   `]
+
 })
 export class FormUsuarioComponent implements OnInit {
   @Input() editData: UsuarioResponse | null = null;

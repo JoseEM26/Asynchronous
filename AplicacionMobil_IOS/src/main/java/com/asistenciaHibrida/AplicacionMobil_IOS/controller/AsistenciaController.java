@@ -2,6 +2,7 @@ package com.asistenciaHibrida.AplicacionMobil_IOS.controller;
 
 import com.asistenciaHibrida.AplicacionMobil_IOS.dto.request.AsistenciaRequestDTO;
 import com.asistenciaHibrida.AplicacionMobil_IOS.dto.response.AsistenciaResponseDTO;
+import com.asistenciaHibrida.AplicacionMobil_IOS.dto.response.QrResponseDTO;
 import com.asistenciaHibrida.AplicacionMobil_IOS.dto.page.PageRequestDTO;
 import com.asistenciaHibrida.AplicacionMobil_IOS.dto.page.PageResponseDTO;
 import com.asistenciaHibrida.AplicacionMobil_IOS.mapper.AsistenciaMapper;
@@ -11,7 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
@@ -32,8 +35,7 @@ public class AsistenciaController {
                 request.getTipo(),
                 request.getLatitud(),
                 request.getLongitud(),
-                request.getNotas()
-        );
+                request.getNotas());
         return ResponseEntity.ok(asistenciaMapper.toResponseDTO(asistencia));
     }
 
@@ -58,9 +60,21 @@ public class AsistenciaController {
     }
 
     @PostMapping("/trabajador/{id}/paged")
-    public PageResponseDTO<AsistenciaResponseDTO> listarPorTrabajadorPaginado(@PathVariable Integer id, @RequestBody PageRequestDTO pageRequest) {
+    public PageResponseDTO<AsistenciaResponseDTO> listarPorTrabajadorPaginado(@PathVariable Integer id,
+            @RequestBody PageRequestDTO pageRequest) {
         PageResponseDTO<Asistencia> pageResponse = asistenciaService.listarPorTrabajadorPaginado(id, pageRequest);
         return mapToPageResponseDTO(pageResponse);
+    }
+
+    @GetMapping("/qr")
+    public ResponseEntity<QrResponseDTO> getQrToken() {
+        QrResponseDTO response = QrResponseDTO.builder()
+                .token(UUID.randomUUID().toString())
+                .timestamp(LocalDateTime.now())
+                .status("ACTIVE")
+                .expiresIn(300)
+                .build();
+        return ResponseEntity.ok(response);
     }
 
     private PageResponseDTO<AsistenciaResponseDTO> mapToPageResponseDTO(PageResponseDTO<Asistencia> pageResponse) {

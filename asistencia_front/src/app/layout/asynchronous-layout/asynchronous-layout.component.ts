@@ -18,7 +18,7 @@ import { CommonModule } from '@angular/common';
         <app-header></app-header>
         
         <main class="layout-content">
-          <div class="content-container animate-fade">
+          <div class="content-wrapper animate-fade">
              <router-outlet></router-outlet>
           </div>
         </main>
@@ -34,7 +34,6 @@ import { CommonModule } from '@angular/common';
       width: 100%;
       min-height: 100vh;
       background: var(--bg-deep);
-      transition: var(--transition-smooth);
     }
 
     .layout-main {
@@ -44,19 +43,27 @@ import { CommonModule } from '@angular/common';
       margin-left: var(--sidebar-width);
       min-width: 0;
       transition: var(--transition-smooth);
+      background: var(--grad-surface);
     }
 
     .layout-content {
       flex: 1;
-      padding: 2rem;
-      padding-top: 1rem;
+      padding: 2.5rem;
       overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .content-wrapper {
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
     }
 
     .mobile-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.3);
+      background: rgba(15, 23, 42, 0.4);
       backdrop-filter: blur(4px);
       z-index: 950;
       opacity: 0;
@@ -72,6 +79,10 @@ import { CommonModule } from '@angular/common';
       .sidebar-open .mobile-backdrop {
         opacity: 1;
         pointer-events: auto;
+      }
+      
+      .layout-content {
+        padding: 1.5rem;
       }
     }
 
