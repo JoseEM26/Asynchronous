@@ -3,13 +3,49 @@ spring:
     name: AplicacionMobil_IOS
   datasource:
     url: jdbc:mysql://localhost:3306/asistencia_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
-    username: root
-    password: mysql
+    username: admin
+    password: Joseangel1.
     driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 2
+      idle-timeout: 300000
+      max-lifetime: 1800000
+      connection-timeout: 30000
   jpa:
     hibernate:
       ddl-auto: validate
-    show-sql: true
+    show-sql: false
+    open-in-view: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
+        jdbc.batch_size: 20
+        order_inserts: true
+        order_updates: true
+
+server:
+  compression:
+    enabled: true
+    mime-types: text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json,application/xml
+    min-response-size: 1024
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+
+logging:
+  level:
+    root: INFO
+    com.asistenciaHibrida: INFO
+    org.hibernate.SQL: ERROR
+
+management:
+  endpoints:
+    enabled-by-default: false
+  health:
+    defaults:
+      enabled: false

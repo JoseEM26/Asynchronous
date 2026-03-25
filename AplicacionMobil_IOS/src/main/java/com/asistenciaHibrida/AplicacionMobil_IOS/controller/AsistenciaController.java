@@ -8,6 +8,8 @@ import com.asistenciaHibrida.AplicacionMobil_IOS.dto.page.PageResponseDTO;
 import com.asistenciaHibrida.AplicacionMobil_IOS.mapper.AsistenciaMapper;
 import com.asistenciaHibrida.AplicacionMobil_IOS.model.Asistencia;
 import com.asistenciaHibrida.AplicacionMobil_IOS.service.AsistenciaService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +20,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/asistencias")
+@Tag(name = "Asistencia", description = "Endpoints para la gestión de asistencias (registros, listados, QR)")
 public class AsistenciaController {
 
     @Autowired
@@ -26,6 +29,7 @@ public class AsistenciaController {
     @Autowired
     private AsistenciaMapper asistenciaMapper;
 
+    @Operation(summary = "Registrar una nueva asistencia", description = "Permite registrar una asistencia manual indicando trabajador, modalidad y ubicación.")
     @PostMapping
     public ResponseEntity<AsistenciaResponseDTO> registrar(@RequestBody AsistenciaRequestDTO request) {
         Asistencia asistencia = asistenciaService.registrarAsistencia(
@@ -38,6 +42,7 @@ public class AsistenciaController {
         return ResponseEntity.ok(asistenciaMapper.toResponseDTO(asistencia));
     }
 
+    @Operation(summary = "Listar todas las asistencias", description = "Retorna una lista completa de todos los registros de asistencia.")
     @GetMapping
     public List<AsistenciaResponseDTO> listar() {
         return asistenciaService.listarTodas().stream()
@@ -68,6 +73,7 @@ public class AsistenciaController {
     @Autowired
     private com.asistenciaHibrida.AplicacionMobil_IOS.service.QrSecureService qrSecureService;
 
+    @Operation(summary = "Registrar asistencia mediante código QR", description = "Valida un token QR y registra la asistencia del trabajador si el token es válido.")
     @PostMapping("/registrar-qr")
     public ResponseEntity<?> registrarConQr(@RequestBody com.asistenciaHibrida.AplicacionMobil_IOS.dto.request.AsistenciaQrRequestDTO request) {
         if (!qrSecureService.isValidToken(request.getQrToken())) {
@@ -94,6 +100,7 @@ public class AsistenciaController {
         }
     }
 
+    @Operation(summary = "Obtener token QR activo", description = "Genera u obtiene el token QR actual para ser escaneado por la aplicación móvil.")
     @GetMapping("/qr")
     public ResponseEntity<QrResponseDTO> getQrToken() {
         QrResponseDTO response = QrResponseDTO.builder()
