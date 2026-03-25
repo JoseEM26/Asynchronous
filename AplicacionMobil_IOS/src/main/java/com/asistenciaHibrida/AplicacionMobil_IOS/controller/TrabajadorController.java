@@ -73,4 +73,29 @@ public class TrabajadorController {
         trabajadorService.eliminar(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/{id}/permitir-cambio-ubicacion")
+    public ResponseEntity<Void> permitirCambioUbicacion(@PathVariable Integer id, @RequestParam Boolean permitir) {
+        trabajadorService.permitirCambioUbicacion(id, permitir);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{id}/ubicacion-virtual")
+    public ResponseEntity<Void> actualizarUbicacionVirtual(
+            @PathVariable Integer id,
+            @RequestParam java.math.BigDecimal lat,
+            @RequestParam java.math.BigDecimal lng) {
+        trabajadorService.actualizarUbicacionVirtual(id, lat, lng);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/puntos-terreno")
+    public ResponseEntity<Void> registrarPuntoTerreno(
+            @RequestParam Integer jefeId,
+            @RequestParam java.math.BigDecimal lat,
+            @RequestParam java.math.BigDecimal lng,
+            @RequestParam(required = false) String nombre) {
+        trabajadorService.registrarPuntoTerreno(jefeId, lat, lng, nombre);
+        return ResponseEntity.ok().build();
+    }
 }

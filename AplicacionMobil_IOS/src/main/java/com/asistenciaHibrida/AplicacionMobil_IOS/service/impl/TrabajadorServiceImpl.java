@@ -79,15 +79,26 @@ public class TrabajadorServiceImpl implements TrabajadorService {
         trabajador.setDireccion(detalles.getDireccion());
         trabajador.setFechaIngreso(detalles.getFechaIngreso());
         trabajador.setActivo(detalles.getActivo());
+        trabajador.setPermitirCambioUbicacion(detalles.getPermitirCambioUbicacion());
+        trabajador.setLatitudVirtual(detalles.getLatitudVirtual());
+        trabajador.setLongitudVirtual(detalles.getLongitudVirtual());
+        trabajador.setEsJefeTerreno(detalles.getEsJefeTerreno());
+        trabajador.setModalidad(detalles.getModalidad());
         return trabajadorRepository.save(trabajador);
     }
 
     @Override
     public void actualizarUbicacionVirtual(Integer trabajadorId, java.math.BigDecimal lat, java.math.BigDecimal lng) {
         Trabajador t = buscarPorId(trabajadorId);
-        t.setLatitudVirtual(lat);
-        t.setLongitudVirtual(lng);
-        trabajadorRepository.save(t);
+        // Only allow if not set OR if admin permitted
+        if (t.getLatitudVirtual() == null || Boolean.TRUE.equals(t.getPermitirCambioUbicacion())) {
+            t.setLatitudVirtual(lat);
+            t.setLongitudVirtual(lng);
+            t.setPermitirCambioUbicacion(false); // Reset flag
+            trabajadorRepository.save(t);
+        } else {
+            throw new RuntimeException("No tiene permisos para cambiar su ubicación. Contacte al administrador.");
+        }
     }
 
     @Autowired
@@ -108,5 +119,12 @@ public class TrabajadorServiceImpl implements TrabajadorService {
         p.setNombreUbicacion(nombre != null ? nombre : "Ubicación Campo - " + jefe.getNombres());
         
         puntoTerrenoRepository.save(p);
+    }
+
+    @Override
+    public void permitirCambioUbicacion(Integer trabajadorId, Boolean permitir) {
+        Trabajador t = buscarPorId(trabajadorId);
+        t.setPermitirCambioUbicacion(permitir);
+        trabajadorRepository.save(t);
     }
 }

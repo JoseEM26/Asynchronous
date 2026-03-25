@@ -87,21 +87,36 @@ public class AsistenciaServiceImpl implements AsistenciaService {
                                 validateDistance(currentLat, currentLng,
                                                 config.getOfficeLat().doubleValue(),
                                                 config.getOfficeLng().doubleValue(),
-                                                config.getRadius(), "Oficina");
+                                                10, "Oficina (Presencial)");
                                 break;
 
-                        case 2: // VIRTUAL (Remote)
-                                handleVirtualValidation(t, currentLat, currentLng, config.getRadius());
+                        case 2: // VIRTUAL
+                                validateVirtualLocation(t, currentLat, currentLng, config.getRadius());
                                 break;
 
                         case 3: // HIBRIDO
-                                if (isTodayPresencial(t)) {
-                                        validateDistance(currentLat, currentLng,
-                                                        config.getOfficeLat().doubleValue(),
-                                                        config.getOfficeLng().doubleValue(),
-                                                        config.getRadius(), "Oficina (Día hibrido)");
+                                boolean inOffice = isWithinDistance(currentLat, currentLng,
+                                                config.getOfficeLat().doubleValue(),
+                                                config.getOfficeLng().doubleValue(),
+                                                config.getRadius());
+                                
+                                boolean inHome = false;
+                                if (t.getLatitudVirtual() != null && t.getLongitudVirtual() != null) {
+                                    inHome = isWithinDistance(currentLat, currentLng,
+                                                    t.getLatitudVirtual().doubleValue(),
+                                                    t.getLongitudVirtual().doubleValue(),
+                                                    config.getRadius());
                                 } else {
-                                        handleVirtualValidation(t, currentLat, currentLng, config.getRadius());
+                                    // If home not set, this registration sets it
+                                    t.setLatitudVirtual(currentLatB);
+                                    t.setLongitudVirtual(currentLngB);
+                                    t.setPermitirCambioUbicacion(false);
+                                    trabajadorRepository.save(t);
+                                    inHome = true;
+                                }
+
+                                if (!inOffice && !inHome) {
+                                    throw new RuntimeException("Fuera de rango. Debe marcar en la Oficina o en su Domicilio registrado.");
                                 }
                                 break;
 
@@ -122,10 +137,11 @@ public class AsistenciaServiceImpl implements AsistenciaService {
                 }
         }
 
-        private void handleVirtualValidation(Trabajador t, double lat, double lng, int radius) {
-                if (t.getLatitudVirtual() == null || t.getLongitudVirtual() == null) {
+        private void validateVirtualLocation(Trabajador t, double lat, double lng, int radius) {
+                if (t.getLatitudVirtual() == null || t.getLongitudVirtual() == null || Boolean.TRUE.equals(t.getPermitirCambioUbicacion())) {
                         t.setLatitudVirtual(BigDecimal.valueOf(lat));
                         t.setLongitudVirtual(BigDecimal.valueOf(lng));
+                        t.setPermitirCambioUbicacion(false);
                         trabajadorRepository.save(t);
                 } else {
                         validateDistance(lat, lng,
@@ -135,11 +151,8 @@ public class AsistenciaServiceImpl implements AsistenciaService {
                 }
         }
 
-        private boolean isTodayPresencial(Trabajador t) {
-                if (t.getDiasPresencial() == null || t.getDiasPresencial().isEmpty())
-                        return false;
-                String dayName = LocalDateTime.now().getDayOfWeek().name();
-                return t.getDiasPresencial().toUpperCase().contains(dayName.substring(0, 3));
+        private boolean isWithinDistance(double lat1, double lon1, double lat2, double lon2, int radius) {
+                return calculateDistance(lat1, lon1, lat2, lon2) <= radius;
         }
 
         private void validateDistance(double lat1, double lon1, double lat2, double lon2, int radius, String area) {
