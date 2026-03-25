@@ -1,6 +1,8 @@
 package com.example.ubication_app_android.ui.login
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,26 +13,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -44,7 +34,7 @@ import com.example.ubication_app_android.util.Constants
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel = viewModel(),
-    onLoginSuccess: (String) -> Unit
+    onLoginSuccess: (com.example.ubication_app_android.data.model.LoginResponse) -> Unit
 ) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -54,13 +44,22 @@ fun LoginScreen(
     LaunchedEffect(loginState) {
         if (loginState is LoginResult.Success) {
             val user = (loginState as LoginResult.Success).user
-            onLoginSuccess(user.trabajador?.nombres ?: user.username)
+            onLoginSuccess(user)
         }
     }
 
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFF1E3A8A), // Navy Blue
+                        Color(0xFF3B82F6), // Blue 500
+                        Color(0xFF93C5FD)  // Light Blue
+                    )
+                )
+            )
     ) {
         Column(
             modifier = Modifier
@@ -69,45 +68,67 @@ fun LoginScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Icon(
-                imageVector = Icons.Default.Lock,
-                contentDescription = null,
-                modifier = Modifier
-                    .size(100.dp)
-                    .padding(bottom = 16.dp),
-                tint = MaterialTheme.colorScheme.primary
-            )
+            // Icon with white background circle
+            Surface(
+                modifier = Modifier.size(120.dp),
+                shape = RoundedCornerShape(60.dp),
+                color = Color.White.copy(alpha = 0.2f)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Fingerprint,
+                    contentDescription = null,
+                    modifier = Modifier.padding(24.dp),
+                    tint = Color.White
+                )
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
 
             Text(
-                text = "Bienvenido de nuevo",
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground
+                text = "Asistencia Híbrida",
+                fontSize = 32.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = Color.White
             )
             
             Text(
-                text = "Ingresa tus credenciales para continuar",
-                fontSize = 14.sp,
-                color = Color.Gray,
-                modifier = Modifier.padding(bottom = 32.dp)
+                text = "Tu seguridad es nuestra prioridad",
+                fontSize = 16.sp,
+                color = Color.White.copy(alpha = 0.8f),
+                modifier = Modifier.padding(bottom = 40.dp)
             )
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.White.copy(alpha = 0.95f)
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
             ) {
                 Column(
-                    modifier = Modifier.padding(20.dp),
+                    modifier = Modifier.padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    Text(
+                        text = "Iniciar Sesión",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF1A237E),
+                        modifier = Modifier.padding(bottom = 20.dp)
+                    )
+
                     OutlinedTextField(
                         value = username,
                         onValueChange = { username = it },
                         label = { Text("Usuario") },
                         modifier = Modifier.fillMaxWidth(),
-                        leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
-                        shape = RoundedCornerShape(12.dp)
+                        leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = Color(0xFF3F51B5)) },
+                        shape = RoundedCornerShape(16.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color(0xFF3F51B5),
+                            focusedLabelColor = Color(0xFF3F51B5)
+                        )
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -117,13 +138,17 @@ fun LoginScreen(
                         onValueChange = { password = it },
                         label = { Text("Contraseña") },
                         modifier = Modifier.fillMaxWidth(),
-                        leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
+                        leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = Color(0xFF3F51B5)) },
                         visualTransformation = PasswordVisualTransformation(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                        shape = RoundedCornerShape(12.dp)
+                        shape = RoundedCornerShape(16.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color(0xFF3F51B5),
+                            focusedLabelColor = Color(0xFF3F51B5)
+                        )
                     )
 
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(32.dp))
 
                     Button(
                         onClick = { 
@@ -131,9 +156,12 @@ fun LoginScreen(
                         },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(50.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        enabled = loginState !is LoginResult.Loading && username.isNotEmpty() && password.isNotEmpty()
+                            .height(56.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        enabled = loginState !is LoginResult.Loading && username.isNotEmpty() && password.isNotEmpty(),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF1A237E)
+                        )
                     ) {
                         if (loginState is LoginResult.Loading) {
                             CircularProgressIndicator(
@@ -142,20 +170,26 @@ fun LoginScreen(
                                 strokeWidth = 2.dp
                             )
                         } else {
-                            Text("Iniciar Sesión", fontWeight = FontWeight.Bold)
+                            Text("ACCEDER", fontWeight = FontWeight.Bold, fontSize = 16.sp, letterSpacing = 1.sp)
                         }
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
             if (loginState is LoginResult.Error) {
-                Text(
-                    text = (loginState as LoginResult.Error).message,
-                    color = MaterialTheme.colorScheme.error,
-                    fontWeight = FontWeight.Medium
-                )
+                Surface(
+                    color = Color.Red.copy(alpha = 0.1f),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(
+                        text = (loginState as LoginResult.Error).message,
+                        color = Color.White,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                        fontWeight = FontWeight.Medium
+                    )
+                }
             }
         }
     }
