@@ -246,13 +246,10 @@ fun AttendanceStatusOverlay(
             )
         }
         is AttendanceResult.Error -> {
-            AlertDialog(
-                onDismissRequest = onDismiss,
-                title = { Text("Error") },
-                text = { Text(state.message) },
-                confirmButton = {
-                    Button(onClick = onDismiss) { Text("Reintentar") }
-                }
+            com.example.ubication_app_android.ui.components.DetailedErrorDialog(
+                message = state.message,
+                errorDetails = state.errorDetails,
+                onDismiss = onDismiss
             )
         }
         else -> {}

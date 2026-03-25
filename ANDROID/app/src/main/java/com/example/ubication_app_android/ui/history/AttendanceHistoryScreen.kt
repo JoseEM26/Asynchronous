@@ -119,10 +119,10 @@ fun AttendanceHistoryScreen(
                         }
                     }
                     is HistoryState.Error -> {
-                        Text(
-                            text = (state as HistoryState.Error).message,
-                            color = Color.White,
-                            modifier = Modifier.align(Alignment.Center)
+                        com.example.ubication_app_android.ui.components.DetailedErrorDialog(
+                            message = (state as HistoryState.Error).message,
+                            errorDetails = (state as HistoryState.Error).errorDetails,
+                            onDismiss = { viewModel.fetchHistory(trabajadorId) }
                         )
                     }
                 }

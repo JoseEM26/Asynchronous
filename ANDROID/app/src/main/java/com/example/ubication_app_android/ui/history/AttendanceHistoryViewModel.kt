@@ -21,10 +21,11 @@ class AttendanceHistoryViewModel : ViewModel() {
                 if (response.isSuccessful) {
                     _historyState.value = HistoryState.Success(response.body() ?: emptyList())
                 } else {
-                    _historyState.value = HistoryState.Error("Error: ${response.code()}")
+                    val errorBody = response.errorBody()?.string() ?: "Sin detalles adicionales"
+                    _historyState.value = HistoryState.Error("Error de Servidor: ${response.code()}", errorBody)
                 }
             } catch (e: Exception) {
-                _historyState.value = HistoryState.Error("Exception: ${e.message}")
+                _historyState.value = HistoryState.Error("Excepción de Red", e.message ?: "Error desconocido")
             }
         }
     }
@@ -33,5 +34,5 @@ class AttendanceHistoryViewModel : ViewModel() {
 sealed class HistoryState {
     object Loading : HistoryState()
     data class Success(val data: List<AsistenciaResponse>) : HistoryState()
-    data class Error(val message: String) : HistoryState()
+    data class Error(val message: String, val errorDetails: String? = null) : HistoryState()
 }

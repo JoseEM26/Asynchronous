@@ -35,12 +35,13 @@ class AdminViewModel : ViewModel() {
                 val response = api.listarTrabajadores()
                 if (response.isSuccessful) {
                     _uiState.value = AdminUiState.Success(response.body() ?: emptyList())
-                } else {
-                    _uiState.value = AdminUiState.Error("Error: ${response.code()}")
-                }
-            } catch (e: Exception) {
-                _uiState.value = AdminUiState.Error(e.message ?: "Error desconocido")
+            } else {
+                val errorBody = response.errorBody()?.string() ?: "Sin detalles adicionales"
+                _uiState.value = AdminUiState.Error("Error: ${response.code()}", errorBody)
             }
+        } catch (e: Exception) {
+            _uiState.value = AdminUiState.Error("Error de Red", e.message ?: "Error desconocido")
+        }
         }
     }
 
@@ -60,7 +61,7 @@ class AdminViewModel : ViewModel() {
 sealed class AdminUiState {
     object Loading : AdminUiState()
     data class Success(val list: List<TrabajadorResponse>) : AdminUiState()
-    data class Error(val message: String) : AdminUiState()
+    data class Error(val message: String, val errorDetails: String? = null) : AdminUiState()
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -101,9 +102,11 @@ fun AdminScreen(
                     }
                 }
                 is AdminUiState.Error -> {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text((state as AdminUiState.Error).message, color = Color.Red)
-                    }
+                    com.example.ubication_app_android.ui.components.DetailedErrorDialog(
+                        message = (state as AdminUiState.Error).message,
+                        errorDetails = (state as AdminUiState.Error).errorDetails,
+                        onDismiss = { viewModel.loadTrabajadores(baseUrl) }
+                    )
                 }
                 is AdminUiState.Success -> {
                     val trabajadores = (state as AdminUiState.Success).list

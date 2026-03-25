@@ -21,10 +21,12 @@ class LoginViewModel : ViewModel() {
                 if (response.isSuccessful) {
                     _loginState.value = LoginResult.Success(response.body()!!)
                 } else {
-                    _loginState.value = LoginResult.Error("Error: ${response.code()} - ${response.message()}")
+                    val errorBody = response.errorBody()?.string() ?: "Sin detalles adicionales"
+                    val userMessage = if (response.code() == 401) "Acceso Denegado: Usuario o contraseña incorrectos" else "Error: ${response.code()} - ${response.message()}"
+                    _loginState.value = LoginResult.Error(userMessage, errorBody)
                 }
             } catch (e: Exception) {
-                _loginState.value = LoginResult.Error("Exception: ${e.message}")
+                _loginState.value = LoginResult.Error("Excepción de Red", e.message ?: "Error desconocido")
             }
         }
     }
@@ -34,5 +36,5 @@ sealed class LoginResult {
     object Idle : LoginResult()
     object Loading : LoginResult()
     data class Success(val user: LoginResponse) : LoginResult()
-    data class Error(val message: String) : LoginResult()
+    data class Error(val message: String, val errorDetails: String? = null) : LoginResult()
 }

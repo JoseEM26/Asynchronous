@@ -179,17 +179,11 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(32.dp))
 
             if (loginState is LoginResult.Error) {
-                Surface(
-                    color = Color.Red.copy(alpha = 0.1f),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Text(
-                        text = (loginState as LoginResult.Error).message,
-                        color = Color.White,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                        fontWeight = FontWeight.Medium
-                    )
-                }
+                com.example.ubication_app_android.ui.components.DetailedErrorDialog(
+                    message = (loginState as LoginResult.Error).message,
+                    errorDetails = (loginState as LoginResult.Error).errorDetails,
+                    onDismiss = { /* Optionally reset state here if needed */ }
+                )
             }
         }
     }

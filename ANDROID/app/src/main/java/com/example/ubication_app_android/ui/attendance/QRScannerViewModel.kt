@@ -21,10 +21,12 @@ class QRScannerViewModel : ViewModel() {
                 if (response.isSuccessful) {
                     _attendanceState.value = AttendanceResult.Success(response.body()!!)
                 } else {
-                    _attendanceState.value = AttendanceResult.Error("Error: ${response.code()} - ${response.message()}")
+                    val errorBody = response.errorBody()?.string() ?: "Sin detalles adicionales"
+                    val userMessage = if (response.code() == 401) "Token de QR Inválido o Expirado. Por favor, intente con el código actual." else "Error: ${response.code()} - ${response.message()}"
+                    _attendanceState.value = AttendanceResult.Error(userMessage, errorBody)
                 }
             } catch (e: Exception) {
-                _attendanceState.value = AttendanceResult.Error("Exception: ${e.message}")
+                _attendanceState.value = AttendanceResult.Error("Excepción de Red", e.message ?: "Error desconocido")
             }
         }
     }
@@ -38,5 +40,5 @@ sealed class AttendanceResult {
     object Idle : AttendanceResult()
     object Loading : AttendanceResult()
     data class Success(val response: AsistenciaResponse) : AttendanceResult()
-    data class Error(val message: String) : AttendanceResult()
+    data class Error(val message: String, val errorDetails: String? = null) : AttendanceResult()
 }
