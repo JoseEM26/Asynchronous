@@ -23,5 +23,6 @@ data class TrabajadorResponse(
     val fechaIngreso: String?,
     val activo: Boolean?,
     val modalidadId: Int?,
-    val esJefeTerreno: Boolean?
+    val esJefeTerreno: Boolean?,
+    val permitirCambioUbicacion: Boolean?
 )

@@ -25,12 +25,34 @@ import kotlinx.coroutines.launch
 @Composable
 fun DashboardScreen(
     username: String,
+    rolId: Int,
+    modalityId: Int?,
+    esJefeTerreno: Boolean,
+    permitirCambioUbicacion: Boolean,
     onLogout: () -> Unit,
     onNavigateToScanner: () -> Unit,
-    onNavigateToHistory: () -> Unit
+    onNavigateToHistory: () -> Unit,
+    onNavigateToAdmin: () -> Unit = {},
+    onSetHomeLocation: () -> Unit = {},
+    onSetTerrenoPoint: () -> Unit = {}
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+
+    val rolName = when(rolId) {
+        1 -> "Administrador"
+        3 -> "Jefe de Terreno"
+        4 -> "Trabajador Terreno"
+        else -> "Trabajador"
+    }
+
+    val modalityName = when(modalityId) {
+        1 -> "Presencial"
+        2 -> "Virtual"
+        3 -> "Híbrido"
+        4 -> "Terreno"
+        else -> "No asignada"
+    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -59,10 +81,11 @@ fun DashboardScreen(
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
                         Text(username, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                        Text("Trabajador", fontSize = 12.sp, color = Color.White.copy(alpha = 0.7f))
+                        Text(rolName, fontSize = 12.sp, color = Color.White.copy(alpha = 0.7f))
                     }
                 }
                 Divider(color = Color.White.copy(alpha = 0.2f))
+                
                 NavigationDrawerItem(
                     icon = { Icon(Icons.Default.Dashboard, contentDescription = null) },
                     label = { Text("Dashboard") },
@@ -78,6 +101,25 @@ fun DashboardScreen(
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
                     onClick = { scope.launch { drawerState.close() } }
                 )
+
+                if (rolId == 1) { // ADMIN
+                    NavigationDrawerItem(
+                        icon = { Icon(Icons.Default.AdminPanelSettings, contentDescription = null) },
+                        label = { Text("Gestión de Personal") },
+                        selected = false,
+                        colors = NavigationDrawerItemDefaults.colors(
+                            unselectedContainerColor = Color.Transparent,
+                            unselectedTextColor = Color.White,
+                            unselectedIconColor = Color.White
+                        ),
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+                        onClick = { 
+                            scope.launch { drawerState.close() }
+                            onNavigateToAdmin()
+                        }
+                    )
+                }
+
                 NavigationDrawerItem(
                     icon = { Icon(Icons.Default.QrCodeScanner, contentDescription = null) },
                     label = { Text("Escanear QR") },
@@ -134,9 +176,9 @@ fun DashboardScreen(
                 .background(
                     Brush.verticalGradient(
                         colors = listOf(
-                            Color(0xFF1E3A8A), // Navy Blue
-                            Color(0xFF3B82F6), // Blue 500
-                            Color(0xFF93C5FD)  // Light Blue
+                            Color(0xFF1E3A8A),
+                            Color(0xFF3B82F6),
+                            Color(0xFF93C5FD)
                         )
                     )
                 )
@@ -163,13 +205,14 @@ fun DashboardScreen(
                         .fillMaxSize()
                         .padding(padding)
                         .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     item {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 24.dp),
+                                .padding(vertical = 16.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Surface(
@@ -193,42 +236,72 @@ fun DashboardScreen(
                                     color = Color.White
                                 )
                                 Text(
-                                    text = "Ten un excelente día de trabajo",
+                                    text = "Modalidad: $modalityName",
                                     fontSize = 14.sp,
-                                    color = Color.White.copy(alpha = 0.8f)
+                                    fontWeight = FontWeight.Medium,
+                                    color = Color.White.copy(alpha = 0.9f)
                                 )
                             }
                         }
 
                         DashboardCard(
-                            title = "Escanear QR de Asistencia",
-                            description = "Registra tu entrada o salida escaneando el código de la sede.",
+                            title = "Registrar Asistencia",
+                            description = "Escanea el código QR para marcar tu entrada o salida.",
                             icon = Icons.Default.QrCodeScanner,
                             primaryColor = Color(0xFF3B82F6),
                             onClick = onNavigateToScanner
                         )
+                    }
 
-                        Spacer(modifier = Modifier.height(20.dp))
+                    if (rolId == 1) { // ADMIN
+                        item {
+                            DashboardCard(
+                                title = "Administración",
+                                description = "Gestionar permisos y ver lista de trabajadores.",
+                                icon = Icons.Default.AdminPanelSettings,
+                                primaryColor = Color(0xFF6366F1),
+                                onClick = onNavigateToAdmin
+                            )
+                        }
+                    }
 
+                    if (esJefeTerreno || rolId == 3) { // JEFE TERRENO
+                        item {
+                            DashboardCard(
+                                title = "Punto de Terreno",
+                                description = "Establecer ubicación actual como punto de marcación para el equipo.",
+                                icon = Icons.Default.LocationOn,
+                                primaryColor = Color(0xFF8B5CF6),
+                                onClick = onSetTerrenoPoint
+                            )
+                        }
+                    }
+
+                    if (modalityId == 3 || modalityId == 2) { // HIBRIDO o VIRTUAL
+                        if (permitirCambioUbicacion) {
+                            item {
+                                DashboardCard(
+                                    title = "Configurar Casa",
+                                    description = "Actualizar tu ubicación de domicilio para el registro remoto.",
+                                    icon = Icons.Default.Home,
+                                    primaryColor = Color(0xFFF59E0B),
+                                    onClick = onSetHomeLocation
+                                )
+                            }
+                        }
+                    }
+
+                    item {
                         DashboardCard(
-                            title = "Ver Mi Historial",
+                            title = "Mi Historial",
                             description = "Consulta todos tus registros de asistencia previos.",
                             icon = Icons.Default.History,
-                            primaryColor = Color(0xFF10B981), // Emerald
+                            primaryColor = Color(0xFF10B981),
                             onClick = onNavigateToHistory
                         )
-
-                        Spacer(modifier = Modifier.height(20.dp))
-
-                        DashboardCard(
-                            title = "Modalidades Híbridas",
-                            description = "Próximamente: Gestiona tus días presenciales y virtuales.",
-                            icon = Icons.Default.Public,
-                            primaryColor = Color(0xFFF59E0B) // Amber
-                        )
-                        
-                        Spacer(modifier = Modifier.height(40.dp))
                     }
+
+                    item { Spacer(modifier = Modifier.height(20.dp)) }
                 }
             }
         }
@@ -295,7 +368,11 @@ fun DashboardCard(
 fun DashboardScreenPreview() {
     com.example.ubication_app_android.ui.theme.UBICATION_APP_ANDROIDTheme {
         DashboardScreen(
-            username = "Prueba",
+            username = "Admin User",
+            rolId = 1,
+            modalityId = 3,
+            esJefeTerreno = true,
+            permitirCambioUbicacion = true,
             onLogout = {},
             onNavigateToScanner = {},
             onNavigateToHistory = {}
