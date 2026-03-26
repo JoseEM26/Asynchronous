@@ -60,4 +60,12 @@ public class Trabajador {
 
     @Column(name = "permitir_cambio_ubicacion")
     private Boolean permitirCambioUbicacion = false;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "jefe_id")
+    private Trabajador jefe;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "rol_id")
+    private Rol rol;
 }

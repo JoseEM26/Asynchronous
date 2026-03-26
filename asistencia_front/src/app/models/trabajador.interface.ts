@@ -12,6 +12,8 @@ export interface TrabajadorRequest {
   latitudVirtual?: number;
   longitudVirtual?: number;
   diasPresencial?: string;
+  jefeId?: number;
+  rolId?: number;
 }
 
 export interface TrabajadorResponse {
@@ -29,4 +31,7 @@ export interface TrabajadorResponse {
   latitudVirtual?: number;
   longitudVirtual?: number;
   diasPresencial?: string;
+  jefe?: TrabajadorResponse;
+  jefeNombre?: string;
+  rol?: any;
 }

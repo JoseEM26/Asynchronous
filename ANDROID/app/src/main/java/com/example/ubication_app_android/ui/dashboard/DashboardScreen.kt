@@ -1,381 +1,147 @@
 package com.example.ubication_app_android.ui.dashboard
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(
     username: String,
     rolId: Int,
-    modalityId: Int?,
+    modalityId: Int,
     esJefeTerreno: Boolean,
     permitirCambioUbicacion: Boolean,
     onLogout: () -> Unit,
     onNavigateToScanner: () -> Unit,
     onNavigateToHistory: () -> Unit,
-    onNavigateToAdmin: () -> Unit = {},
-    onSetHomeLocation: () -> Unit = {},
-    onSetTerrenoPoint: () -> Unit = {}
+    onNavigateToAdmin: () -> Unit,
+    onNavigateToProfile: () -> Unit,
+    onSetHomeLocation: () -> Unit,
+    onSetTerrenoPoint: () -> Unit,
+    onNavigateToUpdateOffice: () -> Unit = {},
+    onNavigateToUpdateTerreno: () -> Unit = {}
 ) {
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-    val scope = rememberCoroutineScope()
-
-    val rolName = when(rolId) {
-        1 -> "Administrador"
-        3 -> "Jefe de Terreno"
-        4 -> "Trabajador Terreno"
-        else -> "Trabajador"
-    }
-
-    val modalityName = when(modalityId) {
-        1 -> "Presencial"
-        2 -> "Virtual"
-        3 -> "Híbrido"
-        4 -> "Terreno"
-        else -> "No asignada"
-    }
-
-    ModalNavigationDrawer(
-        drawerState = drawerState,
-        drawerContent = {
-            ModalDrawerSheet(
-                drawerContainerColor = Color(0xFF1E3A8A),
-                drawerContentColor = Color.White
-            ) {
-                Spacer(modifier = Modifier.height(20.dp))
-                Row(
-                    modifier = Modifier.padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Surface(
-                        modifier = Modifier.size(48.dp),
-                        shape = CircleShape,
-                        color = Color.White.copy(alpha = 0.2f)
-                    ) {
-                        Icon(
-                            Icons.Default.Person,
-                            contentDescription = null,
-                            modifier = Modifier.padding(8.dp),
-                            tint = Color.White
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Column {
-                        Text(username, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                        Text(rolName, fontSize = 12.sp, color = Color.White.copy(alpha = 0.7f))
-                    }
-                }
-                Divider(color = Color.White.copy(alpha = 0.2f))
-                
-                NavigationDrawerItem(
-                    icon = { Icon(Icons.Default.Dashboard, contentDescription = null) },
-                    label = { Text("Dashboard") },
-                    selected = true,
-                    colors = NavigationDrawerItemDefaults.colors(
-                        selectedContainerColor = Color.White.copy(alpha = 0.2f),
-                        unselectedContainerColor = Color.Transparent,
-                        selectedTextColor = Color.White,
-                        unselectedTextColor = Color.White.copy(alpha = 0.7f),
-                        selectedIconColor = Color.White,
-                        unselectedIconColor = Color.White.copy(alpha = 0.7f)
-                    ),
-                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
-                    onClick = { scope.launch { drawerState.close() } }
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "Hola, $username",
+            style = MaterialTheme.typography.headlineLarge,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        
+        Text(
+            text = "Panel de Control",
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.secondary
+        )
+        
+        Spacer(modifier = Modifier.height(32.dp))
+        
+        // Basic Actions
+        DashboardButton(
+            text = "Mi Perfil",
+            icon = Icons.Default.Person,
+            onClick = onNavigateToProfile,
+            containerColor = MaterialTheme.colorScheme.secondaryContainer
+        )
+        
+        Spacer(modifier = Modifier.height(16.dp))
+        
+        DashboardButton(
+            text = "Escanear QR Asistencia",
+            icon = Icons.Default.QrCodeScanner,
+            onClick = onNavigateToScanner
+        )
+        
+        Spacer(modifier = Modifier.height(16.dp))
+        
+        DashboardButton(
+            text = "Ver Historial",
+            icon = Icons.Default.History,
+            onClick = onNavigateToHistory
+        )
+        
+        Spacer(modifier = Modifier.height(16.dp))
+        
+        // Role Specific Actions
+        if (rolId == 1) { // ADMIN
+            DashboardButton(
+                text = "Gestión de Usuarios",
+                icon = Icons.Default.People,
+                onClick = onNavigateToAdmin,
+                containerColor = MaterialTheme.colorScheme.tertiaryContainer
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            DashboardButton(
+                text = "Actualizar Punto Oficina",
+                icon = Icons.Default.LocationOn,
+                onClick = onNavigateToUpdateOffice,
+                containerColor = MaterialTheme.colorScheme.primaryContainer
+            )
+        }
+        
+        if (rolId == 3) { // SOLO JEFE TERRENO
+            DashboardButton(
+                text = "Establecer Punto Terreno",
+                icon = Icons.Default.AddLocation,
+                onClick = onNavigateToUpdateTerreno,
+                containerColor = MaterialTheme.colorScheme.primaryContainer
+            )
+        }
+        
+        // Virtual / Hybrid specific
+        if (modalityId == 2 || modalityId == 3) {
+            if (permitirCambioUbicacion) {
+                Spacer(modifier = Modifier.height(16.dp))
+                DashboardButton(
+                    text = "Mi Ubicación Casa",
+                    icon = Icons.Default.Home,
+                    onClick = onSetHomeLocation,
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer
                 )
-
-                if (rolId == 1) { // ADMIN
-                    NavigationDrawerItem(
-                        icon = { Icon(Icons.Default.AdminPanelSettings, contentDescription = null) },
-                        label = { Text("Gestión de Personal") },
-                        selected = false,
-                        colors = NavigationDrawerItemDefaults.colors(
-                            unselectedContainerColor = Color.Transparent,
-                            unselectedTextColor = Color.White,
-                            unselectedIconColor = Color.White
-                        ),
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
-                        onClick = { 
-                            scope.launch { drawerState.close() }
-                            onNavigateToAdmin()
-                        }
-                    )
-                }
-
-                NavigationDrawerItem(
-                    icon = { Icon(Icons.Default.QrCodeScanner, contentDescription = null) },
-                    label = { Text("Escanear QR") },
-                    selected = false,
-                    colors = NavigationDrawerItemDefaults.colors(
-                        unselectedContainerColor = Color.Transparent,
-                        unselectedTextColor = Color.White.copy(alpha = 0.7f),
-                        unselectedIconColor = Color.White.copy(alpha = 0.7f)
-                    ),
-                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
-                    onClick = { 
-                        scope.launch { drawerState.close() }
-                        onNavigateToScanner()
-                    }
-                )
-                NavigationDrawerItem(
-                    icon = { Icon(Icons.Default.History, contentDescription = null) },
-                    label = { Text("Mi Historial") },
-                    selected = false,
-                    colors = NavigationDrawerItemDefaults.colors(
-                        unselectedContainerColor = Color.Transparent,
-                        unselectedTextColor = Color.White.copy(alpha = 0.7f),
-                        unselectedIconColor = Color.White.copy(alpha = 0.7f)
-                    ),
-                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
-                    onClick = { 
-                        scope.launch { drawerState.close() }
-                        onNavigateToHistory()
-                    }
-                )
-                Spacer(modifier = Modifier.weight(1f))
-                NavigationDrawerItem(
-                    icon = { Icon(Icons.Default.ExitToApp, contentDescription = null) },
-                    label = { Text("Cerrar Sesión") },
-                    selected = false,
-                    colors = NavigationDrawerItemDefaults.colors(
-                        unselectedContainerColor = Color.Transparent,
-                        unselectedTextColor = Color.White.copy(alpha = 0.7f),
-                        unselectedIconColor = Color.White.copy(alpha = 0.7f)
-                    ),
-                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
-                    onClick = { 
-                        scope.launch { drawerState.close() }
-                        onLogout()
-                    }
-                )
-                Spacer(modifier = Modifier.height(20.dp))
             }
         }
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            Color(0xFF1E3A8A),
-                            Color(0xFF3B82F6),
-                            Color(0xFF93C5FD)
-                        )
-                    )
-                )
-        ) {
-            Scaffold(
-                containerColor = Color.Transparent,
-                topBar = {
-                    TopAppBar(
-                        title = { Text("Asistencia Híbrida", fontWeight = FontWeight.Bold) },
-                        navigationIcon = {
-                            IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                                Icon(Icons.Default.Menu, contentDescription = "Menú", tint = Color.White)
-                            }
-                        },
-                        colors = TopAppBarDefaults.topAppBarColors(
-                            containerColor = Color.Transparent,
-                            titleContentColor = Color.White
-                        )
-                    )
-                }
-            ) { padding ->
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding)
-                        .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    item {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 16.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Surface(
-                                modifier = Modifier.size(64.dp),
-                                shape = CircleShape,
-                                color = Color.White.copy(alpha = 0.2f)
-                            ) {
-                                Icon(
-                                    Icons.Default.AccountCircle,
-                                    contentDescription = null,
-                                    modifier = Modifier.fillMaxSize().padding(8.dp),
-                                    tint = Color.White
-                                )
-                            }
-                            Spacer(modifier = Modifier.width(16.dp))
-                            Column {
-                                Text(
-                                    text = "¡Hola, $username!",
-                                    fontSize = 24.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.White
-                                )
-                                Text(
-                                    text = "Modalidad: $modalityName",
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    color = Color.White.copy(alpha = 0.9f)
-                                )
-                            }
-                        }
 
-                        DashboardCard(
-                            title = "Registrar Asistencia",
-                            description = "Escanea el código QR para marcar tu entrada o salida.",
-                            icon = Icons.Default.QrCodeScanner,
-                            primaryColor = Color(0xFF3B82F6),
-                            onClick = onNavigateToScanner
-                        )
-                    }
-
-                    if (rolId == 1) { // ADMIN
-                        item {
-                            DashboardCard(
-                                title = "Administración",
-                                description = "Gestionar permisos y ver lista de trabajadores.",
-                                icon = Icons.Default.AdminPanelSettings,
-                                primaryColor = Color(0xFF6366F1),
-                                onClick = onNavigateToAdmin
-                            )
-                        }
-                    }
-
-                    if (esJefeTerreno || rolId == 3) { // JEFE TERRENO
-                        item {
-                            DashboardCard(
-                                title = "Punto de Terreno",
-                                description = "Establecer ubicación actual como punto de marcación para el equipo.",
-                                icon = Icons.Default.LocationOn,
-                                primaryColor = Color(0xFF8B5CF6),
-                                onClick = onSetTerrenoPoint
-                            )
-                        }
-                    }
-
-                    if (modalityId == 3 || modalityId == 2) { // HIBRIDO o VIRTUAL
-                        if (permitirCambioUbicacion) {
-                            item {
-                                DashboardCard(
-                                    title = "Configurar Casa",
-                                    description = "Actualizar tu ubicación de domicilio para el registro remoto.",
-                                    icon = Icons.Default.Home,
-                                    primaryColor = Color(0xFFF59E0B),
-                                    onClick = onSetHomeLocation
-                                )
-                            }
-                        }
-                    }
-
-                    item {
-                        DashboardCard(
-                            title = "Mi Historial",
-                            description = "Consulta todos tus registros de asistencia previos.",
-                            icon = Icons.Default.History,
-                            primaryColor = Color(0xFF10B981),
-                            onClick = onNavigateToHistory
-                        )
-                    }
-
-                    item { Spacer(modifier = Modifier.height(20.dp)) }
-                }
-            }
+        Spacer(modifier = Modifier.weight(1f))
+        
+        TextButton(onClick = onLogout) {
+            Text("CERRAR SESIÓN")
         }
     }
 }
 
 @Composable
-fun DashboardCard(
-    title: String,
-    description: String,
+fun DashboardButton(
+    text: String,
     icon: ImageVector,
-    primaryColor: Color,
-    onClick: () -> Unit = {}
+    onClick: () -> Unit,
+    containerColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.surfaceVariant
 ) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() },
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White.copy(alpha = 0.9f)
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    Button(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth().height(64.dp),
+        shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
+        colors = ButtonDefaults.buttonColors(containerColor = containerColor, contentColor = MaterialTheme.colorScheme.onSurfaceVariant)
     ) {
         Row(
-            modifier = Modifier
-                .padding(20.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start
         ) {
-            Surface(
-                modifier = Modifier.size(56.dp),
-                shape = RoundedCornerShape(16.dp),
-                color = primaryColor.copy(alpha = 0.1f)
-            ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    modifier = Modifier.padding(12.dp),
-                    tint = primaryColor
-                )
-            }
-            Spacer(modifier = Modifier.width(20.dp))
-            Column {
-                Text(
-                    text = title,
-                    fontWeight = FontWeight.ExtraBold,
-                    fontSize = 18.sp,
-                    color = Color(0xFF1E3A8A)
-                )
-                Text(
-                    text = description,
-                    fontSize = 13.sp,
-                    lineHeight = 18.sp,
-                    color = Color.DarkGray
-                )
-            }
+            Icon(icon, contentDescription = null, modifier = Modifier.size(24.dp))
+            Spacer(modifier = Modifier.width(16.dp))
+            Text(text, fontSize = 16.sp)
         }
-    }
-}
-
-@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
-@Composable
-fun DashboardScreenPreview() {
-    com.example.ubication_app_android.ui.theme.UBICATION_APP_ANDROIDTheme {
-        DashboardScreen(
-            username = "Admin User",
-            rolId = 1,
-            modalityId = 3,
-            esJefeTerreno = true,
-            permitirCambioUbicacion = true,
-            onLogout = {},
-            onNavigateToScanner = {},
-            onNavigateToHistory = {}
-        )
     }
 }

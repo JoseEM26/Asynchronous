@@ -27,6 +27,7 @@ public class TrabajadorServiceImpl implements TrabajadorService {
     }
 
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public PageResponseDTO<Trabajador> listarPaginado(PageRequestDTO pageRequest) {
         if (pageRequest == null) pageRequest = new PageRequestDTO();
         String sortBy = (pageRequest.getSortBy() == null || pageRequest.getSortBy().isEmpty()) ? "id" : pageRequest.getSortBy();
@@ -84,6 +85,7 @@ public class TrabajadorServiceImpl implements TrabajadorService {
         trabajador.setLongitudVirtual(detalles.getLongitudVirtual());
         trabajador.setEsJefeTerreno(detalles.getEsJefeTerreno());
         trabajador.setModalidad(detalles.getModalidad());
+        trabajador.setRol(detalles.getRol());
         return trabajadorRepository.save(trabajador);
     }
 

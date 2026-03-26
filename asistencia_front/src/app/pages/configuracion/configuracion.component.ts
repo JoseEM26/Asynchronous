@@ -4,6 +4,9 @@ import { ThemeService, ThemeColors } from '../../services/theme.service';
 import { NotificationService } from '../../services/notification.service';
 import { FormsModule } from '@angular/forms';
 import { ConfiguracionService } from '../../services/configuracion.service';
+import { TrabajadorService } from '../../services/trabajador.service';
+import { PuntoTerrenoService } from '../../services/punto-terreno.service';
+import { TrabajadorResponse } from '../../models/trabajador.interface';
 
 @Component({
   selector: 'app-configuracion',
@@ -276,41 +279,84 @@ import { ConfiguracionService } from '../../services/configuracion.service';
           <!-- SECCION TERRENO -->
           <div *ngIf="activeTab === 'terreno'" class="animate-fade">
             <div class="glass-card main-list-card p-5">
-              <header class="mb-5 border-bottom pb-3">
-                 <h4 class="fw-bold mb-1">Puntos Dynamic (Terreno)</h4>
-                 <p class="text-secondary opacity-75">Última ubicación establecida por los líderes de campo.</p>
+              <header class="mb-5 border-bottom pb-3 d-flex justify-content-between align-items-center">
+                 <div>
+                   <h4 class="fw-bold mb-1">Puntos de Grupo (Terreno)</h4>
+                   <p class="text-secondary opacity-75">Configuración manual de coordenadas para líderes de campo.</p>
+                 </div>
+                 <button class="btn btn-outline-primary btn-sm rounded-pill px-4" (click)="showForm = !showForm">
+                    {{ showForm ? 'Ver Estado Actual' : 'Configurar Nuevo Punto' }}
+                 </button>
               </header>
 
-              <div *ngIf="puntoTerrenoActual" class="terrain-status-box p-4 rounded-4 border bg-deep">
-                 <div class="row align-items-center">
-                   <div class="col-md-2 text-center border-end">
-                      <div class="icon-circle-box blur-blue mx-auto mb-2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path></svg></div>
-                      <span class="small fw-bold">Punto Activo</span>
-                   </div>
-                   <div class="col-md-6 px-4">
-                      <h5 class="fw-bold mb-1">{{ puntoTerrenoActual.nombreUbicacion }}</h5>
-                      <p class="mb-2 text-primary fw-semibold">{{ puntoTerrenoActual.latitud }}, {{ puntoTerrenoActual.longitud }}</p>
-                      <div class="small text-muted">
-                         Actualizado el: {{ puntoTerrenoActual.fechaActualizacion | date:'medium' }}
-                      </div>
-                   </div>
-                   <div class="col-md-4 text-md-end">
-                      <div class="small text-muted mb-1">Establecido por:</div>
-                      <div class="fw-bold fs-5">{{ puntoTerrenoActual.actualizadoPor?.nombres }} {{ puntoTerrenoActual.actualizadoPor?.apellidos }}</div>
-                   </div>
+              <!-- FORMULARIO DE INGRESO MANUAL -->
+              <div *ngIf="showForm" class="animate-fade mb-5">
+                 <div class="p-4 bg-deep rounded-4 border">
+                    <h6 class="fw-bold mb-4 text-primary">Ingreso Manual de Coordenadas</h6>
+                    <div class="row g-4">
+                       <div class="col-md-12">
+                          <label class="small fw-bold text-uppercase ls-1 text-muted mb-2">Jefe de Terreno (Líder Grupo)</label>
+                          <select [(ngModel)]="newPuntoTerreno.trabajadorId" class="form-input-base">
+                             <option [ngValue]="null" disabled>Seleccione el responsable...</option>
+                             <option *ngFor="let j of jefes" [value]="j.id">{{ j.nombres }} {{ j.apellidos }} ({{ j.dni }})</option>
+                          </select>
+                       </div>
+                       <div class="col-md-6">
+                          <label class="small fw-bold text-uppercase ls-1 text-muted mb-2">Latitud</label>
+                          <input type="number" [(ngModel)]="newPuntoTerreno.latitud" class="form-input-base" placeholder="-12.0463">
+                       </div>
+                       <div class="col-md-6">
+                          <label class="small fw-bold text-uppercase ls-1 text-muted mb-2">Longitud</label>
+                          <input type="number" [(ngModel)]="newPuntoTerreno.longitud" class="form-input-base" placeholder="-77.0427">
+                       </div>
+                       <div class="col-md-12">
+                          <label class="small fw-bold text-uppercase ls-1 text-muted mb-2">Nombre de Ubicación (Opcional)</label>
+                          <input type="text" [(ngModel)]="newPuntoTerreno.nombreUbicacion" class="form-input-base" placeholder="Ej: Proyecto Carretera Central">
+                       </div>
+                       <div class="col-12 mt-4">
+                          <button class="btn btn-primary-grad w-100 py-3 shadow" 
+                                  [disabled]="!newPuntoTerreno.trabajadorId || !newPuntoTerreno.latitud || !newPuntoTerreno.longitud || !newPuntoTerreno.nombreUbicacion"
+                                  (click)="savePuntoTerreno()">
+                             Guardar Ubicación para el Grupo
+                          </button>
+                       </div>
+                    </div>
                  </div>
               </div>
 
-               <div *ngIf="!puntoTerrenoActual" class="text-center py-5">
-                  <p class="text-muted">No hay puntos de terreno registrados actualmente.</p>
-               </div>
+              <!-- ESTADO ACTUAL -->
+              <div *ngIf="!showForm" class="animate-fade">
+                <div *ngIf="puntoTerrenoActual" class="terrain-status-box p-4 rounded-4 border bg-deep mb-4">
+                   <div class="row align-items-center">
+                     <div class="col-md-2 text-center border-end">
+                        <div class="icon-circle-box blur-blue mx-auto mb-2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path></svg></div>
+                        <span class="small fw-bold">Último Punto</span>
+                     </div>
+                     <div class="col-md-6 px-4">
+                        <h5 class="fw-bold mb-1">{{ puntoTerrenoActual.nombreUbicacion }}</h5>
+                        <p class="mb-2 text-primary fw-semibold">{{ puntoTerrenoActual.latitud }}, {{ puntoTerrenoActual.longitud }}</p>
+                        <div class="small text-muted">
+                           Actualizado el: {{ puntoTerrenoActual.fechaActualizacion | date:'medium' }}
+                        </div>
+                     </div>
+                     <div class="col-md-4 text-md-end">
+                        <div class="small text-muted mb-1">Establecido por:</div>
+                        <div class="fw-bold fs-5">{{ puntoTerrenoActual.actualizadoPor?.nombres }} {{ puntoTerrenoActual.actualizadoPor?.apellidos }}</div>
+                     </div>
+                   </div>
+                </div>
 
-              <div class="mt-5 p-4 bg-soft-primary rounded-4 border">
+                 <div *ngIf="!puntoTerrenoActual" class="text-center py-5">
+                    <p class="text-muted">No hay puntos registrados. Use el botón de arriba para configurar uno manualmente.</p>
+                 </div>
+              </div>
+
+              <div class="mt-4 p-4 bg-soft-primary rounded-4 border">
                  <h6 class="fw-bold mb-3 d-flex align-items-center">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-                    ¿Cómo funciona el modo Terreno?
+                    Segregación por Grupos
                  </h6>
-                 <p class="small text-secondary mb-0">Los trabajadores asignados a modalidad **Terreno** solo pueden marcar asistencia si se encuentran dentro del radio permitido respecto a la ubicación establecida por el **Jefe de Terreno**. Esta ubicación es dinámica y puede ser actualizada en cualquier momento por el líder desde su App móvil.</p>
+                 <p class="small text-secondary mb-0">Cada Jefe de Terreno puede tener su propia ubicación. Los trabajadores subordinados serán validados contra las coordenadas del jefe que tengan asignado en su ficha.</p>
               </div>
             </div>
           </div>
@@ -485,6 +531,7 @@ export class ConfiguracionComponent implements OnInit {
   };
 
   activeTab: string = 'apariencia';
+  showForm: boolean = false;
 
   customColors: ThemeColors = {
     primary: '#6366f1',
@@ -497,11 +544,15 @@ export class ConfiguracionComponent implements OnInit {
   geoConfig: any = { officeLat: -12.046374, officeLng: -77.042793, radius: 50 };
   trabajadoresRemotos: any[] = [];
   puntoTerrenoActual: any = null;
+  jefes: TrabajadorResponse[] = [];
+  newPuntoTerreno: any = { trabajadorId: null, latitud: null, longitud: null, nombreUbicacion: '' };
 
   constructor(
     private themeService: ThemeService,
     private notify: NotificationService,
-    private configService: ConfiguracionService
+    private configService: ConfiguracionService,
+    private trabajadorService: TrabajadorService,
+    private puntoTerrenoService: PuntoTerrenoService
   ) { }
 
   ngOnInit(): void {
@@ -541,6 +592,25 @@ export class ConfiguracionComponent implements OnInit {
     this.configService.getTerreno().subscribe({
       next: (data) => this.puntoTerrenoActual = data,
       error: () => this.puntoTerrenoActual = null
+    });
+    this.loadJefes();
+  }
+
+  loadJefes(): void {
+    this.trabajadorService.listar().subscribe({
+      next: (data) => this.jefes = data.filter(t => t.rol && (t.rol.id === 3 || t.rol.id === 4))
+    });
+  }
+
+  savePuntoTerreno(): void {
+    this.puntoTerrenoService.registrar(this.newPuntoTerreno).subscribe({
+      next: () => {
+        this.notify.success('Ubicación de terreno para el grupo actualizada');
+        this.showForm = false;
+        this.loadTerrenoData();
+        this.newPuntoTerreno = { trabajadorId: null, latitud: null, longitud: null, nombreUbicacion: '' };
+      },
+      error: () => this.notify.error('Error al guardar ubicación de terreno')
     });
   }
 

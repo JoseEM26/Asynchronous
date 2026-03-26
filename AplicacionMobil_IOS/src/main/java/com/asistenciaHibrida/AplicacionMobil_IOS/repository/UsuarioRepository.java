@@ -8,5 +8,6 @@ import java.util.Optional;
 
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
-    Optional<Usuario> findByUsername(String username);
+    @org.springframework.data.jpa.repository.Query("SELECT u FROM Usuario u LEFT JOIN FETCH u.rol LEFT JOIN FETCH u.trabajador t LEFT JOIN FETCH t.modalidad LEFT JOIN FETCH t.rol WHERE u.username = :username")
+    Optional<Usuario> findByUsername(@org.springframework.data.repository.query.Param("username") String username);
 }

@@ -20,4 +20,7 @@ public class TrabajadorResponseDTO {
     private java.math.BigDecimal longitudVirtual;
     private String diasPresencial;
     private Boolean permitirCambioUbicacion;
+    private String rolNombre;
+    private String modalidadNombre;
+    private String jefeNombre;
 }

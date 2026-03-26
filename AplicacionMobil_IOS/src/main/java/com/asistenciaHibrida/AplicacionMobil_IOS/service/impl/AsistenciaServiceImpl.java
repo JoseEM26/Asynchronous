@@ -99,46 +99,61 @@ public class AsistenciaServiceImpl implements AsistenciaService {
                                                 config.getOfficeLat().doubleValue(),
                                                 config.getOfficeLng().doubleValue(),
                                                 config.getRadius());
-                                
+
                                 boolean inHome = false;
                                 if (t.getLatitudVirtual() != null && t.getLongitudVirtual() != null) {
-                                    inHome = isWithinDistance(currentLat, currentLng,
-                                                    t.getLatitudVirtual().doubleValue(),
-                                                    t.getLongitudVirtual().doubleValue(),
-                                                    config.getRadius());
+                                        inHome = isWithinDistance(currentLat, currentLng,
+                                                        t.getLatitudVirtual().doubleValue(),
+                                                        t.getLongitudVirtual().doubleValue(),
+                                                        config.getRadius());
                                 } else {
-                                    // If home not set, this registration sets it
-                                    t.setLatitudVirtual(currentLatB);
-                                    t.setLongitudVirtual(currentLngB);
-                                    t.setPermitirCambioUbicacion(false);
-                                    trabajadorRepository.save(t);
-                                    inHome = true;
+                                        // If home not set, this registration sets it
+                                        t.setLatitudVirtual(currentLatB);
+                                        t.setLongitudVirtual(currentLngB);
+                                        t.setPermitirCambioUbicacion(false);
+                                        trabajadorRepository.save(t);
+                                        inHome = true;
                                 }
 
                                 if (!inOffice && !inHome) {
-                                    throw new RuntimeException("Fuera de rango. Debe marcar en la Oficina o en su Domicilio registrado.");
+                                        throw new RuntimeException(
+                                                        "Fuera de rango. Debe marcar en la Oficina o en su Domicilio registrado.");
                                 }
                                 break;
 
                         case 4: // TERRENO
+                                // Search for point by worker id first, then optionally by jefe id
+                                PuntoTerreno terrainPoint = puntoTerrenoRepository.findLatestByJefeId(t.getId())
+                                                .orElse(null);
+
+                                if (terrainPoint == null && t.getJefe() != null) {
+                                        terrainPoint = puntoTerrenoRepository.findLatestByJefeId(t.getJefe().getId())
+                                                        .orElse(null);
+                                }
+
                                 if (Boolean.TRUE.equals(t.getEsJefeTerreno())) {
                                         savePuntoTerreno(t, currentLatB, currentLngB);
                                 } else {
-                                        PuntoTerreno latest = puntoTerrenoRepository.findLatest()
-                                                        .orElseThrow(() -> new RuntimeException(
-                                                                        "No hay punto de terreno definido por un jefe"));
+                                        if (terrainPoint == null) {
+                                                String errorMsg = (t.getJefe() == null)
+                                                                ? "No se ha definido un punto de asistencia para usted."
+                                                                : "Su jefe (" + t.getJefe().getNombres()
+                                                                                + ") no ha definido un punto de asistencia.";
+                                                throw new RuntimeException(errorMsg);
+                                        }
                                         validateDistance(currentLat, currentLng,
-                                                        latest.getLatitud().doubleValue(),
-                                                        latest.getLongitud().doubleValue(),
+                                                        terrainPoint.getLatitud().doubleValue(),
+                                                        terrainPoint.getLongitud().doubleValue(),
                                                         config.getRadius(),
-                                                        "Punto de Terreno: " + latest.getNombreUbicacion());
+                                                        "Punto de Terreno (" + terrainPoint.getNombreUbicacion() + ")");
                                 }
                                 break;
                 }
         }
 
         private void validateVirtualLocation(Trabajador t, double lat, double lng, int radius) {
-                if (t.getLatitudVirtual() == null || t.getLongitudVirtual() == null || Boolean.TRUE.equals(t.getPermitirCambioUbicacion())) {
+                if (t.getLatitudVirtual() == null || t.getLongitudVirtual() == null
+                                || Boolean.TRUE.equals(t.getPermitirCambioUbicacion())) {
                         t.setLatitudVirtual(BigDecimal.valueOf(lat));
                         t.setLongitudVirtual(BigDecimal.valueOf(lng));
                         t.setPermitirCambioUbicacion(false);
@@ -199,6 +214,7 @@ public class AsistenciaServiceImpl implements AsistenciaService {
         }
 
         @Override
+        @org.springframework.transaction.annotation.Transactional(readOnly = true)
         public PageResponseDTO<Asistencia> listarPorTrabajadorPaginado(Integer trabajadorId,
                         PageRequestDTO pageRequest) {
                 Trabajador trabajador = trabajadorRepository.findById(trabajadorId)
@@ -237,6 +253,7 @@ public class AsistenciaServiceImpl implements AsistenciaService {
         }
 
         @Override
+        @org.springframework.transaction.annotation.Transactional(readOnly = true)
         public PageResponseDTO<Asistencia> listarTodasPaginado(PageRequestDTO pageRequest) {
                 if (pageRequest == null)
                         pageRequest = new PageRequestDTO();

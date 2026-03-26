@@ -4,7 +4,7 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/asistencia_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
     username: admin
-    password: Joseangel1.
+    password: Joseangel123!.
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       maximum-pool-size: 5

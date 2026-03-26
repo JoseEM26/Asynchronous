@@ -24,5 +24,8 @@ data class TrabajadorResponse(
     val activo: Boolean?,
     val modalidadId: Int?,
     val esJefeTerreno: Boolean?,
-    val permitirCambioUbicacion: Boolean?
+    val permitirCambioUbicacion: Boolean?,
+    val rolNombre: String? = null,
+    val modalidadNombre: String? = null,
+    val jefe: TrabajadorResponse?
 )

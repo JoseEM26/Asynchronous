@@ -3,7 +3,10 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TrabajadorRequest, TrabajadorResponse } from '../../models/trabajador.interface';
 import { ModalidadService } from '../../services/modalidad.service';
+import { TrabajadorService } from '../../services/trabajador.service';
+import { RolService } from '../../services/rol.service';
 import { ModalidadResponse } from '../../models/modalidad.interface';
+import { RolResponse } from '../../models/rol.interface';
 
 @Component({
   selector: 'app-form-trabajador',
@@ -64,11 +67,22 @@ import { ModalidadResponse } from '../../models/modalidad.interface';
                     </div>
 
                     <!-- Condicional para Terreno -->
-                    <div class="col-md-6 d-flex align-items-end" *ngIf="form.get('modalidadId')?.value == 4">
+                    <div class="col-md-6" *ngIf="form.get('modalidadId')?.value == 4">
                        <label class="d-flex align-items-center gap-2 cursor-pointer pb-2">
                           <input type="checkbox" formControlName="esJefeTerreno" class="form-check-input mt-0" style="width: 20px; height: 20px;">
                           <span class="form-label-base mb-0" style="text-transform: none;">Este trabajador es <b>Jefe de Terreno</b></span>
                        </label>
+
+                       <!-- Asignación de Jefe (si no es jefe él mismo) -->
+                       <div class="mt-2" *ngIf="!form.get('esJefeTerreno')?.value">
+                         <label class="form-label-base">Grupo / Jefe de Terreno</label>
+                         <select formControlName="jefeId" class="form-input-base">
+                           <option [ngValue]="null">Sin jefe (Independiente)</option>
+                           <option *ngFor="let jefe of jefesTerreno" [value]="jefe.id">
+                             {{ jefe.nombres }} {{ jefe.apellidos }}
+                           </option>
+                         </select>
+                       </div>
                     </div>
                   </div>
                 </div>
@@ -79,8 +93,12 @@ import { ModalidadResponse } from '../../models/modalidad.interface';
                 <input type="text" formControlName="telefono" class="form-input-base" placeholder="Ej: 987654321">
               </div>
               <div class="col-md-6 form-field">
-                <label class="form-label-base">Área / Cargo</label>
-                <input type="text" formControlName="direccion" class="form-input-base" placeholder="Ej: Operaciones">
+                <label class="form-label-base">Rol / Cargo del Sistema</label>
+                <select formControlName="rolId" class="form-input-base">
+                  <option [ngValue]="null" disabled selected>Seleccione un rol...</option>
+                  <option *ngFor="let r of roles" [value]="r.id">{{ r.nombre }}</option>
+                </select>
+                <div *ngIf="showError('rolId')" class="form-error-base">Debe asignar un rol</div>
               </div>
               
               <div class="col-12">
@@ -140,10 +158,14 @@ export class FormTrabajadorComponent implements OnInit {
 
   form: FormGroup;
   modalidades: ModalidadResponse[] = [];
+  jefesTerreno: TrabajadorResponse[] = [];
+  roles: RolResponse[] = [];
 
   constructor(
     private fb: FormBuilder,
-    private modalidadService: ModalidadService
+    private modalidadService: ModalidadService,
+    private trabajadorService: TrabajadorService,
+    private rolService: RolService
   ) {
     this.form = this.fb.group({
       nombres: ['', Validators.required],
@@ -152,17 +174,27 @@ export class FormTrabajadorComponent implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       telefono: [''],
       direccion: [''],
+      rolId: [null, Validators.required],
       activo: [true],
       modalidadId: [null, Validators.required],
       esJefeTerreno: [false],
+      jefeId: [null],
       diasPresencial: ['']
     });
   }
 
   ngOnInit(): void {
     this.loadModalidades();
+    this.loadJefes();
+    this.loadRoles();
     if (this.editData) {
-      this.form.patchValue(this.editData);
+      // Si tiene jefe o rol, extraemos los IDs para el formulario
+      const data = { 
+        ...this.editData, 
+        jefeId: this.editData.jefe?.id || null,
+        rolId: this.editData.rol?.id || null
+      };
+      this.form.patchValue(data);
     }
   }
 
@@ -170,6 +202,22 @@ export class FormTrabajadorComponent implements OnInit {
     this.modalidadService.listar().subscribe({
       next: (data) => this.modalidades = data,
       error: (err) => console.error('Error cargando modalidades', err)
+    });
+  }
+
+  loadRoles(): void {
+    this.rolService.listar().subscribe({
+      next: (data) => this.roles = data,
+      error: (err) => console.error('Error cargando roles', err)
+    });
+  }
+
+  loadJefes(): void {
+    this.trabajadorService.listar().subscribe({
+      next: (data) => {
+        this.jefesTerreno = data.filter(t => t.esJefeTerreno && t.id !== this.editData?.id);
+      },
+      error: (err) => console.error('Error cargando jefes', err)
     });
   }
 

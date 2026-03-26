@@ -22,6 +22,7 @@ import com.example.ubication_app_android.ui.login.LoginScreen
 import com.example.ubication_app_android.ui.theme.UBICATION_APP_ANDROIDTheme
 import com.example.ubication_app_android.util.Constants
 import com.example.ubication_app_android.data.remote.RetrofitClient
+import com.example.ubication_app_android.ui.profile.ProfileScreen
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
 import android.widget.Toast
@@ -99,6 +100,7 @@ fun AppNavigation() {
                     onNavigateToScanner = { navController.navigate("scanner/$tId") },
                     onNavigateToHistory = { navController.navigate("history/$tId") },
                     onNavigateToAdmin = { navController.navigate("admin") },
+                    onNavigateToProfile = { navController.navigate("profile/$tId") },
                     onSetHomeLocation = {
                         scope.launch {
                             try {
@@ -121,7 +123,24 @@ fun AppNavigation() {
                                 Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
                             }
                         }
-                    }
+                    },
+                    onNavigateToUpdateOffice = { navController.navigate("update-location/true/$tId") },
+                    onNavigateToUpdateTerreno = { navController.navigate("update-location/false/$tId") }
+                )
+            }
+            composable(
+                "update-location/{isOffice}/{tId}",
+                arguments = listOf(
+                    navArgument("isOffice") { type = NavType.BoolType },
+                    navArgument("tId") { type = NavType.IntType }
+                )
+            ) { backStackEntry ->
+                val isOffice = backStackEntry.arguments?.getBoolean("isOffice") ?: true
+                val tId = backStackEntry.arguments?.getInt("tId") ?: 0
+                com.example.ubication_app_android.ui.dashboard.UpdateLocationScreen(
+                    trabajadorId = tId,
+                    isOffice = isOffice,
+                    onBack = { navController.popBackStack() }
                 )
             }
             composable("admin") {
@@ -160,6 +179,16 @@ fun AppNavigation() {
                     onNavigateToScanner = { type ->
                         navController.navigate("scanner/$trabajadorId?type=$type")
                     }
+                )
+            }
+            composable(
+                "profile/{trabajadorId}",
+                arguments = listOf(navArgument("trabajadorId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val trabajadorId = backStackEntry.arguments?.getInt("trabajadorId") ?: 0
+                ProfileScreen(
+                    trabajadorId = trabajadorId,
+                    onNavigateBack = { navController.popBackStack() }
                 )
             }
         }

@@ -11,6 +11,9 @@ import org.mapstruct.MappingTarget;
 public interface TrabajadorMapper {
 
     @Mapping(source = "modalidad.id", target = "modalidadId")
+    @Mapping(source = "modalidad.nombre", target = "modalidadNombre")
+    @Mapping(source = "rol.nombre", target = "rolNombre")
+    @Mapping(target = "jefeNombre", expression = "java(trabajador.getJefe() != null ? trabajador.getJefe().getNombres() + \" \" + trabajador.getJefe().getApellidos() : \"No asignado\")")
     TrabajadorResponseDTO toResponseDTO(Trabajador trabajador);
 
     @Mapping(source = "modalidadId", target = "modalidad.id")

@@ -37,7 +37,7 @@ public class TrabajadorController {
         List<TrabajadorResponseDTO> dtoList = pageResponse.getContent().stream()
                 .map(trabajadorMapper::toResponseDTO)
                 .collect(Collectors.toList());
-        
+
         return PageResponseDTO.<TrabajadorResponseDTO>builder()
                 .content(dtoList)
                 .currentPage(pageResponse.getCurrentPage())
@@ -62,7 +62,8 @@ public class TrabajadorController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<TrabajadorResponseDTO> actualizar(@PathVariable Integer id, @RequestBody TrabajadorRequestDTO request) {
+    public ResponseEntity<TrabajadorResponseDTO> actualizar(@PathVariable Integer id,
+            @RequestBody TrabajadorRequestDTO request) {
         Trabajador trabajadorExistente = trabajadorService.buscarPorId(id);
         trabajadorMapper.updateEntityFromDTO(request, trabajadorExistente);
         return ResponseEntity.ok(trabajadorMapper.toResponseDTO(trabajadorService.actualizar(id, trabajadorExistente)));

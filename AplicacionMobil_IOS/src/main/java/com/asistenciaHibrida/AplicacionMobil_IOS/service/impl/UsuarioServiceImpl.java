@@ -28,19 +28,22 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     public PageResponseDTO<Usuario> listarPaginado(PageRequestDTO pageRequest) {
-        if (pageRequest == null) pageRequest = new PageRequestDTO();
-        
-        String sortBy = (pageRequest.getSortBy() == null || pageRequest.getSortBy().isEmpty()) ? "id" : pageRequest.getSortBy();
-        String sortDir = (pageRequest.getSortDir() == null || pageRequest.getSortDir().isEmpty()) ? "asc" : pageRequest.getSortDir();
+        if (pageRequest == null)
+            pageRequest = new PageRequestDTO();
 
-        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) 
-                    ? Sort.by(sortBy).ascending() 
-                    : Sort.by(sortBy).descending();
-        
+        String sortBy = (pageRequest.getSortBy() == null || pageRequest.getSortBy().isEmpty()) ? "id"
+                : pageRequest.getSortBy();
+        String sortDir = (pageRequest.getSortDir() == null || pageRequest.getSortDir().isEmpty()) ? "asc"
+                : pageRequest.getSortDir();
+
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name())
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
         Pageable pageable = PageRequest.of(pageRequest.getPageIndex(), pageRequest.getPageSize(), sort);
-        
+
         Page<Usuario> page = usuarioRepository.findAll(pageable);
-        
+
         return new PageResponseDTO<>(
                 page.getContent(),
                 page.getNumber(),
@@ -48,8 +51,7 @@ public class UsuarioServiceImpl implements UsuarioService {
                 page.getTotalPages(),
                 page.isFirst(),
                 page.isLast(),
-                page.getSize()
-        );
+                page.getSize());
     }
 
     @Override
@@ -70,6 +72,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public Usuario login(String username, String password) {
         return usuarioRepository.findByUsername(username)
                 .filter(u -> u.getPassword().equals(password))

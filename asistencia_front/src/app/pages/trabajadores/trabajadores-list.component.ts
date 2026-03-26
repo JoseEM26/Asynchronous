@@ -44,6 +44,7 @@ import { FormTrabajadorComponent } from './form-trabajador.component';
                   <th class="ps-4 py-3 text-uppercase small ls-1">Información Personal</th>
                   <th class="py-3 text-uppercase small ls-1">Identificación</th>
                   <th class="py-3 text-uppercase small ls-1">Modalidad</th>
+                  <th class="py-3 text-uppercase small ls-1">Grupo / Jefe</th>
                   <th class="py-3 text-uppercase small ls-1 d-none d-lg-table-cell">Contacto</th>
                   <th class="py-3 text-uppercase small ls-1">Estado</th>
                   <th class="text-end pe-4 py-3 text-uppercase small ls-1">Operaciones</th>
@@ -60,8 +61,8 @@ import { FormTrabajadorComponent } from './form-trabajador.component';
                         </div>
                       </div>
                       <div class="user-info">
-                        <div class="fw-bold text-primary-hover lh-1 mb-1">{{ t.nombres }}</div>
-                        <div class="small text-secondary fw-medium opacity-75">{{ t.apellidos }}</div>
+                        <div class="fw-bold text-primary-hover lh-1 mb-1">{{ t.nombres }} {{ t.apellidos }}</div>
+                        <div class="small text-secondary fw-medium opacity-75" *ngIf="t.rol">{{ t.rol.nombre }}</div>
                       </div>
                     </div>
                   </td>
@@ -72,6 +73,12 @@ import { FormTrabajadorComponent } from './form-trabajador.component';
                     <div class="modality-badge" [ngClass]="getModalidadClass(t.modalidadId)">
                       <i [innerHTML]="getModalidadIcon(t.modalidadId)"></i>
                       <span>{{ getModalidadLabel(t.modalidadId) }}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                       <div class="small fw-bold text-secondary">{{ t.jefeNombre || 'No asignado' }}</div>
+                       <span *ngIf="t.jefeNombre && t.jefeNombre !== 'No asignado'" class="badge bg-warning text-dark extra-small rounded-pill" style="font-size: 0.6rem;">LÍDER</span>
                     </div>
                   </td>
                   <td class="d-none d-lg-table-cell">
@@ -259,7 +266,7 @@ export class TrabajadoresListComponent implements OnInit {
   }
 
   getModalidadLabel(id?: number): string {
-    switch(id) {
+    switch (id) {
       case 1: return 'Presencial';
       case 2: return 'Virtual';
       case 3: return 'Híbrido';
@@ -269,7 +276,7 @@ export class TrabajadoresListComponent implements OnInit {
   }
 
   getModalidadClass(id?: number): string {
-    switch(id) {
+    switch (id) {
       case 1: return 'mod-presencial';
       case 2: return 'mod-virtual';
       case 3: return 'mod-hibrido';
@@ -279,7 +286,7 @@ export class TrabajadoresListComponent implements OnInit {
   }
 
   getModalidadIcon(id?: number): string {
-    switch(id) {
+    switch (id) {
       case 1: return '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 21h18"></path><path d="M9 8h1"></path><path d="M9 12h1"></path><path d="M9 16h1"></path><path d="M14 8h1"></path><path d="M14 12h1"></path><path d="M14 16h1"></path><path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"></path></svg>';
       case 2: return '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>';
       case 3: return '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 3h5v5"></path><path d="M8 3H3v5"></path><path d="M12 21v-4"></path><path d="M8 21h8"></path><path d="M3 11h18"></path></svg>';

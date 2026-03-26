@@ -5,6 +5,7 @@ import com.example.ubication_app_android.data.model.AsistenciaResponse
 import com.example.ubication_app_android.data.model.LoginRequest
 import com.example.ubication_app_android.data.model.LoginResponse
 import com.example.ubication_app_android.data.model.TrabajadorResponse
+import com.example.ubication_app_android.data.model.MobileLocationDTO
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.POST
@@ -21,6 +22,9 @@ interface ApiService {
 
     @retrofit2.http.GET("trabajadores")
     suspend fun listarTrabajadores(): Response<List<TrabajadorResponse>>
+
+    @retrofit2.http.GET("trabajadores/{id}")
+    suspend fun getTrabajador(@retrofit2.http.Path("id") id: Int): Response<TrabajadorResponse>
 
     @retrofit2.http.PUT("trabajadores/{id}/permitir-cambio-ubicacion")
     suspend fun permitirCambioUbicacion(
@@ -42,4 +46,11 @@ interface ApiService {
         @retrofit2.http.Query("lng") lng: java.math.BigDecimal,
         @retrofit2.http.Query("nombre") nombre: String?
     ): Response<Unit>
+
+    // Nuevos endpoints para Admin y Jefe Terreno
+    @POST("mobile/puntos/terreno")
+    suspend fun registrarPuntoTerrenoMobile(@Body request: MobileLocationDTO): Response<Unit>
+
+    @POST("mobile/puntos/oficina")
+    suspend fun actualizarPuntoOficina(@Body request: MobileLocationDTO): Response<Unit>
 }
