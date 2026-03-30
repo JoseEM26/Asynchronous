@@ -40,16 +40,8 @@ jobs:
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-              # Matamos el proceso de Java que estaba usando el JAR anterior
-              pkill -f 'AplicacionMobil_IOS-0.0.1-SNAPSHOT.jar' || true
-              
-              # Damos un par de segundos para que termine bien
-              sleep 2
-              
-              # Cambiamos al directorio del usuario y volvemos a levantar el jar de fondo (nohup)
-              cd /home/azureuser/
-              nohup java -jar AplicacionMobil_IOS-0.0.1-SNAPSHOT.jar > log_backend.txt 2>&1 < /dev/null &
-              echo "✅ El Backend se ha reiniciado correctamente"
+              sudo systemctl restart backend.service
+              echo "✅ El Backend se ha reiniciado correctamente como un servicio de sistema"
 
   build-and-deploy-frontend:
     runs-on: ubuntu-latest
