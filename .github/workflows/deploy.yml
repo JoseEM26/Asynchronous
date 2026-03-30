@@ -1,0 +1,92 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  build-and-deploy-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Build with Maven
+        working-directory: ./AplicacionMobil_IOS
+        run: mvn clean package -DskipTests
+
+      - name: Copy JAR to VPS
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "./AplicacionMobil_IOS/target/*.jar"
+          target: "/home/azureuser/"
+          strip_components: 2 # Quita la estructura ./AplicacionMobil_IOS/target/ y solo deja el archivo jar
+
+      - name: Restart Backend Service
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+              # Matamos el proceso de Java que estaba usando el JAR anterior
+              pkill -f 'AplicacionMobil_IOS-0.0.1-SNAPSHOT.jar' || true
+              
+              # Damos un par de segundos para que termine bien
+              sleep 2
+              
+              # Cambiamos al directorio del usuario y volvemos a levantar el jar de fondo (nohup)
+              cd /home/azureuser/
+              nohup java -jar AplicacionMobil_IOS-0.0.1-SNAPSHOT.jar > log_backend.txt 2>&1 &
+              echo "✅ El Backend se ha reiniciado correctamente"
+
+  build-and-deploy-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18' # Puedes cambiar a la versión de Node que uses (ej. 16, 18, 20)
+
+      - name: Install Dependencies
+        working-directory: ./asistencia_front
+        run: npm ci || npm install # Instala con seguridad
+
+      - name: Build Angular App
+        working-directory: ./asistencia_front
+        run: npm run build
+
+      - name: Copy DIST to VPS
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "./asistencia_front/dist/*"
+          target: "/home/azureuser/angular-app/"
+          strip_components: 2 # Quita ./asistencia_front/dist/ y deja sus archivos internos
+
+      - name: Restart Web Server (Si es necesario)
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+              # Opcional: Reiniciar el servidor de Nginx si consideras que hace falta.
+              # sudo systemctl restart nginx
+              echo "Frontend copiado correctamente."
