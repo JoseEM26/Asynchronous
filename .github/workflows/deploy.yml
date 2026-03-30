@@ -48,7 +48,7 @@ jobs:
               
               # Cambiamos al directorio del usuario y volvemos a levantar el jar de fondo (nohup)
               cd /home/azureuser/
-              nohup java -jar AplicacionMobil_IOS-0.0.1-SNAPSHOT.jar > log_backend.txt 2>&1 &
+              nohup java -jar AplicacionMobil_IOS-0.0.1-SNAPSHOT.jar > log_backend.txt 2>&1 < /dev/null &
               echo "✅ El Backend se ha reiniciado correctamente"
 
   build-and-deploy-frontend:
