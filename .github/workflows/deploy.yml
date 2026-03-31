@@ -62,6 +62,16 @@ jobs:
         working-directory: ./asistencia_front
         run: npm run build
 
+      - name: Clean old frontend files
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+              rm -rf /home/azureuser/angular-app/*
+              echo "Archivos viejos eliminados."
+
       - name: Copy DIST to VPS
         uses: appleboy/scp-action@v0.1.4
         with:
@@ -70,15 +80,14 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           source: "./asistencia_front/dist/*"
           target: "/home/azureuser/angular-app/"
-          strip_components: 2 # Quita ./asistencia_front/dist/ y deja sus archivos internos
+          strip_components: 4 # Quita ./asistencia_front/dist/asistencia_front/browser/
 
-      - name: Restart Web Server (Si es necesario)
+      - name: Reload Nginx
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-              # Opcional: Reiniciar el servidor de Nginx si consideras que hace falta.
-              # sudo systemctl restart nginx
-              echo "Frontend copiado correctamente."
+              sudo systemctl reload nginx
+              echo "✅ Frontend desplegado y Nginx recargado."
