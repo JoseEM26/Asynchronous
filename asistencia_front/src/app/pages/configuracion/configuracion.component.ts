@@ -598,7 +598,7 @@ export class ConfiguracionComponent implements OnInit {
 
   loadJefes(): void {
     this.trabajadorService.listar().subscribe({
-      next: (data) => this.jefes = data.filter(t => t.rol && (t.rol.id === 3 || t.rol.id === 4))
+      next: (data) => this.jefes = data.filter(t => t.rolId === 3 || t.rolId === 4)
     });
   }
 

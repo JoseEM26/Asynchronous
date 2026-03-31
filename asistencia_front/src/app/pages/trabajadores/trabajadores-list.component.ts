@@ -4,7 +4,7 @@ import { TrabajadorService } from '../../services/trabajador.service';
 import { NotificationService } from '../../services/notification.service';
 import { TrabajadorRequest, TrabajadorResponse } from '../../models/trabajador.interface';
 import { PaginationComponent } from '../../component/pagination.component/pagination.component';
-import { PageRequest, PageResponse } from '../../models/pagination.interface';
+import { PageRequest, PaginatedResponse } from '../../models/pagination.interface';
 import { FormTrabajadorComponent } from './form-trabajador.component';
 
 @Component({
@@ -62,7 +62,7 @@ import { FormTrabajadorComponent } from './form-trabajador.component';
                       </div>
                       <div class="user-info">
                         <div class="fw-bold text-primary-hover lh-1 mb-1">{{ t.nombres }} {{ t.apellidos }}</div>
-                        <div class="small text-secondary fw-medium opacity-75" *ngIf="t.rol">{{ t.rol.nombre }}</div>
+                        <div class="small text-secondary fw-medium opacity-75" *ngIf="t.rolNombre">{{ t.rolNombre }}</div>
                       </div>
                     </div>
                   </td>
@@ -95,7 +95,10 @@ import { FormTrabajadorComponent } from './form-trabajador.component';
                   </td>
                   <td class="text-end pe-4">
                     <div class="d-flex gap-2 justify-content-end">
-                      <button class="action-btn edit" (click)="onVer(t)" title="Editar Perfil">
+                      <button class="action-btn view" (click)="onDetalle(t)" title="Ver Detalle Completo">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                      </button>
+                      <button class="action-btn edit" (click)="onEditar(t)" title="Editar Perfil">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4L18.5 2.5z"></path></svg>
                       </button>
                       <button class="action-btn delete" (click)="onEliminar(t)" title="Eliminar de DB">
@@ -104,8 +107,8 @@ import { FormTrabajadorComponent } from './form-trabajador.component';
                     </div>
                   </td>
                 </tr>
-                <tr *ngIf="(trabajadores.length || 0) === 0 && !isLoading">
-                  <td colspan="5" class="text-center py-5">
+                <tr *ngIf="(trabajadores?.length || 0) === 0 && !isLoading">
+                  <td colspan="7" class="text-center py-5">
                     <div class="empty-state py-5">
                       <div class="empty-icon-box mx-auto mb-4">
                         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="opacity-25"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
@@ -139,14 +142,13 @@ import { FormTrabajadorComponent } from './form-trabajador.component';
         *ngIf="showForm"
         [editData]="selectedTrabajador"
         [isLoading]="isLoading"
+        [isReadOnly]="isReadOnlyForm"
         (close)="onCloseForm()"
         (save)="onSave($event)"
       ></app-form-trabajador>
     </div>
   `,
   styles: [`
-    .ls-1 { letter-spacing: 0.05rem; }
-    .ls-1 { letter-spacing: 0.05rem; }
     .ls-1 { letter-spacing: 0.05rem; }
     .extra-small { font-size: 0.65rem; }
 
@@ -196,10 +198,11 @@ import { FormTrabajadorComponent } from './form-trabajador.component';
     .active .status-dot { background: #10b981; box-shadow: 0 0 8px #10b981; }
 
     .action-btn {
-      width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--glass-border);
+      width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--glass-border);
       background: white; display: flex; align-items: center; justify-content: center;
       transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
+    .action-btn.view:hover { background: #64748b; color: white; border-color: #64748b; transform: scale(1.1); }
     .action-btn.edit:hover { background: var(--accent-primary); color: white; border-color: var(--accent-primary); transform: scale(1.1); }
     .action-btn.delete:hover { background: #ef4444; color: white; border-color: #ef4444; transform: scale(1.1); }
 
@@ -223,6 +226,7 @@ import { FormTrabajadorComponent } from './form-trabajador.component';
     .mod-virtual { background: #e0f2fe; color: #075985; border: 1px solid #bae6fd; }
     .mod-hibrido { background: #fef9c3; color: #854d0e; border: 1px solid #fef08a; }
     .mod-terreno { background: #f3e8ff; color: #6b21a8; border: 1px solid #e9d5ff; }
+    .mod-exento { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
 
     .avatar-box { position: relative; }
     .leader-badge {
@@ -245,16 +249,15 @@ import { FormTrabajadorComponent } from './form-trabajador.component';
 export class TrabajadoresListComponent implements OnInit {
   trabajadores: TrabajadorResponse[] = [];
 
-  // Pagination State
   currentPage: number = 0;
   pageSize: number = 10;
   totalItems: number = 0;
   totalPages: number = 0;
   isLoading: boolean = false;
 
-  // Form State
   showForm: boolean = false;
   selectedTrabajador: TrabajadorResponse | null = null;
+  isReadOnlyForm: boolean = false;
 
   constructor(
     private trabajadorService: TrabajadorService,
@@ -271,6 +274,7 @@ export class TrabajadoresListComponent implements OnInit {
       case 2: return 'Virtual';
       case 3: return 'Híbrido';
       case 4: return 'Terreno';
+      case 5: return 'Exento / Admin';
       default: return 'No asignado';
     }
   }
@@ -281,6 +285,7 @@ export class TrabajadoresListComponent implements OnInit {
       case 2: return 'mod-virtual';
       case 3: return 'mod-hibrido';
       case 4: return 'mod-terreno';
+      case 5: return 'mod-exento';
       default: return 'bg-light text-muted';
     }
   }
@@ -291,6 +296,7 @@ export class TrabajadoresListComponent implements OnInit {
       case 2: return '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>';
       case 3: return '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 3h5v5"></path><path d="M8 3H3v5"></path><path d="M12 21v-4"></path><path d="M8 21h8"></path><path d="M3 11h18"></path></svg>';
       case 4: return '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>';
+      case 5: return '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>';
       default: return '';
     }
   }
@@ -305,10 +311,11 @@ export class TrabajadoresListComponent implements OnInit {
     };
 
     this.trabajadorService.listarPaginado(request).subscribe({
-      next: (response) => {
+      next: (response: PaginatedResponse<TrabajadorResponse>) => {
         this.trabajadores = response.content || [];
         this.totalItems = response.totalItems || 0;
         this.totalPages = response.totalPages || 0;
+        this.currentPage = response.currentPage || 0;
         this.isLoading = false;
       },
       error: () => {
@@ -325,26 +332,37 @@ export class TrabajadoresListComponent implements OnInit {
 
   onPageSizeChange(size: number): void {
     this.pageSize = size;
-    this.currentPage = 0; // Reset to first page
+    this.currentPage = 0;
     this.cargarTrabajadores();
   }
 
   onNuevo(): void {
     this.selectedTrabajador = null;
+    this.isReadOnlyForm = false;
     this.showForm = true;
   }
 
-  onVer(t: TrabajadorResponse): void {
+  onDetalle(t: TrabajadorResponse): void {
     this.selectedTrabajador = t;
+    this.isReadOnlyForm = true;
+    this.showForm = true;
+  }
+
+  onEditar(t: TrabajadorResponse): void {
+    this.selectedTrabajador = t;
+    this.isReadOnlyForm = false;
     this.showForm = true;
   }
 
   onCloseForm(): void {
     this.showForm = false;
     this.selectedTrabajador = null;
+    this.isReadOnlyForm = false;
   }
 
   onSave(request: TrabajadorRequest): void {
+    if (this.isReadOnlyForm) return;
+
     this.isLoading = true;
     const observer = {
       next: () => {
@@ -368,7 +386,7 @@ export class TrabajadoresListComponent implements OnInit {
   async onEliminar(t: TrabajadorResponse): Promise<void> {
     const confirm = await this.notify.confirm(
       '¿Estás seguro?',
-      `Deseas eliminar a ${t.nombres}.Esta acción no se puede deshacer.`,
+      `Deseas eliminar a ${t.nombres}. Esta acción no se puede deshacer.`,
       'Sí, eliminar'
     );
 

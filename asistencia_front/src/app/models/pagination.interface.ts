@@ -3,16 +3,16 @@ export interface PageRequest {
   pageSize: number;
   sortBy?: string;
   sortDir?: 'ASC' | 'DESC';
-  filter?: string;
+  filters?: { [key: string]: any };
 }
 
-export interface PageResponse<T> {
+export interface PaginatedResponse<T> {
   content: T[];
-  pageIndex: number;
+  currentPage: number;
   totalItems: number;
   totalPages: number;
   first?: boolean;
   last?: boolean;
   pageSize: number;
-  filters?: any;
+  filters?: { [key: string]: any };
 }

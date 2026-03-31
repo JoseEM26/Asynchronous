@@ -86,7 +86,8 @@ fun QRScannerScreen(
                     onDismiss = { 
                         viewModel.resetState()
                         if (attendanceState is AttendanceResult.Success) onNavigateBack()
-                    }
+                    },
+                    onNavigateBack = onNavigateBack
                 )
             }
         } else {
@@ -227,7 +228,8 @@ fun CameraPreview(
 @Composable
 fun AttendanceStatusOverlay(
     state: AttendanceResult,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    onNavigateBack: (() -> Unit)? = null
 ) {
     when (state) {
         is AttendanceResult.Loading -> {
@@ -249,7 +251,8 @@ fun AttendanceStatusOverlay(
             com.example.ubication_app_android.ui.components.DetailedErrorDialog(
                 message = state.message,
                 errorDetails = state.errorDetails,
-                onDismiss = onDismiss
+                onDismiss = onDismiss,
+                onNavigateBack = onNavigateBack
             )
         }
         else -> {}

@@ -1,20 +1,22 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { UsuarioService } from '../../services/usuario.service';
 import { NotificationService } from '../../services/notification.service';
 import { UsuarioRequest, UsuarioResponse } from '../../models/usuario.interface';
 import { PaginationComponent } from '../../component/pagination.component/pagination.component';
-import { PageRequest } from '../../models/pagination.interface';
+import { PageRequest, PaginatedResponse } from '../../models/pagination.interface';
 import { FormUsuarioComponent } from './form-usuario.component';
+import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-usuarios-list',
   standalone: true,
-  imports: [CommonModule, PaginationComponent, FormUsuarioComponent],
+  imports: [CommonModule, FormsModule, PaginationComponent, FormUsuarioComponent],
   template: `
     <div class="container-fluid animate-fade px-4 py-4">
       <div class="row mb-5 align-items-end">
-        <div class="col-md-8">
+        <div class="col-md-6">
           <div class="d-flex align-items-center gap-3 mb-2">
             <div class="icon-box-secondary">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
@@ -23,7 +25,21 @@ import { FormUsuarioComponent } from './form-usuario.component';
           </div>
           <p class="text-secondary fs-6 opacity-75">Configura las credenciales, roles y permisos de los usuarios administrativos.</p>
         </div>
-        <div class="col-md-4 text-md-end">
+        <div class="col-md-4">
+          <div class="search-container position-relative">
+            <input 
+              type="text" 
+              class="form-control search-input" 
+              placeholder="Buscar por usuario o nombre..." 
+              [(ngModel)]="searchTerm"
+              (ngModelChange)="onSearchChange($event)"
+            >
+            <div class="search-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-2 text-md-end">
           <button class="btn btn-primary-grad shadow-sm d-inline-flex align-items-center gap-2" (click)="onNuevo()">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             Nuevo Acceso
@@ -195,6 +211,18 @@ import { FormUsuarioComponent } from './form-usuario.component';
       z-index: 100;
     }
 
+    .search-container .search-input {
+      padding-left: 45px; border-radius: 12px; border: 1px solid var(--glass-border);
+      background: var(--bg-deep); transition: all 0.2s; height: 45px;
+    }
+    .search-container .search-input:focus {
+      border-color: var(--accent-primary); box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+    }
+    .search-container .search-icon {
+      position: absolute; left: 15px; top: 50%; transform: translateY(-50%);
+      color: var(--text-secondary); opacity: 0.5; pointer-events: none;
+    }
+
     .animate-slide-up { animation: slideUp 0.3s ease-out forwards; }
     @keyframes slideUp {
       from { opacity: 0; transform: translateY(10px); }
@@ -202,7 +230,7 @@ import { FormUsuarioComponent } from './form-usuario.component';
     }
   `]
 })
-export class UsuariosListComponent implements OnInit {
+export class UsuariosListComponent implements OnInit, OnDestroy {
   usuarios: UsuarioResponse[] = [];
 
   // Pagination State
@@ -211,6 +239,11 @@ export class UsuariosListComponent implements OnInit {
   totalItems: number = 0;
   totalPages: number = 0;
   isLoading: boolean = false;
+
+  // Filter State
+  searchTerm: string = '';
+  private searchSubject = new Subject<string>();
+  private destroy$ = new Subject<void>();
 
   // Form State
   showForm: boolean = false;
@@ -222,7 +255,25 @@ export class UsuariosListComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    this.searchSubject.pipe(
+      debounceTime(400),
+      distinctUntilChanged(),
+      takeUntil(this.destroy$)
+    ).subscribe(() => {
+      this.currentPage = 0;
+      this.cargarUsuarios();
+    });
+
     this.cargarUsuarios();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  onSearchChange(value: string): void {
+    this.searchSubject.next(value);
   }
 
   cargarUsuarios(): void {
@@ -231,14 +282,18 @@ export class UsuariosListComponent implements OnInit {
       pageIndex: this.currentPage,
       pageSize: this.pageSize,
       sortBy: 'id',
-      sortDir: 'DESC'
+      sortDir: 'DESC',
+      filters: {
+        q: this.searchTerm
+      }
     };
 
     this.usuarioService.listarPaginado(request).subscribe({
-      next: (response) => {
+      next: (response: PaginatedResponse<UsuarioResponse>) => {
         this.usuarios = response.content || [];
         this.totalItems = response.totalItems || 0;
         this.totalPages = response.totalPages || 0;
+        this.currentPage = response.currentPage || 0;
         this.isLoading = false;
       },
       error: () => {

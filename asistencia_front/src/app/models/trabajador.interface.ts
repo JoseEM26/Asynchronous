@@ -5,13 +5,14 @@ export interface TrabajadorRequest {
   email: string;
   telefono: string;
   direccion: string;
-  fechaIngreso: string;
+  fechaIngreso?: string;
   activo: boolean;
   modalidadId?: number;
   esJefeTerreno?: boolean;
   latitudVirtual?: number;
   longitudVirtual?: number;
   diasPresencial?: string;
+  diasRemotos?: string;
   jefeId?: number;
   rolId?: number;
 }
@@ -31,7 +32,10 @@ export interface TrabajadorResponse {
   latitudVirtual?: number;
   longitudVirtual?: number;
   diasPresencial?: string;
-  jefe?: TrabajadorResponse;
+  diasRemotos?: string;
+  rolId?: number;
+  jefeId?: number;
+  rolNombre?: string;
+  modalidadNombre?: string;
   jefeNombre?: string;
-  rol?: any;
 }

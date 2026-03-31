@@ -26,47 +26,30 @@ public class TrabajadorController {
 
     @GetMapping
     public List<TrabajadorResponseDTO> listar() {
-        return trabajadorService.listarTodos().stream()
-                .map(trabajadorMapper::toResponseDTO)
-                .collect(Collectors.toList());
+        return trabajadorService.listarTodos();
     }
 
     @PostMapping("/paged")
     public PageResponseDTO<TrabajadorResponseDTO> listarPaginado(@RequestBody PageRequestDTO pageRequest) {
-        PageResponseDTO<Trabajador> pageResponse = trabajadorService.listarPaginado(pageRequest);
-        List<TrabajadorResponseDTO> dtoList = pageResponse.getContent().stream()
-                .map(trabajadorMapper::toResponseDTO)
-                .collect(Collectors.toList());
-
-        return PageResponseDTO.<TrabajadorResponseDTO>builder()
-                .content(dtoList)
-                .currentPage(pageResponse.getCurrentPage())
-                .totalItems(pageResponse.getTotalItems())
-                .totalPages(pageResponse.getTotalPages())
-                .first(pageResponse.isFirst())
-                .last(pageResponse.isLast())
-                .pageSize(pageResponse.getPageSize())
-                .filters(pageResponse.getFilters())
-                .build();
+        return trabajadorService.listarPaginado(pageRequest);
     }
 
     @PostMapping
     public TrabajadorResponseDTO crear(@RequestBody TrabajadorRequestDTO request) {
         Trabajador trabajador = trabajadorMapper.toEntity(request);
-        return trabajadorMapper.toResponseDTO(trabajadorService.guardar(trabajador));
+        return trabajadorService.guardar(trabajador);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<TrabajadorResponseDTO> obtener(@PathVariable Integer id) {
-        return ResponseEntity.ok(trabajadorMapper.toResponseDTO(trabajadorService.buscarPorId(id)));
+        return ResponseEntity.ok(trabajadorService.buscarPorId(id));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<TrabajadorResponseDTO> actualizar(@PathVariable Integer id,
             @RequestBody TrabajadorRequestDTO request) {
-        Trabajador trabajadorExistente = trabajadorService.buscarPorId(id);
-        trabajadorMapper.updateEntityFromDTO(request, trabajadorExistente);
-        return ResponseEntity.ok(trabajadorMapper.toResponseDTO(trabajadorService.actualizar(id, trabajadorExistente)));
+        Trabajador trabajadorExistente = trabajadorMapper.toEntity(request); // Usar mapper para crear objeto de datos
+        return ResponseEntity.ok(trabajadorService.actualizar(id, trabajadorExistente));
     }
 
     @DeleteMapping("/{id}")

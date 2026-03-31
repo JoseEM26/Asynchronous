@@ -58,6 +58,9 @@ public class Trabajador {
     @Column(name = "dias_presencial", length = 50)
     private String diasPresencial;
 
+    @Column(name = "dias_remotos", length = 50)
+    private String diasRemotos;
+
     @Column(name = "permitir_cambio_ubicacion")
     private Boolean permitirCambioUbicacion = false;
 

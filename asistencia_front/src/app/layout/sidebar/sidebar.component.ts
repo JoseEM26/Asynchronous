@@ -15,7 +15,7 @@ import { Router } from '@angular/router';
       <div class="sidebar-header">
         <div class="logo-area">
           <div class="logo-box">
-             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+             <img src="logo.png" alt="Logo" class="logo-img-fluid">
           </div>
           <div class="logo-text">
             <span class="logo-title">ASYNC</span>
@@ -113,15 +113,22 @@ import { Router } from '@angular/router';
     }
 
     .logo-box {
-      width: 32px;
-      height: 32px;
-      background: var(--grad-main);
-      color: white;
-      border-radius: 8px;
+      width: 38px;
+      height: 38px;
+      background: white;
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      padding: 2px;
+    }
+
+    .logo-img-fluid {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
     }
 
     .logo-text {

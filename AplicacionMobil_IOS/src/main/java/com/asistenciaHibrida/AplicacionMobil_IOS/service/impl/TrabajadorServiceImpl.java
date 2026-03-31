@@ -15,20 +15,32 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import com.asistenciaHibrida.AplicacionMobil_IOS.dto.response.TrabajadorResponseDTO;
+import com.asistenciaHibrida.AplicacionMobil_IOS.mapper.TrabajadorMapper;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.stream.Collectors;
+
 @Service
 public class TrabajadorServiceImpl implements TrabajadorService {
 
     @Autowired
     private TrabajadorRepository trabajadorRepository;
 
+    @Autowired
+    private TrabajadorMapper trabajadorMapper;
+
     @Override
-    public List<Trabajador> listarTodos() {
-        return trabajadorRepository.findAll();
+    @Transactional(readOnly = true)
+    public List<TrabajadorResponseDTO> listarTodos() {
+        return trabajadorRepository.findAll().stream()
+                .map(trabajadorMapper::toResponseDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
-    @org.springframework.transaction.annotation.Transactional(readOnly = true)
-    public PageResponseDTO<Trabajador> listarPaginado(PageRequestDTO pageRequest) {
+    @Transactional(readOnly = true)
+    public PageResponseDTO<TrabajadorResponseDTO> listarPaginado(PageRequestDTO pageRequest) {
         if (pageRequest == null) pageRequest = new PageRequestDTO();
         String sortBy = (pageRequest.getSortBy() == null || pageRequest.getSortBy().isEmpty()) ? "id" : pageRequest.getSortBy();
         String sortDir = (pageRequest.getSortDir() == null || pageRequest.getSortDir().isEmpty()) ? "asc" : pageRequest.getSortDir();
@@ -41,8 +53,12 @@ public class TrabajadorServiceImpl implements TrabajadorService {
         
         Page<Trabajador> page = trabajadorRepository.findAll(pageable);
         
+        List<TrabajadorResponseDTO> dtoList = page.getContent().stream()
+                .map(trabajadorMapper::toResponseDTO)
+                .collect(Collectors.toList());
+
         return new PageResponseDTO<>(
-                page.getContent(),
+                dtoList,
                 page.getNumber(),
                 page.getTotalElements(),
                 page.getTotalPages(),
@@ -53,25 +69,34 @@ public class TrabajadorServiceImpl implements TrabajadorService {
     }
 
     @Override
-    public Trabajador guardar(Trabajador trabajador) {
-        return trabajadorRepository.save(trabajador);
+    @Transactional
+    public TrabajadorResponseDTO guardar(Trabajador trabajador) {
+        Trabajador saved = trabajadorRepository.save(trabajador);
+        return trabajadorMapper.toResponseDTO(saved);
     }
 
     @Override
-    public Trabajador buscarPorId(Integer id) {
-        return trabajadorRepository.findById(id)
+    @Transactional(readOnly = true)
+    public TrabajadorResponseDTO buscarPorId(Integer id) {
+        Trabajador t = trabajadorRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Trabajador no encontrado con id: " + id));
+        return trabajadorMapper.toResponseDTO(t);
     }
 
     @Override
+    @Transactional
     public void eliminar(Integer id) {
-        Trabajador trabajador = buscarPorId(id);
-        trabajadorRepository.delete(trabajador);
+        Trabajador t = trabajadorRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Trabajador no encontrado con id: " + id));
+        trabajadorRepository.delete(t);
     }
 
     @Override
-    public Trabajador actualizar(Integer id, Trabajador detalles) {
-        Trabajador trabajador = buscarPorId(id);
+    @Transactional
+    public TrabajadorResponseDTO actualizar(Integer id, Trabajador detalles) {
+        Trabajador trabajador = trabajadorRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Trabajador no encontrado con id: " + id));
+        
         trabajador.setDni(detalles.getDni());
         trabajador.setNombres(detalles.getNombres());
         trabajador.setApellidos(detalles.getApellidos());
@@ -86,12 +111,17 @@ public class TrabajadorServiceImpl implements TrabajadorService {
         trabajador.setEsJefeTerreno(detalles.getEsJefeTerreno());
         trabajador.setModalidad(detalles.getModalidad());
         trabajador.setRol(detalles.getRol());
-        return trabajadorRepository.save(trabajador);
+        trabajador.setDiasPresencial(detalles.getDiasPresencial());
+        trabajador.setDiasRemotos(detalles.getDiasRemotos());
+        
+        Trabajador updated = trabajadorRepository.save(trabajador);
+        return trabajadorMapper.toResponseDTO(updated);
     }
 
     @Override
     public void actualizarUbicacionVirtual(Integer trabajadorId, java.math.BigDecimal lat, java.math.BigDecimal lng) {
-        Trabajador t = buscarPorId(trabajadorId);
+        Trabajador t = trabajadorRepository.findById(trabajadorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Trabajador no encontrado"));
         // Only allow if not set OR if admin permitted
         if (t.getLatitudVirtual() == null || Boolean.TRUE.equals(t.getPermitirCambioUbicacion())) {
             t.setLatitudVirtual(lat);
@@ -108,7 +138,8 @@ public class TrabajadorServiceImpl implements TrabajadorService {
 
     @Override
     public void registrarPuntoTerreno(Integer jefeId, java.math.BigDecimal lat, java.math.BigDecimal lng, String nombre) {
-        Trabajador jefe = buscarPorId(jefeId);
+        Trabajador jefe = trabajadorRepository.findById(jefeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Trabajador no encontrado"));
         if (!Boolean.TRUE.equals(jefe.getEsJefeTerreno())) {
             throw new RuntimeException("El trabajador no tiene permisos de Jefe de Terreno");
         }
@@ -125,7 +156,8 @@ public class TrabajadorServiceImpl implements TrabajadorService {
 
     @Override
     public void permitirCambioUbicacion(Integer trabajadorId, Boolean permitir) {
-        Trabajador t = buscarPorId(trabajadorId);
+        Trabajador t = trabajadorRepository.findById(trabajadorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Trabajador no encontrado"));
         t.setPermitirCambioUbicacion(permitir);
         trabajadorRepository.save(t);
     }

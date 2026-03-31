@@ -3,8 +3,8 @@ spring:
     name: AplicacionMobil_IOS
   datasource:
     url: jdbc:mysql://localhost:3306/asistencia_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
-    username: admin
-    password: Joseangel123!.
+    username: root
+    password: mysql
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       maximum-pool-size: 5

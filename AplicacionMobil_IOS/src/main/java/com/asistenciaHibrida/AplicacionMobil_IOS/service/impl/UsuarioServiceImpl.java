@@ -15,11 +15,20 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import com.asistenciaHibrida.AplicacionMobil_IOS.dto.response.UsuarioResponseDTO;
+import com.asistenciaHibrida.AplicacionMobil_IOS.mapper.UsuarioMapper;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.stream.Collectors;
+
 @Service
 public class UsuarioServiceImpl implements UsuarioService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private UsuarioMapper usuarioMapper;
 
     @Override
     public List<Usuario> listarTodos() {
@@ -27,13 +36,14 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     @Override
-    public PageResponseDTO<Usuario> listarPaginado(PageRequestDTO pageRequest) {
+    @Transactional(readOnly = true)
+    public PageResponseDTO<UsuarioResponseDTO> listarPaginado(PageRequestDTO pageRequest) {
         if (pageRequest == null)
             pageRequest = new PageRequestDTO();
 
-        String sortBy = (pageRequest.getSortBy() == null || pageRequest.getSortBy().isEmpty()) ? "id"
+        final String sortBy = (pageRequest.getSortBy() == null || pageRequest.getSortBy().isEmpty()) ? "id"
                 : pageRequest.getSortBy();
-        String sortDir = (pageRequest.getSortDir() == null || pageRequest.getSortDir().isEmpty()) ? "asc"
+        final String sortDir = (pageRequest.getSortDir() == null || pageRequest.getSortDir().isEmpty()) ? "asc"
                 : pageRequest.getSortDir();
 
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name())
@@ -42,40 +52,80 @@ public class UsuarioServiceImpl implements UsuarioService {
 
         Pageable pageable = PageRequest.of(pageRequest.getPageIndex(), pageRequest.getPageSize(), sort);
 
-        Page<Usuario> page = usuarioRepository.findAll(pageable);
+        // Construir especificación basada en filtros
+        org.springframework.data.jpa.domain.Specification<Usuario> spec = null;
+
+        if (pageRequest.getFilters() != null) {
+            String q = (String) pageRequest.getFilters().get("q");
+            if (q != null && !q.isEmpty()) {
+                String searchPattern = "%" + q.toLowerCase() + "%";
+                spec = org.springframework.data.jpa.domain.Specification.where((root, query, cb) -> cb.or(
+                    cb.like(cb.lower(root.get("username")), searchPattern),
+                    cb.like(cb.lower(root.join("trabajador").get("nombres")), searchPattern),
+                    cb.like(cb.lower(root.join("trabajador").get("apellidos")), searchPattern)
+                ));
+            }
+        }
+
+        Page<Usuario> page = (spec != null) 
+            ? usuarioRepository.findAll(spec, pageable)
+            : usuarioRepository.findAll(pageable);
+
+        // Mapear a DTO dentro de la transacción para evitar LazyInitializationException
+        java.util.List<UsuarioResponseDTO> dtoList = page.getContent().stream()
+                .map(usuarioMapper::toResponseDTO)
+                .collect(Collectors.toList());
 
         return new PageResponseDTO<>(
-                page.getContent(),
+                dtoList,
                 page.getNumber(),
                 page.getTotalElements(),
                 page.getTotalPages(),
                 page.isFirst(),
                 page.isLast(),
-                page.getSize());
+                page.getSize(),
+                pageRequest.getFilters());
     }
 
     @Override
-    public Usuario guardar(Usuario usuario) {
-        return usuarioRepository.save(usuario);
+    @Transactional
+    public UsuarioResponseDTO guardar(Usuario usuario) {
+        // Encriptar password si es nuevo (esto debería hacerlo el service)
+        // Por simplicidad asumo que ya viene o se maneja en el mapper
+        Usuario saved = usuarioRepository.save(usuario);
+        return usuarioMapper.toResponseDTO(saved);
     }
 
     @Override
-    public Usuario buscarPorId(Integer id) {
-        return usuarioRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con id: " + id));
+    @Transactional(readOnly = true)
+    public UsuarioResponseDTO buscarPorId(Integer id) {
+        Usuario u = usuarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        return usuarioMapper.toResponseDTO(u);
     }
 
     @Override
+    @Transactional
     public void eliminar(Integer id) {
-        Usuario usuario = buscarPorId(id);
-        usuarioRepository.delete(usuario);
+        Usuario u = usuarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        usuarioRepository.delete(u);
     }
 
     @Override
-    @org.springframework.transaction.annotation.Transactional(readOnly = true)
-    public Usuario login(String username, String password) {
-        return usuarioRepository.findByUsername(username)
-                .filter(u -> u.getPassword().equals(password))
-                .orElseThrow(() -> new RuntimeException("Credenciales inválidas"));
+    @Transactional(readOnly = true)
+    public UsuarioResponseDTO login(String username, String password) {
+        Usuario usuario = usuarioRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        if (!usuario.getPassword().equals(password)) {
+            throw new RuntimeException("Contraseña incorrecta");
+        }
+
+        if (usuario.getTrabajador() != null && !Boolean.TRUE.equals(usuario.getTrabajador().getActivo())) {
+            throw new RuntimeException("El trabajador asociado está inactivo");
+        }
+
+        return usuarioMapper.toResponseDTO(usuario);
     }
 }

@@ -33,42 +33,14 @@ public class UsuarioController {
 
     @PostMapping("/paged")
     public PageResponseDTO<UsuarioResponseDTO> listarPaginado(@RequestBody PageRequestDTO pageRequest) {
-        PageResponseDTO<Usuario> pageResponse = usuarioService.listarPaginado(pageRequest);
-        if (pageResponse == null || pageResponse.getContent() == null) {
-            return PageResponseDTO.<UsuarioResponseDTO>builder()
-                    .content(java.util.Collections.emptyList())
-                    .build();
-        }
-
-        List<UsuarioResponseDTO> dtoList = pageResponse.getContent().stream()
-                .map(u -> {
-                    try {
-                        return usuarioMapper.toResponseDTO(u);
-                    } catch (Exception e) {
-                        return null; // Omitir si falla el mapeo
-                    }
-                })
-                .filter(java.util.Objects::nonNull)
-                .collect(Collectors.toList());
-
-        return PageResponseDTO.<UsuarioResponseDTO>builder()
-                .content(dtoList)
-                .currentPage(pageResponse.getCurrentPage())
-                .totalItems(pageResponse.getTotalItems())
-                .totalPages(pageResponse.getTotalPages())
-                .first(pageResponse.isFirst())
-                .last(pageResponse.isLast())
-                .pageSize(pageResponse.getPageSize())
-                .filters(pageResponse.getFilters())
-                .build();
+        return usuarioService.listarPaginado(pageRequest);
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(
             @RequestBody com.asistenciaHibrida.AplicacionMobil_IOS.dto.request.LoginRequestDTO request) {
         try {
-            Usuario usuario = usuarioService.login(request.getUsername(), request.getPassword());
-            return ResponseEntity.ok(usuarioMapper.toResponseDTO(usuario));
+            return ResponseEntity.ok(usuarioService.login(request.getUsername(), request.getPassword()));
         } catch (RuntimeException e) {
             return ResponseEntity.status(401).body(e.getMessage());
         }
@@ -77,16 +49,12 @@ public class UsuarioController {
     @PostMapping
     public UsuarioResponseDTO crear(@RequestBody UsuarioRequestDTO request) {
         Usuario usuario = usuarioMapper.toEntity(request);
-        // Nota: El service debería manejar la asociación de Rol y Trabajador basándose
-        // en IDs si fuera necesario,
-        // o podemos hacerlo aquí si el service espera la entidad completa.
-        // Asumiendo que el service guarda lo que recibe.
-        return usuarioMapper.toResponseDTO(usuarioService.guardar(usuario));
+        return usuarioService.guardar(usuario);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<UsuarioResponseDTO> obtener(@PathVariable Integer id) {
-        return ResponseEntity.ok(usuarioMapper.toResponseDTO(usuarioService.buscarPorId(id)));
+        return ResponseEntity.ok(usuarioService.buscarPorId(id));
     }
 
     @DeleteMapping("/{id}")

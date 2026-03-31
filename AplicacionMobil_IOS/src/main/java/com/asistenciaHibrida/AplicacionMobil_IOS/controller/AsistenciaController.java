@@ -1,6 +1,7 @@
 package com.asistenciaHibrida.AplicacionMobil_IOS.controller;
 
 import com.asistenciaHibrida.AplicacionMobil_IOS.dto.request.AsistenciaRequestDTO;
+import com.asistenciaHibrida.AplicacionMobil_IOS.dto.request.AsistenciaQrRequestDTO;
 import com.asistenciaHibrida.AplicacionMobil_IOS.dto.response.AsistenciaResponseDTO;
 import com.asistenciaHibrida.AplicacionMobil_IOS.dto.response.QrResponseDTO;
 import com.asistenciaHibrida.AplicacionMobil_IOS.dto.page.PageRequestDTO;
@@ -8,6 +9,7 @@ import com.asistenciaHibrida.AplicacionMobil_IOS.dto.page.PageResponseDTO;
 import com.asistenciaHibrida.AplicacionMobil_IOS.mapper.AsistenciaMapper;
 import com.asistenciaHibrida.AplicacionMobil_IOS.model.Asistencia;
 import com.asistenciaHibrida.AplicacionMobil_IOS.service.AsistenciaService;
+import com.asistenciaHibrida.AplicacionMobil_IOS.service.QrSecureService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,17 +31,21 @@ public class AsistenciaController {
     @Autowired
     private AsistenciaMapper asistenciaMapper;
 
+    @Autowired
+    private QrSecureService qrSecureService;
+
     @Operation(summary = "Registrar una nueva asistencia", description = "Permite registrar una asistencia manual indicando trabajador, modalidad y ubicación.")
     @PostMapping
     public ResponseEntity<AsistenciaResponseDTO> registrar(@RequestBody AsistenciaRequestDTO request) {
-        Asistencia asistencia = asistenciaService.registrarAsistencia(
+        // El servicio ya devuelve el DTO mapeado dentro de la transacción
+        return ResponseEntity.ok(asistenciaService.registrarAsistencia(
                 request.getTrabajadorId(),
                 request.getModalidadId(),
                 request.getTipo(),
                 request.getLatitud(),
                 request.getLongitud(),
-                request.getNotas());
-        return ResponseEntity.ok(asistenciaMapper.toResponseDTO(asistencia));
+                request.getNotas(),
+                request.getFechaHoraManual()));
     }
 
     @Operation(summary = "Listar todas las asistencias", description = "Retorna una lista completa de todos los registros de asistencia.")
@@ -70,12 +76,9 @@ public class AsistenciaController {
         return mapToPageResponseDTO(pageResponse);
     }
 
-    @Autowired
-    private com.asistenciaHibrida.AplicacionMobil_IOS.service.QrSecureService qrSecureService;
-
     @Operation(summary = "Registrar asistencia mediante código QR", description = "Valida un token QR y registra la asistencia del trabajador si el token es válido.")
     @PostMapping("/registrar-qr")
-    public ResponseEntity<?> registrarConQr(@RequestBody com.asistenciaHibrida.AplicacionMobil_IOS.dto.request.AsistenciaQrRequestDTO request) {
+    public ResponseEntity<?> registrarConQr(@RequestBody AsistenciaQrRequestDTO request) {
         if (!qrSecureService.isValidToken(request.getQrToken())) {
             return ResponseEntity.status(401).body("QR Token inválido o expirado. Por favor escanee de nuevo.");
         }
@@ -83,16 +86,17 @@ public class AsistenciaController {
         try {
             Asistencia.TipoAsistencia tipoEnum = Asistencia.TipoAsistencia.valueOf(request.getTipo().toUpperCase());
 
-            // Si el token es válido, procedemos con el registro normal
-            Asistencia asistencia = asistenciaService.registrarAsistencia(
+            // Registro por QR
+            AsistenciaResponseDTO responseDTO = asistenciaService.registrarAsistencia(
                     request.getTrabajadorId(),
-                    null, // La modalidad se detectará automáticamente en el service
+                    null, 
                     tipoEnum,
                     request.getLatitud(),
                     request.getLongitud(),
-                    "Registro por código QR móvil");
+                    "Registro por código QR móvil",
+                    null);
             
-            return ResponseEntity.ok(asistenciaMapper.toResponseDTO(asistencia));
+            return ResponseEntity.ok(responseDTO);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body("Tipo de asistencia inválido (Debe ser ENTRADA o SALIDA)");
         } catch (Exception e) {

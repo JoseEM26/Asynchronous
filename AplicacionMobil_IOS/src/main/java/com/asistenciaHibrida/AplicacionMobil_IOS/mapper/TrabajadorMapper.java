@@ -12,7 +12,9 @@ public interface TrabajadorMapper {
 
     @Mapping(source = "modalidad.id", target = "modalidadId")
     @Mapping(source = "modalidad.nombre", target = "modalidadNombre")
+    @Mapping(source = "rol.id", target = "rolId")
     @Mapping(source = "rol.nombre", target = "rolNombre")
+    @Mapping(source = "jefe.id", target = "jefeId")
     @Mapping(target = "jefeNombre", expression = "java(trabajador.getJefe() != null ? trabajador.getJefe().getNombres() + \" \" + trabajador.getJefe().getApellidos() : \"No asignado\")")
     TrabajadorResponseDTO toResponseDTO(Trabajador trabajador);
 

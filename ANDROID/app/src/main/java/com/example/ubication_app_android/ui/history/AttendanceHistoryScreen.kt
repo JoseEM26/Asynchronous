@@ -122,7 +122,8 @@ fun AttendanceHistoryScreen(
                         com.example.ubication_app_android.ui.components.DetailedErrorDialog(
                             message = (state as HistoryState.Error).message,
                             errorDetails = (state as HistoryState.Error).errorDetails,
-                            onDismiss = { viewModel.fetchHistory(trabajadorId) }
+                            onDismiss = { viewModel.fetchHistory(trabajadorId) },
+                            onNavigateBack = onNavigateBack
                         )
                     }
                 }

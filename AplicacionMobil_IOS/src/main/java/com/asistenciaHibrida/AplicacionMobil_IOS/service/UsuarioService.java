@@ -6,11 +6,18 @@ import com.asistenciaHibrida.AplicacionMobil_IOS.model.Usuario;
 
 import java.util.List;
 
+import com.asistenciaHibrida.AplicacionMobil_IOS.dto.response.UsuarioResponseDTO;
+
 public interface UsuarioService {
     List<Usuario> listarTodos();
-    PageResponseDTO<Usuario> listarPaginado(PageRequestDTO pageRequest);
-    Usuario guardar(Usuario usuario);
-    Usuario buscarPorId(Integer id);
+
+    PageResponseDTO<UsuarioResponseDTO> listarPaginado(PageRequestDTO pageRequest);
+
+    UsuarioResponseDTO guardar(Usuario usuario);
+
+    UsuarioResponseDTO buscarPorId(Integer id);
+
     void eliminar(Integer id);
-    Usuario login(String username, String password);
+
+    UsuarioResponseDTO login(String username, String password);
 }

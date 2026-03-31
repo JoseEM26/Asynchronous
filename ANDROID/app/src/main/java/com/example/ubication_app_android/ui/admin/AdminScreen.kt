@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -105,20 +106,25 @@ fun AdminScreen(
                     com.example.ubication_app_android.ui.components.DetailedErrorDialog(
                         message = (state as AdminUiState.Error).message,
                         errorDetails = (state as AdminUiState.Error).errorDetails,
-                        onDismiss = { viewModel.loadTrabajadores(baseUrl) }
+                        onDismiss = { viewModel.loadTrabajadores(baseUrl) },
+                        onNavigateBack = onNavigateBack
                     )
                 }
                 is AdminUiState.Success -> {
                     val trabajadores = (state as AdminUiState.Success).list
-                    LazyColumn(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-                        items(trabajadores) { t ->
-                            TrabajadorAdminCard(
-                                trabajador = t,
-                                onToggle = { permitir ->
-                                    viewModel.togglePermiso(baseUrl, t.id, permitir)
-                                }
-                            )
-                            Spacer(modifier = Modifier.height(12.dp))
+                    if (trabajadores.isEmpty()) {
+                        EmptyAdminView()
+                    } else {
+                        LazyColumn(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+                            items(trabajadores) { t ->
+                                TrabajadorAdminCard(
+                                    trabajador = t,
+                                    onToggle = { permitir ->
+                                        viewModel.togglePermiso(baseUrl, t.id, permitir)
+                                    }
+                                )
+                                Spacer(modifier = Modifier.height(12.dp))
+                            }
                         }
                     }
                 }
@@ -163,6 +169,28 @@ fun TrabajadorAdminCard(
                 )
             }
         }
+    }
+}
+
+@Composable
+fun EmptyAdminView() {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            imageVector = Icons.Default.People,
+            contentDescription = null,
+            modifier = Modifier.size(80.dp),
+            tint = Color.Gray.copy(alpha = 0.3f)
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            "No hay trabajadores registrados.",
+            color = Color.Gray,
+            fontSize = 18.sp
+        )
     }
 }
 

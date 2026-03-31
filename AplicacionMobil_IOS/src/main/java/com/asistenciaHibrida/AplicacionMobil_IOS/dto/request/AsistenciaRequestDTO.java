@@ -3,6 +3,7 @@ package com.asistenciaHibrida.AplicacionMobil_IOS.dto.request;
 import com.asistenciaHibrida.AplicacionMobil_IOS.model.Asistencia;
 import lombok.Data;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Data
 public class AsistenciaRequestDTO {
@@ -12,4 +13,5 @@ public class AsistenciaRequestDTO {
     private BigDecimal latitud;
     private BigDecimal longitud;
     private String notas;
+    private LocalDateTime fechaHoraManual;
 }

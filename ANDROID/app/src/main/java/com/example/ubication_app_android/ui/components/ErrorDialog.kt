@@ -20,7 +20,8 @@ fun DetailedErrorDialog(
     title: String = "Error del Sistema",
     message: String,
     errorDetails: String? = null,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    onNavigateBack: (() -> Unit)? = null
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -75,11 +76,24 @@ fun DetailedErrorDialog(
             }
         },
         confirmButton = {
-            Button(
-                onClick = onDismiss,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E3A8A))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
             ) {
-                Text("Entendido", color = Color.White)
+                if (onNavigateBack != null) {
+                    TextButton(
+                        onClick = onNavigateBack
+                    ) {
+                        Text("Volver al Inicio", color = Color.Gray)
+                    }
+                }
+                
+                Button(
+                    onClick = onDismiss,
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E3A8A))
+                ) {
+                    Text("Reintentar", color = Color.White)
+                }
             }
         }
     )

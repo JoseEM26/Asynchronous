@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { TrabajadorRequest, TrabajadorResponse } from '../models/trabajador.interface';
-import { PageRequest, PageResponse } from '../models/pagination.interface';
+import { PageRequest, PaginatedResponse } from '../models/pagination.interface';
 
 import { environment } from '../../environments/environment';
 
@@ -12,14 +12,14 @@ import { environment } from '../../environments/environment';
 export class TrabajadorService {
   private apiUrl = `${environment.apiUrl}/trabajadores`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   listar(): Observable<TrabajadorResponse[]> {
     return this.http.get<TrabajadorResponse[]>(this.apiUrl);
   }
 
-  listarPaginado(pageRequest: PageRequest): Observable<PageResponse<TrabajadorResponse>> {
-    return this.http.post<PageResponse<TrabajadorResponse>>(`${this.apiUrl}/paged`, pageRequest);
+  listarPaginado(pageRequest: PageRequest): Observable<PaginatedResponse<TrabajadorResponse>> {
+    return this.http.post<PaginatedResponse<TrabajadorResponse>>(`${this.apiUrl}/paged`, pageRequest);
   }
 
   obtener(id: number): Observable<TrabajadorResponse> {

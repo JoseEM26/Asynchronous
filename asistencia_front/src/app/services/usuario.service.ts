@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { UsuarioRequest, UsuarioResponse } from '../models/usuario.interface';
-import { PageRequest, PageResponse } from '../models/pagination.interface';
+import { PageRequest, PaginatedResponse } from '../models/pagination.interface';
 
 import { environment } from '../../environments/environment';
 
@@ -18,8 +18,8 @@ export class UsuarioService {
     return this.http.get<UsuarioResponse[]>(this.apiUrl);
   }
 
-  listarPaginado(pageRequest: PageRequest): Observable<PageResponse<UsuarioResponse>> {
-    return this.http.post<PageResponse<UsuarioResponse>>(`${this.apiUrl}/paged`, pageRequest);
+  listarPaginado(pageRequest: PageRequest): Observable<PaginatedResponse<UsuarioResponse>> {
+    return this.http.post<PaginatedResponse<UsuarioResponse>>(`${this.apiUrl}/paged`, pageRequest);
   }
 
   obtener(id: number): Observable<UsuarioResponse> {

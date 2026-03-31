@@ -7,9 +7,10 @@ export interface AsistenciaRequest {
   trabajadorId: number;
   modalidadId: number;
   tipo: TipoAsistencia;
-  latitud: number;
-  longitud: number;
-  notas: string;
+  latitud?: number | null;
+  longitud?: number | null;
+  notas?: string;
+  fechaHoraManual?: string; // Formato compatible con LocalDateTimeISO
 }
 
 export interface AsistenciaResponse {
@@ -22,6 +23,7 @@ export interface AsistenciaResponse {
   longitud: number;
   notas: string;
 }
+
 export interface QrResponse {
   token: string;
   timestamp: string;
