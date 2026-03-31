@@ -23,6 +23,16 @@ jobs:
         working-directory: ./AplicacionMobil_IOS
         run: mvn clean package -Dmaven.test.skip=true
 
+      - name: Stop Backend Before Deploy
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+              sudo systemctl stop backend.service
+              echo "⏹ Backend detenido para reemplazo del JAR"
+
       - name: Copy JAR to VPS
         uses: appleboy/scp-action@v0.1.4
         with:
@@ -31,17 +41,17 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           source: "./AplicacionMobil_IOS/target/*.jar"
           target: "/home/azureuser/"
-          strip_components: 2 # Quita la estructura ./AplicacionMobil_IOS/target/ y solo deja el archivo jar
+          strip_components: 2
 
-      - name: Restart Backend Service
+      - name: Start Backend Service
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-              sudo systemctl restart backend.service
-              echo "✅ El Backend se ha reiniciado correctamente como un servicio de sistema"
+              sudo systemctl start backend.service
+              echo "✅ Backend reiniciado con el nuevo JAR"
 
   build-and-deploy-frontend:
     runs-on: ubuntu-latest
