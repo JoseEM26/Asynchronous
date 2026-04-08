@@ -29,4 +29,7 @@ public class Usuario {
     @OneToOne
     @JoinColumn(name = "trabajador_id")
     private Trabajador trabajador;
+
+    @Column(nullable = false)
+    private Boolean activo = true;
 }

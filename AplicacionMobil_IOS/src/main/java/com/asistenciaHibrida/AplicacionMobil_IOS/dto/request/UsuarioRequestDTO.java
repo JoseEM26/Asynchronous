@@ -8,4 +8,5 @@ public class UsuarioRequestDTO {
     private String password;
     private Integer rolId;
     private Integer trabajadorId;
+    private Boolean activo;
 }

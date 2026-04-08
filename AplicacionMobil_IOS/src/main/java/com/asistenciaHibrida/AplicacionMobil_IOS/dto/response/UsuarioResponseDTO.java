@@ -8,4 +8,5 @@ public class UsuarioResponseDTO {
     private String username;
     private RolResponseDTO rol;
     private TrabajadorResponseDTO trabajador;
+    private Boolean activo;
 }

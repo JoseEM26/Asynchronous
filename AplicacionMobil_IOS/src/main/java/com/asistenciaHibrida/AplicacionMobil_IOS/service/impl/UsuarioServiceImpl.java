@@ -2,7 +2,6 @@ package com.asistenciaHibrida.AplicacionMobil_IOS.service.impl;
 
 import com.asistenciaHibrida.AplicacionMobil_IOS.dto.page.PageRequestDTO;
 import com.asistenciaHibrida.AplicacionMobil_IOS.dto.page.PageResponseDTO;
-import com.asistenciaHibrida.AplicacionMobil_IOS.exception.ResourceNotFoundException;
 import com.asistenciaHibrida.AplicacionMobil_IOS.model.Usuario;
 import com.asistenciaHibrida.AplicacionMobil_IOS.repository.UsuarioRepository;
 import com.asistenciaHibrida.AplicacionMobil_IOS.service.UsuarioService;
@@ -109,7 +108,25 @@ public class UsuarioServiceImpl implements UsuarioService {
     public void eliminar(Integer id) {
         Usuario u = usuarioRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-        usuarioRepository.delete(u);
+        u.setActivo(false);
+        usuarioRepository.save(u);
+    }
+
+    @Override
+    @Transactional
+    public UsuarioResponseDTO actualizar(Integer id, Usuario detalles) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        
+        usuario.setUsername(detalles.getUsername());
+        if (detalles.getPassword() != null && !detalles.getPassword().isEmpty()) {
+            usuario.setPassword(detalles.getPassword());
+        }
+        usuario.setRol(detalles.getRol());
+        usuario.setActivo(detalles.getActivo());
+        
+        Usuario updated = usuarioRepository.save(usuario);
+        return usuarioMapper.toResponseDTO(updated);
     }
 
     @Override
@@ -120,6 +137,10 @@ public class UsuarioServiceImpl implements UsuarioService {
 
         if (!usuario.getPassword().equals(password)) {
             throw new RuntimeException("Contraseña incorrecta");
+        }
+
+        if (!Boolean.TRUE.equals(usuario.getActivo())) {
+            throw new RuntimeException("La cuenta de usuario está desactivada");
         }
 
         if (usuario.getTrabajador() != null && !Boolean.TRUE.equals(usuario.getTrabajador().getActivo())) {

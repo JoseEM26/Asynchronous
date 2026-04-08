@@ -22,6 +22,7 @@ export const routes: Routes = [
       { path: 'usuarios', component: UsuariosListComponent },
       { path: 'asistencias', component: AsistenciasListComponent },
       { path: 'qr-generator', component: QrAsistenciaComponent },
+      { path: 'comunicados', loadComponent: () => import('./pages/comunicados/comunicados-management.component').then(m => m.ComunicadosManagementComponent) },
       { path: 'configuracion', component: ConfiguracionComponent },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ]

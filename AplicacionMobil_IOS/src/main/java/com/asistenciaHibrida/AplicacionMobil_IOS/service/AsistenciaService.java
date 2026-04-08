@@ -22,4 +22,6 @@ public interface AsistenciaService {
     List<Asistencia> listarTodas();
 
     PageResponseDTO<Asistencia> listarTodasPaginado(PageRequestDTO pageRequest);
+
+    AsistenciaResponseDTO obtenerEstadoHoy(Integer trabajadorId);
 }

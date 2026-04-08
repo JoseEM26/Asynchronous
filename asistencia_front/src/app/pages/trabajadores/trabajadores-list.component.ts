@@ -6,11 +6,16 @@ import { TrabajadorRequest, TrabajadorResponse } from '../../models/trabajador.i
 import { PaginationComponent } from '../../component/pagination.component/pagination.component';
 import { PageRequest, PaginatedResponse } from '../../models/pagination.interface';
 import { FormTrabajadorComponent } from './form-trabajador.component';
+import { DetailTrabajadorComponent } from './detail-trabajador.component';
+
+import { FormsModule } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'app-trabajadores-list',
   standalone: true,
-  imports: [CommonModule, PaginationComponent, FormTrabajadorComponent],
+  imports: [CommonModule, PaginationComponent, FormTrabajadorComponent, DetailTrabajadorComponent, FormsModule],
   template: `
     <div class="container-fluid animate-fade px-4 py-4">
       <div class="row mb-5 align-items-end">
@@ -28,6 +33,46 @@ import { FormTrabajadorComponent } from './form-trabajador.component';
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             Nuevo Trabajador
           </button>
+        </div>
+      </div>
+
+      <!-- Filter Bar -->
+      <div class="glass-card mb-4 p-3 border border-1 border-white shadow-sm rounded-4 bg-white bg-opacity-75">
+        <div class="row g-3 align-items-center">
+          <div class="col-lg-4">
+            <div class="search-input-group position-relative">
+              <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <input 
+                type="text" 
+                class="form-control ps-5 rounded-pill border-0 bg-light-subtle shadow-none" 
+                placeholder="Buscar por Nombre, DNI o Email..."
+                [(ngModel)]="searchFilter"
+                (ngModelChange)="onSearchChange($event)"
+              >
+            </div>
+          </div>
+          <div class="col-md-4 col-lg-2">
+            <select class="form-select rounded-pill border-0 bg-light-subtle shadow-none" [(ngModel)]="filters.modalidadId" (change)="cargarTrabajadores()">
+              <option [value]="undefined">Todas las Modalidades</option>
+              <option value="1">Presencial</option>
+              <option value="2">Virtual</option>
+              <option value="3">Híbrido</option>
+              <option value="4">Terreno</option>
+              <option value="5">Exento / Admin</option>
+            </select>
+          </div>
+          <div class="col-md-4 col-lg-2">
+            <select class="form-select rounded-pill border-0 bg-light-subtle shadow-none" [(ngModel)]="filters.activo" (change)="cargarTrabajadores()">
+              <option [value]="undefined">Todos los Estados</option>
+              <option [value]="true">Vigentes</option>
+              <option [value]="false">Inactivos</option>
+            </select>
+          </div>
+          <div class="col-md-4 col-lg-2">
+             <button class="btn btn-link text-decoration-none text-secondary small p-0" (click)="limpiarFiltros()">
+                <u>Limpiar Filtros</u>
+             </button>
+          </div>
         </div>
       </div>
 
@@ -101,13 +146,19 @@ import { FormTrabajadorComponent } from './form-trabajador.component';
                       <button class="action-btn edit" (click)="onEditar(t)" title="Editar Perfil">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4L18.5 2.5z"></path></svg>
                       </button>
-                      <button class="action-btn delete" (click)="onEliminar(t)" title="Eliminar de DB">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                      <button 
+                        class="action-btn" 
+                        [class.status-deactivate]="t.activo" 
+                        [class.status-activate]="!t.activo" 
+                        (click)="onToggleActivo(t)" 
+                        [title]="t.activo ? 'Desactivar Trabajador' : 'Reactivar Trabajador'">
+                        <svg *ngIf="t.activo" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line></svg>
+                        <svg *ngIf="!t.activo" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                       </button>
                     </div>
                   </td>
                 </tr>
-                <tr *ngIf="(trabajadores?.length || 0) === 0 && !isLoading">
+                <tr *ngIf="trabajadores.length === 0 && !isLoading">
                   <td colspan="7" class="text-center py-5">
                     <div class="empty-state py-5">
                       <div class="empty-icon-box mx-auto mb-4">
@@ -142,15 +193,49 @@ import { FormTrabajadorComponent } from './form-trabajador.component';
         *ngIf="showForm"
         [editData]="selectedTrabajador"
         [isLoading]="isLoading"
-        [isReadOnly]="isReadOnlyForm"
         (close)="onCloseForm()"
         (save)="onSave($event)"
       ></app-form-trabajador>
+
+      <app-detail-trabajador
+        *ngIf="showDetail"
+        [trabajador]="selectedTrabajador"
+        (close)="onCloseDetail()"
+      ></app-detail-trabajador>
     </div>
   `,
   styles: [`
     .ls-1 { letter-spacing: 0.05rem; }
     .extra-small { font-size: 0.65rem; }
+
+    .search-input-group .search-icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-secondary);
+      opacity: 0.5;
+      z-index: 5;
+    }
+
+    .search-input-group .form-control {
+      height: 45px;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+      border: 1px solid transparent !important;
+    }
+
+    .search-input-group .form-control:focus {
+      background: white !important;
+      border-color: var(--accent-primary) !important;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1) !important;
+    }
+
+    .form-select {
+      height: 45px;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
 
     .icon-box-primary {
       padding: 10px; background: var(--grad-main); color: white;
@@ -198,13 +283,16 @@ import { FormTrabajadorComponent } from './form-trabajador.component';
     .active .status-dot { background: #10b981; box-shadow: 0 0 8px #10b981; }
 
     .action-btn {
-      width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--glass-border);
-      background: white; display: flex; align-items: center; justify-content: center;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      width: 34px; height: 34px; border-radius: 10px; border: none;
+      background: #f1f5f9; color: #64748b; display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer;
     }
-    .action-btn.view:hover { background: #64748b; color: white; border-color: #64748b; transform: scale(1.1); }
-    .action-btn.edit:hover { background: var(--accent-primary); color: white; border-color: var(--accent-primary); transform: scale(1.1); }
-    .action-btn.delete:hover { background: #ef4444; color: white; border-color: #ef4444; transform: scale(1.1); }
+    .action-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+    
+    .action-btn.view:hover { background: #e0e7ff; color: #4338ca; }
+    .action-btn.edit:hover { background: #fef3c7; color: #b45309; }
+    .status-deactivate:hover { background: #fee2e2; color: #b91c1c; }
+    .status-activate:hover { background: #dcfce7; color: #15803d; }
 
     .empty-icon-box {
       width: 80px; height: 80px; background: var(--bg-deep);
@@ -256,13 +344,31 @@ export class TrabajadoresListComponent implements OnInit {
   isLoading: boolean = false;
 
   showForm: boolean = false;
+  showDetail: boolean = false;
   selectedTrabajador: TrabajadorResponse | null = null;
-  isReadOnlyForm: boolean = false;
+
+  // Filters
+  searchFilter = '';
+  filters: any = {
+    searchTerm: '',
+    modalidadId: undefined,
+    activo: undefined
+  };
+  private searchSubject = new Subject<string>();
 
   constructor(
     private trabajadorService: TrabajadorService,
     private notify: NotificationService
-  ) { }
+  ) { 
+    this.searchSubject.pipe(
+      debounceTime(400),
+      distinctUntilChanged()
+    ).subscribe(value => {
+      this.filters.searchTerm = value;
+      this.currentPage = 0;
+      this.cargarTrabajadores();
+    });
+  }
 
   ngOnInit(): void {
     this.cargarTrabajadores();
@@ -307,7 +413,8 @@ export class TrabajadoresListComponent implements OnInit {
       pageIndex: this.currentPage,
       pageSize: this.pageSize,
       sortBy: 'id',
-      sortDir: 'DESC'
+      sortDir: 'DESC',
+      filters: this.cleanupFilters()
     };
 
     this.trabajadorService.listarPaginado(request).subscribe({
@@ -338,31 +445,30 @@ export class TrabajadoresListComponent implements OnInit {
 
   onNuevo(): void {
     this.selectedTrabajador = null;
-    this.isReadOnlyForm = false;
     this.showForm = true;
   }
 
   onDetalle(t: TrabajadorResponse): void {
     this.selectedTrabajador = t;
-    this.isReadOnlyForm = true;
-    this.showForm = true;
+    this.showDetail = true;
   }
 
   onEditar(t: TrabajadorResponse): void {
     this.selectedTrabajador = t;
-    this.isReadOnlyForm = false;
     this.showForm = true;
   }
 
   onCloseForm(): void {
     this.showForm = false;
     this.selectedTrabajador = null;
-    this.isReadOnlyForm = false;
+  }
+
+  onCloseDetail(): void {
+    this.showDetail = false;
+    this.selectedTrabajador = null;
   }
 
   onSave(request: TrabajadorRequest): void {
-    if (this.isReadOnlyForm) return;
-
     this.isLoading = true;
     const observer = {
       next: () => {
@@ -383,25 +489,68 @@ export class TrabajadoresListComponent implements OnInit {
     }
   }
 
-  async onEliminar(t: TrabajadorResponse): Promise<void> {
+  async onToggleActivo(t: TrabajadorResponse): Promise<void> {
+    const action = t.activo ? 'desactivar' : 'reactivar';
     const confirm = await this.notify.confirm(
-      '¿Estás seguro?',
-      `Deseas eliminar a ${t.nombres}. Esta acción no se puede deshacer.`,
-      'Sí, eliminar'
+      t.activo ? '¿Desactivar personal?' : '¿Reactivar personal?',
+      `¿Deseas ${action} a ${t.nombres}?`,
+      t.activo ? 'Sí, desactivar' : 'Sí, reactivar'
     );
 
     if (confirm) {
       this.isLoading = true;
-      this.trabajadorService.eliminar(t.id).subscribe({
-        next: () => {
-          this.notify.success('Trabajador eliminado');
-          this.cargarTrabajadores();
-        },
-        error: () => {
-          this.notify.error('No se pudo eliminar el trabajador');
-          this.isLoading = false;
-        }
-      });
+      if (t.activo) {
+        // Soft delete (deactivation)
+        this.trabajadorService.desactivar(t.id).subscribe({
+          next: () => {
+            this.notify.success('Trabajador desactivado');
+            this.cargarTrabajadores();
+          },
+          error: () => {
+            this.notify.error('No se pudo desactivar el trabajador');
+            this.isLoading = false;
+          }
+        });
+      } else {
+        // Reactivation (using generic update)
+        const request: TrabajadorRequest = { ...t, activo: true };
+        this.trabajadorService.actualizar(t.id, request).subscribe({
+          next: () => {
+            this.notify.success('Trabajador reactivado');
+            this.cargarTrabajadores();
+          },
+          error: () => {
+            this.notify.error('No se pudo reactivar el trabajador');
+            this.isLoading = false;
+          }
+        });
+      }
     }
+  }
+
+  onSearchChange(value: string): void {
+    this.searchSubject.next(value);
+  }
+
+  limpiarFiltros(): void {
+    this.searchFilter = '';
+    this.filters = {
+      searchTerm: '',
+      modalidadId: undefined,
+      activo: undefined
+    };
+    this.currentPage = 0;
+    this.cargarTrabajadores();
+  }
+
+  private cleanupFilters(): any {
+    const clean: any = {};
+    Object.keys(this.filters).forEach(key => {
+      const val = this.filters[key];
+      if (val !== undefined && val !== null && val !== '') {
+        clean[key] = val;
+      }
+    });
+    return clean;
   }
 }

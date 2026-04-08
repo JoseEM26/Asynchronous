@@ -7,12 +7,13 @@ import { UsuarioRequest, UsuarioResponse } from '../../models/usuario.interface'
 import { PaginationComponent } from '../../component/pagination.component/pagination.component';
 import { PageRequest, PaginatedResponse } from '../../models/pagination.interface';
 import { FormUsuarioComponent } from './form-usuario.component';
+import { DetailUsuarioComponent } from './detail-usuario.component';
 import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-usuarios-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, PaginationComponent, FormUsuarioComponent],
+  imports: [CommonModule, FormsModule, PaginationComponent, FormUsuarioComponent, DetailUsuarioComponent],
   template: `
     <div class="container-fluid animate-fade px-4 py-4">
       <div class="row mb-5 align-items-end">
@@ -84,18 +85,27 @@ import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
                     <span class="badge-role">{{ u.rol.nombre }}</span>
                   </td>
                   <td>
-                    <div class="status-pill active">
+                    <div class="status-pill" [class.active]="u.activo">
                       <span class="status-dot"></span>
-                      Habilitado
+                      {{ u.activo ? 'Habilitado' : 'Suspendido' }}
                     </div>
                   </td>
                   <td class="text-end pe-4">
                     <div class="d-flex gap-2 justify-content-end">
-                      <button class="action-btn edit" (click)="onVer(u)" title="Editar Acceso">
+                      <button class="action-btn view" (click)="onDetalle(u)" title="Ver Detalle">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                      </button>
+                      <button class="action-btn edit" (click)="onEditar(u)" title="Editar Acceso">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4L18.5 2.5z"></path></svg>
                       </button>
-                      <button class="action-btn delete" (click)="onEliminar(u)" title="Revocar Acceso">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                      <button 
+                         class="action-btn" 
+                         [class.delete]="u.activo" 
+                         [class.activate]="!u.activo" 
+                         (click)="onToggleActivo(u)" 
+                         [title]="u.activo ? 'Desactivar Acceso' : 'Reactivar Acceso'">
+                        <svg *ngIf="u.activo" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line></svg>
+                        <svg *ngIf="!u.activo" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                       </button>
                     </div>
                   </td>
@@ -138,6 +148,12 @@ import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
         (close)="onCloseForm()"
         (save)="onSave($event)"
       ></app-form-usuario>
+
+      <app-detail-usuario
+        *ngIf="showDetail"
+        [usuario]="selectedUsuario"
+        (close)="onCloseDetail()"
+      ></app-detail-usuario>
     </div>
   `,
   styles: [`
@@ -185,20 +201,26 @@ import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
       padding: 4px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 700;
     }
 
+    .action-btn {
+      width: 34px; height: 34px; border-radius: 10px; border: none;
+      background: #f1f5f9; color: #64748b; display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer;
+    }
+    .action-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+    
+    .action-btn.view:hover { background: #e0e7ff; color: #4338ca; }
+    .action-btn.edit:hover { background: #fef3c7; color: #b45309; }
+    .action-btn.delete:hover { background: #fee2e2; color: #b91c1c; }
+    .action-btn.activate:hover { background: #dcfce7; color: #15803d; }
+
     .status-pill {
       display: inline-flex; align-items: center; gap: 8px;
       padding: 6px 14px; border-radius: 30px; font-size: 0.75rem; font-weight: 700;
-      background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0;
+      background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0;
     }
-    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #10b981; box-shadow: 0 0 8px #10b981; }
-
-    .action-btn {
-      width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--glass-border);
-      background: white; display: flex; align-items: center; justify-content: center;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .action-btn.edit:hover { background: var(--accent-primary); color: white; border-color: var(--accent-primary); transform: scale(1.1); }
-    .action-btn.delete:hover { background: #ef4444; color: white; border-color: #ef4444; transform: scale(1.1); }
+    .status-pill.active { background: #ecfdf5; color: #065f46; border-color: #a7f3d0; }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #94a3b8; }
+    .status-pill.active .status-dot { background: #10b981; box-shadow: 0 0 8px #10b981; }
 
     .empty-icon-box {
       width: 80px; height: 80px; background: var(--bg-deep);
@@ -247,6 +269,7 @@ export class UsuariosListComponent implements OnInit, OnDestroy {
 
   // Form State
   showForm: boolean = false;
+  showDetail: boolean = false;
   selectedUsuario: UsuarioResponse | null = null;
 
   constructor(
@@ -319,13 +342,23 @@ export class UsuariosListComponent implements OnInit, OnDestroy {
     this.showForm = true;
   }
 
-  onVer(u: UsuarioResponse): void {
+  onDetalle(u: UsuarioResponse): void {
+    this.selectedUsuario = u;
+    this.showDetail = true;
+  }
+
+  onEditar(u: UsuarioResponse): void {
     this.selectedUsuario = u;
     this.showForm = true;
   }
 
   onCloseForm(): void {
     this.showForm = false;
+    this.selectedUsuario = null;
+  }
+
+  onCloseDetail(): void {
+    this.showDetail = false;
     this.selectedUsuario = null;
   }
 
@@ -350,25 +383,40 @@ export class UsuariosListComponent implements OnInit, OnDestroy {
     }
   }
 
-  async onEliminar(u: UsuarioResponse): Promise<void> {
+  async onToggleActivo(u: UsuarioResponse): Promise<void> {
+    const action = u.activo ? 'desactivar' : 'reactivar';
     const confirm = await this.notify.confirm(
-      '¿Eliminar usuario?',
-      `Esta acción suspenderá el acceso para ${u.username}.`,
-      'Sí, eliminar'
+      u.activo ? '¿Desactivar acceso?' : '¿Reactivar acceso?',
+      `Esta acción ${u.activo ? 'suspenderá' : 'restaurará'} el acceso para ${u.username}.`,
+      u.activo ? 'Sí, desactivar' : 'Sí, reactivar'
     );
 
     if (confirm) {
       this.isLoading = true;
-      this.usuarioService.eliminar(u.id).subscribe({
-        next: () => {
-          this.notify.success('Usuario eliminado');
-          this.cargarUsuarios();
-        },
-        error: () => {
-          this.notify.error('Error al eliminar');
-          this.isLoading = false;
-        }
-      });
+      if (u.activo) {
+        this.usuarioService.desactivar(u.id).subscribe({
+          next: () => {
+            this.notify.success('Cuenta de usuario desactivada');
+            this.cargarUsuarios();
+          },
+          error: () => {
+            this.notify.error('Error al intentar desactivar');
+            this.isLoading = false;
+          }
+        });
+      } else {
+        const request: UsuarioRequest = { ...u, trabajadorId: u.trabajador.id, rolId: u.rol.id, activo: true };
+        this.usuarioService.actualizar(u.id, request).subscribe({
+          next: () => {
+            this.notify.success('Cuenta de usuario reactivada');
+            this.cargarUsuarios();
+          },
+          error: () => {
+            this.notify.error('Error al intentar reactivar');
+            this.isLoading = false;
+          }
+        });
+      }
     }
   }
 }

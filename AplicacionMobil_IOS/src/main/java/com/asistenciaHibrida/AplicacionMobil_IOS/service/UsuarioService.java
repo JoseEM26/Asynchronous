@@ -19,5 +19,7 @@ public interface UsuarioService {
 
     void eliminar(Integer id);
 
+    UsuarioResponseDTO actualizar(Integer id, Usuario detalles);
+
     UsuarioResponseDTO login(String username, String password);
 }

@@ -34,7 +34,7 @@ export class TrabajadorService {
     return this.http.put<TrabajadorResponse>(`${this.apiUrl}/${id}`, trabajador);
   }
 
-  eliminar(id: number): Observable<void> {
+  desactivar(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }

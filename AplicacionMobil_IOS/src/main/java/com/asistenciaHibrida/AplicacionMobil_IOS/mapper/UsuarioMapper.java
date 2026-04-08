@@ -13,8 +13,8 @@ public interface UsuarioMapper {
     @Mapping(target = "trabajador", source = "trabajador")
     UsuarioResponseDTO toResponseDTO(Usuario usuario);
 
+    @Mapping(target = "rol.id", source = "rolId")
+    @Mapping(target = "trabajador.id", source = "trabajadorId")
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "rol", ignore = true)
-    @Mapping(target = "trabajador", ignore = true)
     Usuario toEntity(UsuarioRequestDTO requestDTO);
 }

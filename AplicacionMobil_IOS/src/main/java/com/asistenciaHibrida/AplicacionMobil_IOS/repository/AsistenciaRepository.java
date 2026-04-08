@@ -23,4 +23,10 @@ public interface AsistenciaRepository extends JpaRepository<Asistencia, Long> {
 
     @EntityGraph(attributePaths = { "trabajador", "trabajador.modalidad", "trabajador.rol", "modalidad" })
     Page<Asistencia> findAll(Pageable pageable);
+
+    @EntityGraph(attributePaths = { "trabajador", "modalidad" })
+    List<Asistencia> findByTrabajadorAndFechaHoraBetweenOrderByFechaHoraDesc(
+            Trabajador trabajador, 
+            java.time.LocalDateTime start, 
+            java.time.LocalDateTime end);
 }

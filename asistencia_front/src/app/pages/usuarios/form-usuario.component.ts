@@ -3,9 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { UsuarioRequest, UsuarioResponse } from '../../models/usuario.interface';
 import { TrabajadorResponse } from '../../models/trabajador.interface';
-import { RolResponse } from '../../models/rol.interface';
 import { TrabajadorService } from '../../services/trabajador.service';
-import { RolService } from '../../services/rol.service';
 
 @Component({
   selector: 'app-form-usuario',
@@ -15,7 +13,12 @@ import { RolService } from '../../services/rol.service';
     <div class="modal-overlay" (click)="onClose()">
       <div class="modal-panel animate-fade" (click)="$event.stopPropagation()" style="max-width: 500px;">
         <header class="modal-header-base">
-          <h2 class="modal-title-base">{{ editData ? 'Configurar Acceso' : 'Nuevo Usuario' }}</h2>
+          <div class="d-flex align-items-center gap-3">
+             <div class="header-icon-box" [class.bg-edit]="editData" [class.bg-new]="!editData">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><polyline points="16 11 18 13 22 9"></polyline></svg>
+             </div>
+             <h2 class="modal-title-base mb-0">{{ editData ? 'Configurar Acceso' : 'Nuevo Usuario' }}</h2>
+          </div>
           <button class="btn-close-modal" (click)="onClose()" aria-label="Close">
              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
           </button>
@@ -26,7 +29,7 @@ import { RolService } from '../../services/rol.service';
             <div class="row g-4">
               <div class="col-12 form-field">
                 <label class="form-label-base">Trabajador Vinculado</label>
-                <select formControlName="trabajadorId" class="form-input-base">
+                <select formControlName="trabajadorId" class="form-input-base" (change)="onWorkerChange()">
                   <option [value]="null" disabled>Seleccione un trabajador de la lista</option>
                   <option *ngFor="let t of trabajadores" [value]="t.id">
                     {{ t.dni }} — {{ t.nombres }} {{ t.apellidos }}
@@ -35,7 +38,7 @@ import { RolService } from '../../services/rol.service';
                 <div *ngIf="showError('trabajadorId')" class="form-error-base">Debe seleccionar un trabajador</div>
               </div>
 
-              <div class="col-md-7 form-field">
+              <div class="col-12 form-field">
                 <label class="form-label-base">Nombre de Usuario</label>
                 <div class="input-group-custom">
                   <span class="input-prefix">@</span>
@@ -44,13 +47,12 @@ import { RolService } from '../../services/rol.service';
                 <div *ngIf="showError('username')" class="form-error-base">El nombre de usuario es obligatorio</div>
               </div>
 
-              <div class="col-md-5 form-field">
-                <label class="form-label-base">Rol Asignado</label>
-                <select formControlName="rolId" class="form-input-base">
-                  <option [value]="null" disabled>Elegir rol</option>
-                  <option *ngFor="let r of roles" [value]="r.id">{{ r.nombre }}</option>
-                </select>
-                <div *ngIf="showError('rolId')" class="form-error-base">Rol requerido</div>
+              <!-- El Rol se hereda automáticamente del Trabajador -->
+              <div class="col-12" *ngIf="selectedWorkerRole">
+                 <div class="alert alert-info border-0 rounded-4 d-flex align-items-center gap-3 py-2 px-3 mb-0">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                    <span class="small fw-bold text-info">Rol Heredado: {{ selectedWorkerRole }}</span>
+                 </div>
               </div>
 
               <div class="col-12 form-field" *ngIf="!editData">
@@ -62,7 +64,7 @@ import { RolService } from '../../services/rol.service';
               <div class="col-12" *ngIf="editData">
                 <div class="info-note">
                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-                   <span>Para cambios de seguridad, use el módulo de perfiles.</span>
+                   <span>Las credenciales se gestionan de forma centralizada.</span>
                 </div>
               </div>
             </div>
@@ -79,6 +81,12 @@ import { RolService } from '../../services/rol.service';
     </div>
   `,
   styles: [`
+    .header-icon-box {
+      width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white;
+    }
+    .bg-edit { background: var(--accent-primary); }
+    .bg-new { background: #10b981; }
+
     .btn-close-modal {
       background: none; border: none; color: var(--text-muted); cursor: pointer;
       display: flex; padding: 5px; border-radius: 6px; transition: var(--transition-fast);
@@ -97,7 +105,6 @@ import { RolService } from '../../services/rol.service';
       background: var(--bg-deep); border-radius: 8px; color: var(--text-secondary); font-size: 0.8rem;
     }
   `]
-
 })
 export class FormUsuarioComponent implements OnInit {
   @Input() editData: UsuarioResponse | null = null;
@@ -107,12 +114,11 @@ export class FormUsuarioComponent implements OnInit {
 
   form: FormGroup;
   trabajadores: TrabajadorResponse[] = [];
-  roles: RolResponse[] = [];
+  selectedWorkerRole: string = '';
 
   constructor(
     private fb: FormBuilder,
-    private trabajadorService: TrabajadorService,
-    private rolService: RolService
+    private trabajadorService: TrabajadorService
   ) {
     this.form = this.fb.group({
       trabajadorId: [null, Validators.required],
@@ -130,16 +136,31 @@ export class FormUsuarioComponent implements OnInit {
         username: this.editData.username,
         rolId: this.editData.rol.id
       });
+      this.selectedWorkerRole = this.editData.rol.nombre;
       this.form.get('password')?.clearValidators();
-      this.form.get('trabajadorId')?.disable(); // No se cambia el trabajador de un usuario existente
+      this.form.get('trabajadorId')?.disable();
     } else {
       this.form.get('password')?.setValidators([Validators.required, Validators.minLength(6)]);
     }
   }
 
   cargarMetadata(): void {
-    this.trabajadorService.listar().subscribe(data => this.trabajadores = data);
-    this.rolService.listar().subscribe(data => this.roles = data);
+    this.trabajadorService.listar().subscribe(data => {
+      this.trabajadores = data;
+      // Si estamos editando, asegurar que mostramos el rol actual del trabajador
+      if (this.editData) {
+         this.onWorkerChange();
+      }
+    });
+  }
+
+  onWorkerChange(): void {
+    const trabajadorId = this.form.get('trabajadorId')?.value;
+    const worker = this.trabajadores.find(t => t.id == trabajadorId);
+    if (worker) {
+      this.form.patchValue({ rolId: worker.rolId });
+      this.selectedWorkerRole = worker.rolNombre || 'Sin Rol';
+    }
   }
 
   showError(control: string): boolean {
@@ -149,8 +170,9 @@ export class FormUsuarioComponent implements OnInit {
 
   onSubmit(): void {
     if (this.form.valid) {
-      // Si está deshabilitado, getRawValue lo incluye
       this.save.emit(this.form.getRawValue());
+    } else {
+      this.form.markAllAsTouched();
     }
   }
 

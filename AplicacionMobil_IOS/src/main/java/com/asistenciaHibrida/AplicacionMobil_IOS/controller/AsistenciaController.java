@@ -116,6 +116,16 @@ public class AsistenciaController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "Obtener el estado de asistencia de hoy para un trabajador", description = "Retorna la última marcación realizada hoy (Entrada o Salida) para determinar el siguiente paso en la app móvil.")
+    @GetMapping("/estado-hoy/{trabajadorId}")
+    public ResponseEntity<AsistenciaResponseDTO> obtenerEstadoHoy(@PathVariable Integer trabajadorId) {
+        AsistenciaResponseDTO response = asistenciaService.obtenerEstadoHoy(trabajadorId);
+        if (response == null) {
+            return ResponseEntity.noContent().build(); // No hay marcaciones hoy
+        }
+        return ResponseEntity.ok(response);
+    }
+
     private PageResponseDTO<AsistenciaResponseDTO> mapToPageResponseDTO(PageResponseDTO<Asistencia> pageResponse) {
         if (pageResponse == null || pageResponse.getContent() == null) {
             return PageResponseDTO.<AsistenciaResponseDTO>builder()

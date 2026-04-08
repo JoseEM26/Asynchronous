@@ -11,7 +11,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import com.asistenciaHibrida.AplicacionMobil_IOS.repository.specification.TrabajadorSpecification;
 
 import java.util.List;
 
@@ -29,6 +31,9 @@ public class TrabajadorServiceImpl implements TrabajadorService {
 
     @Autowired
     private TrabajadorMapper trabajadorMapper;
+
+    @Autowired
+    private com.asistenciaHibrida.AplicacionMobil_IOS.repository.UsuarioRepository usuarioRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -51,7 +56,8 @@ public class TrabajadorServiceImpl implements TrabajadorService {
         
         Pageable pageable = PageRequest.of(pageRequest.getPageIndex(), pageRequest.getPageSize(), sort);
         
-        Page<Trabajador> page = trabajadorRepository.findAll(pageable);
+        Specification<Trabajador> spec = TrabajadorSpecification.withFilters(pageRequest.getFilters());
+        Page<Trabajador> page = trabajadorRepository.findAll(spec, pageable);
         
         List<TrabajadorResponseDTO> dtoList = page.getContent().stream()
                 .map(trabajadorMapper::toResponseDTO)
@@ -88,7 +94,14 @@ public class TrabajadorServiceImpl implements TrabajadorService {
     public void eliminar(Integer id) {
         Trabajador t = trabajadorRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Trabajador no encontrado con id: " + id));
-        trabajadorRepository.delete(t);
+        t.setActivo(false);
+        trabajadorRepository.save(t);
+        
+        // Cascade deactivation to User
+        usuarioRepository.findByTrabajador(t).ifPresent(u -> {
+            u.setActivo(false);
+            usuarioRepository.save(u);
+        });
     }
 
     @Override
@@ -115,6 +128,15 @@ public class TrabajadorServiceImpl implements TrabajadorService {
         trabajador.setDiasRemotos(detalles.getDiasRemotos());
         
         Trabajador updated = trabajadorRepository.save(trabajador);
+        
+        // Sync deactivation to user if worker was deactivated
+        if (Boolean.FALSE.equals(updated.getActivo())) {
+            usuarioRepository.findByTrabajador(updated).ifPresent(u -> {
+                u.setActivo(false);
+                usuarioRepository.save(u);
+            });
+        }
+        
         return trabajadorMapper.toResponseDTO(updated);
     }
 

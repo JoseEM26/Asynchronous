@@ -1,0 +1,53 @@
+# Documentación de Reglas de Asistencia, Roles y Modalidades
+
+Este documento detalla la estructura de roles y modalidades del sistema de asistencia híbrida, incluyendo las reglas de validación para cada caso.
+
+## 1. Roles del Sistema
+
+El sistema utiliza roles para definir niveles de acceso y responsabilidades operativas. **Es importante notar que el rol es independiente de la modalidad; es decir, un TRABAJADOR puede estar asignado a cualquier modalidad (Presencial, Virtual, Híbrido, etc.).**
+
+| ID | Nombre del Rol | Propósito |
+|----|----------------|-----------|
+| 1 | **ADMIN** | Administrador del sistema con acceso a gestión de usuarios, trabajadores y configuración global. |
+| 5 | **SUPER_ADMIN** | Nivel máximo de acceso, con permisos extendidos sobre la infraestructura o configuraciones críticas. |
+| 3 | **JEFE_TERRENO** | Responsable de supervisar a los trabajadores en ubicaciones externas. Puede actualizar "Puntos de Terreno". |
+| 4 | **TRABAJADOR_TERRENO** | Personal operativo que realiza sus funciones principalmente en ubicaciones variables o puntos de terreno. |
+| 2 | **TRABAJADOR** | Rol base para el personal de la empresa. Puede realizar sus funciones en cualquier modalidad asignada. |
+
+---
+
+## 2. Modalidades de Trabajo
+
+Cada trabajador tiene una modalidad asignada que determina cómo y desde dónde debe registrar su asistencia.
+
+| ID | Modalidad | Descripción y Reglas de Validación |
+|----|-----------|--------------------------------------|
+| 5 | **EXENTO / ADMINISTRATIVO** | Personal que no requiere control de geocerca (ej. directivos o staff con movilidad total). |
+| 1 | **PRESENCIAL** | Trabajo en oficina central. Validación obligatoria por GPS dentro del radio definido (ej. 50m). |
+| 2 | **VIRTUAL / REMOTO** | **Trabajo 100% remoto.** El sistema permite el registro desde casa u otras ubicaciones. Se puede configurar una "Ubicación Virtual" fija para validación. |
+| 3 | **HIBRIDO** | Combinación de días en oficina y días remotos. El sistema valida la ubicación según el día de la semana (`dias_presencial` vs `dias_remotos`). |
+| 4 | **TERRENO** | Trabajo en terreno/obras. La validación se hace contra "Puntos de Terreno" dinámicos en lugar de la oficina central. |
+
+---
+
+## 3. Reglas Específicas de Validación para el TRABAJADOR
+
+### A. Trabajo Remoto (Virtual e Híbrido)
+Un usuario con rol **TRABAJADOR** puede realizar trabajo remoto bajo dos esquemas:
+1.  **Modalidad VIRTUAL**: Registro de asistencia desde una ubicación remota configurada (Ubicación Virtual).
+2.  **Modalidad HIBRIDO**: El sistema permite marcar como "Remoto" o "Virtual" en los días que no le corresponde asistir a la oficina.
+3.  **Ubicación Virtual**: En el perfil del trabajador se pueden definir coordenadas específicas (Latitud/Longitud Virtual) para asegurar que el trabajo remoto se realice desde un lugar autorizado (ej. su domicilio).
+
+### B. Geocerca y Puntos de Terreno
+*   **Oficina Central**: Para marcas presenciales, el GPS debe coincidir con la oficina.
+*   **Puntos de Terreno**: Para trabajadores en terreno, el sistema busca el punto de terreno más cercano registrado.
+
+### C. Flexibilidad de Ubicación
+*   **Permitir Cambio de Ubicación**: Si esta opción está activada en el perfil del **TRABAJADOR**, este podrá marcar asistencia incluso si su GPS no coincide exactamente con la ubicación predefinida (Virtual o Presencial), registrando la ubicación real para auditoría.
+
+---
+
+## 4. Ciclo de Marcación
+1.  **ENTRADA**: El sistema detecta la modalidad y valida la posición GPS según las reglas anteriores.
+2.  **SALIDA**: Registro del fin de jornada.
+3.  **AUDITORÍA**: Todos los registros guardan las coordenadas reales, permitiendo al ADMIN verificar si un trabajador remoto/virtual estuvo efectivamente donde debía.

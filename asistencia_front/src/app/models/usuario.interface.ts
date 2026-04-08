@@ -6,11 +6,13 @@ export interface UsuarioRequest {
   password?: string;
   rolId: number;
   trabajadorId: number;
+  activo?: boolean;
 }
 
 export interface UsuarioResponse {
   id: number;
   username: string;
+  activo: boolean;
   rol: RolResponse;
   trabajador: TrabajadorResponse;
 }
