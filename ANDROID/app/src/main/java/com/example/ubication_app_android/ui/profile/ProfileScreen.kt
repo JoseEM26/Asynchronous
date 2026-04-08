@@ -108,11 +108,13 @@ fun ProfileScreen(
                         InfoSection("Contacto") {
                             InfoRow(Icons.Default.Email, "Correo", t.email ?: "No registrado")
                             InfoRow(Icons.Default.Phone, "Teléfono", t.telefono ?: "No registrado")
+                            InfoRow(Icons.Default.LocationOn, "Dirección", t.direccion ?: "No registrada")
                         }
 
                         InfoSection("Laboral") {
                             InfoRow(Icons.Default.Work, "Cargo / Rol", t.rolNombre ?: "Trabajador")
                             InfoRow(Icons.Default.Assignment, "Modalidad", t.modalidadNombre ?: "No asignada")
+                            InfoRow(Icons.Default.SupervisorAccount, "Jefe Directo", t.jefeNombre ?: "No asignado")
                             InfoRow(Icons.Default.CalendarToday, "Fecha Ingreso", t.fechaIngreso ?: "-")
                             InfoRow(
                                 Icons.Default.ToggleOn, 
@@ -120,6 +122,18 @@ fun ProfileScreen(
                                 if (t.activo == true) "Activo" else "Inactivo",
                                 textColor = if (t.activo == true) Color(0xFF4CAF50) else Color.Red
                             )
+                        }
+
+                        InfoSection("Horario Asignado") {
+                            InfoRow(Icons.Default.CalendarMonth, "Días Presenciales", t.diasPresencial ?: "No definidos")
+                            InfoRow(Icons.Default.Cloud, "Días Remotos", t.diasRemotos ?: "No definidos")
+                        }
+
+                        if (t.latitudVirtual != null && t.longitudVirtual != null) {
+                            InfoSection("Ubicación Virtual (Red)") {
+                                InfoRow(Icons.Default.Map, "Latitud", t.latitudVirtual.toString())
+                                InfoRow(Icons.Default.Map, "Longitud", t.longitudVirtual.toString())
+                            }
                         }
                         
                         Spacer(modifier = Modifier.height(32.dp))

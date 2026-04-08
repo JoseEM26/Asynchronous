@@ -30,6 +30,10 @@ class LoginViewModel : ViewModel() {
             }
         }
     }
+
+    fun resetState() {
+        _loginState.value = LoginResult.Idle
+    }
 }
 
 sealed class LoginResult {

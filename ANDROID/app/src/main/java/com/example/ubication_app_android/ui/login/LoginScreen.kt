@@ -182,7 +182,7 @@ fun LoginScreen(
                 com.example.ubication_app_android.ui.components.DetailedErrorDialog(
                     message = (loginState as LoginResult.Error).message,
                     errorDetails = (loginState as LoginResult.Error).errorDetails,
-                    onDismiss = { /* Optionally reset state here if needed */ }
+                    onDismiss = { viewModel.resetState() }
                 )
             }
         }
