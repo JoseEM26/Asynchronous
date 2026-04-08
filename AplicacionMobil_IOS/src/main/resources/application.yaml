@@ -15,7 +15,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
-    show-sql: true
+    show-sql: ${SHOW_SQL:true}
     open-in-view: false
     properties:
       hibernate:
@@ -44,9 +44,9 @@ springdoc:
 
 logging:
   level:
-    root: INFO
-    com.asistenciaHibrida: INFO
-    org.hibernate.SQL: ERROR
+    root: ${ROOT_LOG_LEVEL:INFO}
+    com.asistenciaHibrida: ${APP_LOG_LEVEL:INFO}
+    org.hibernate.SQL: ${HIBERNATE_LOG_LEVEL:ERROR}
     org.springframework.web.servlet.resource.NoResourceFoundException: WARN
     org.apache.tomcat.util.http.fileupload: ERROR
 
