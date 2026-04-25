@@ -224,7 +224,8 @@ export class FormPersonalComponent implements OnInit {
       rolId: [2, Validators.required],
       password: [''],
       confirmPassword: [''],
-      usuarioActivo: [true]
+      usuarioActivo: [true],
+      permitirCambioUbicacion: [false]
     }, { validators: this.passwordMatchValidator });
   }
 

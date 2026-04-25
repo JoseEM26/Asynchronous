@@ -143,6 +143,7 @@ public class TrabajadorServiceImpl implements TrabajadorService {
     }
 
     @Override
+    @Transactional
     public void actualizarUbicacionVirtual(Integer trabajadorId, java.math.BigDecimal lat, java.math.BigDecimal lng) {
         Trabajador t = trabajadorRepository.findById(trabajadorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Trabajador no encontrado"));
@@ -179,6 +180,7 @@ public class TrabajadorServiceImpl implements TrabajadorService {
     }
 
     @Override
+    @Transactional
     public void permitirCambioUbicacion(Integer trabajadorId, Boolean permitir) {
         Trabajador t = trabajadorRepository.findById(trabajadorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Trabajador no encontrado"));
