@@ -34,11 +34,17 @@ public class Asistencia {
     @JoinColumn(name = "modalidad_id")
     private Modalidad modalidad;
 
-    @Column
+    @Column(precision = 18, scale = 15)
     private BigDecimal latitud;
 
-    @Column
+    @Column(precision = 18, scale = 15)
     private BigDecimal longitud;
+
+    @Column(name = "latitud_referencia", precision = 18, scale = 15)
+    private BigDecimal latitudReferencia;
+
+    @Column(name = "longitud_referencia", precision = 18, scale = 15)
+    private BigDecimal longitudReferencia;
 
     @Column(columnDefinition = "TEXT")
     private String notas;

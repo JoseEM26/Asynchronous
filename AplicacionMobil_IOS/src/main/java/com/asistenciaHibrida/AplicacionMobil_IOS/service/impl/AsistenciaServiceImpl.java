@@ -79,6 +79,19 @@ public class AsistenciaServiceImpl implements AsistenciaService {
 
         asistencia.setLatitud(latitud);
         asistencia.setLongitud(longitud);
+
+        // Determinar y guardar punto de referencia según modalidad
+        if (modalidad != null) {
+            if (modalidad.getId() == 1) { // PRESENCIAL -> Oficina
+                Configuracion config = configuracionRepository.findCurrent().orElseGet(this::createDefaultConfig);
+                asistencia.setLatitudReferencia(config.getOfficeLat());
+                asistencia.setLongitudReferencia(config.getOfficeLng());
+            } else if (modalidad.getId() == 2 || modalidad.getId() == 3) { // VIRTUAL o HIBRIDO -> Casa
+                asistencia.setLatitudReferencia(trabajador.getLatitudVirtual());
+                asistencia.setLongitudReferencia(trabajador.getLongitudVirtual());
+            }
+        }
+
         asistencia.setNotas(notas);
 
         Asistencia guardada = asistenciaRepository.save(asistencia);

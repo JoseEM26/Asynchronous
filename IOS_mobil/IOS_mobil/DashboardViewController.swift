@@ -17,6 +17,7 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
     
     // Propiedades para asistencia virtual/híbrida
     private var trabajadorData: TrabajadorResponse?
+    private var currentLocation: CLLocation?
     private let activityIndicator = UIActivityIndicatorView(style: .large)
     private var tipoAsistenciaSeleccionado: String = "AUTOMATICO"
     
@@ -433,12 +434,27 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
         
+        // Ignorar ubicaciones de hace más de 15 segundos (pueden ser viejas/cache)
+        if abs(location.timestamp.timeIntervalSinceNow) > 15 {
+            return
+        }
+        
+        // Ignorar si la precisión es muy mala (más de 100 metros de margen de error)
+        if location.horizontalAccuracy > 100 {
+            return
+        }
+        
+        self.currentLocation = location
+        print("📍 Ubicación Fresca Detectada: \(location.coordinate.latitude), \(location.coordinate.longitude) (Precisión: \(location.horizontalAccuracy)m)")
+        
         if isRequestingLocationForHomeSetup {
             isRequestingLocationForHomeSetup = false
-            obtenerUbicacionYGuardar(lat: location.coordinate.latitude, lng: location.coordinate.longitude)
+            manager.stopUpdatingLocation()
+            self.obtenerUbicacionYGuardar(lat: location.coordinate.latitude, lng: location.coordinate.longitude)
         } else if isRequestingLocationForAttendance {
             isRequestingLocationForAttendance = false
-            validarDistanciaYMarcar(lat: location.coordinate.latitude, lng: location.coordinate.longitude)
+            manager.stopUpdatingLocation()
+            self.validarDistanciaYMarcar(lat: location.coordinate.latitude, lng: location.coordinate.longitude)
         }
     }
     
@@ -450,7 +466,7 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
     }
 
     private func obtenerUbicacionYGuardar(lat: Double, lng: Double) {
-        guard let id = trabajadorData?.id else { return } // Usar el ID del trabajador, no del usuario
+        guard let id = self.trabajadorId else { return } // Usar el ID de Usuario para evitar cruces
         
         NetworkManager.shared.actualizarUbicacionVirtual(id: id, lat: lat, lng: lng) { [weak self] result in
             DispatchQueue.main.async {
@@ -476,9 +492,9 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
         let homeLocation = CLLocation(latitude: homeLat, longitude: homeLng)
         let distance = currentLocation.distance(from: homeLocation)
         
-        if distance <= 10.0 {
+        if distance <= 15.0 {
             // Está dentro del radio
-            guard let id = t.id else { return } // Usar el ID del trabajador
+            guard let id = self.trabajadorId else { return } // Usar el ID de Usuario para evitar cruces con otros trabajadores
             let request = AsistenciaQrRequest(trabajadorId: id, qrToken: "VIRTUAL_TOKEN", tipo: self.tipoAsistenciaSeleccionado, latitud: lat, longitud: lng)
             
             NetworkManager.shared.registrarAsistenciaQR(request: request) { [weak self] result in

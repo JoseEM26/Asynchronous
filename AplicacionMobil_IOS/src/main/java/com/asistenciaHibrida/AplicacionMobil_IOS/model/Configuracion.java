@@ -25,5 +25,5 @@ public class Configuracion {
     private BigDecimal officeLng;
 
     @Column(nullable = false)
-    private Integer radius = 50; // Default 50 meters
+    private Integer radius = 15; // Default 15 meters for strict validation
 }

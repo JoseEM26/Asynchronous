@@ -14,5 +14,7 @@ public class AsistenciaResponseDTO {
     private ModalidadResponseDTO modalidad;
     private BigDecimal latitud;
     private BigDecimal longitud;
+    private BigDecimal latitudReferencia;
+    private BigDecimal longitudReferencia;
     private String notas;
 }
