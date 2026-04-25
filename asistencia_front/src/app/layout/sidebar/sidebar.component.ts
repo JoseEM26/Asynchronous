@@ -193,14 +193,13 @@ import { NotificationService } from '../../services/notification.service';
     }
 
     .nav-link:hover {
-      background: var(--bg-deep);
       color: var(--accent-primary);
+      opacity: 1;
     }
 
     .nav-link.active {
-      background: rgba(37, 99, 235, 0.08);
       color: var(--accent-primary);
-      font-weight: 600;
+      font-weight: 700;
     }
 
     .nav-icon {
