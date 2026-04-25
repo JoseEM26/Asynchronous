@@ -9,11 +9,11 @@ enum NetworkError: Error {
 
 class NetworkManager {
     static let shared = NetworkManager()
-    private let baseURL = "https://asynchronous-production.up.railway.app/api/"
-
     private init() {}
 
-    func login(request: LoginRequest, completion: @escaping (Result<LoginResponse, NetworkError>) -> Void) {
+    let baseURL = "https://asynchronous-production.up.railway.app/api/"
+
+    func login(request: LoginRequest, completion: @escaping (Result<UsuarioResponse, NetworkError>) -> Void) {
         guard let url = URL(string: baseURL + "usuarios/login") else {
             completion(.failure(.invalidURL))
             return
@@ -24,8 +24,7 @@ class NetworkManager {
         urlRequest.addValue("application/json", forHTTPHeaderField: "Content-Type")
 
         do {
-            let body = try JSONEncoder().encode(request)
-            urlRequest.httpBody = body
+            urlRequest.httpBody = try JSONEncoder().encode(request)
         } catch {
             completion(.failure(.decodingError))
             return
@@ -42,45 +41,13 @@ class NetworkManager {
                 return
             }
 
-            // Debug: print(String(data: data, encoding: .utf8) ?? "")
-
-            do {
-                let loginResponse = try JSONDecoder().decode(LoginResponse.self, from: data)
-                DispatchQueue.main.async { completion(.success(loginResponse)) }
-            } catch {
-                DispatchQueue.main.async { completion(.failure(.decodingError)) }
-            }
-        }.resume()
-    }
-
-    func getTrabajador(id: Int, completion: @escaping (Result<TrabajadorResponse, NetworkError>) -> Void) {
-        guard let url = URL(string: baseURL + "trabajadores/\(id)") else {
-            completion(.failure(.invalidURL))
-            return
-        }
-
-        URLSession.shared.dataTask(with: url) { data, response, error in
-            if let error = error {
-                DispatchQueue.main.async { completion(.failure(.serverError(error.localizedDescription))) }
-                return
-            }
-
-            guard let data = data else {
-                DispatchQueue.main.async { completion(.failure(.noData)) }
-                return
-            }
-
-            // DEBUG: print JSON to console to catch schema mismatches
-            if let jsonString = String(data: data, encoding: .utf8) {
-                print("DEBUG JSON: \(jsonString)")
-            }
-
-            do {
-                let trabajador = try JSONDecoder().decode(TrabajadorResponse.self, from: data)
-                DispatchQueue.main.async { completion(.success(trabajador)) }
-            } catch {
-                print("DECODING ERROR: \(error)")
-                DispatchQueue.main.async { completion(.failure(.decodingError)) }
+            DispatchQueue.main.async {
+                do {
+                    let usuario = try JSONDecoder().decode(UsuarioResponse.self, from: data)
+                    completion(.success(usuario))
+                } catch {
+                    completion(.failure(.decodingError))
+                }
             }
         }.resume()
     }
@@ -96,8 +63,7 @@ class NetworkManager {
         urlRequest.addValue("application/json", forHTTPHeaderField: "Content-Type")
 
         do {
-            let body = try JSONEncoder().encode(request)
-            urlRequest.httpBody = body
+            urlRequest.httpBody = try JSONEncoder().encode(request)
         } catch {
             completion(.failure(.decodingError))
             return
@@ -114,59 +80,15 @@ class NetworkManager {
                 return
             }
 
-            if let httpResponse = response as? HTTPURLResponse, !(200...299).contains(httpResponse.statusCode) {
-                let errorMessage = String(data: data, encoding: .utf8) ?? "Error \(httpResponse.statusCode)"
-                DispatchQueue.main.async { completion(.failure(.serverError(errorMessage))) }
-                return
-            }
-
             DispatchQueue.main.async {
-                do {
-                    let responseData = try JSONDecoder().decode(AsistenciaResponse.self, from: data)
-                    
-                    // Log a Supabase (Real-time Feed)
-                    SupabaseService.shared.enviarLog(
-                        mensaje: "✅ Asistencia registrada (\(request.tipo)): Trabajador #\(request.trabajadorId)",
-                        tipo: "ASISTENCIA",
-                        usuario: "App iOS"
-                    )
-                    
-                    completion(.success(responseData))
-                } catch {
-                    print("Decoding error: \(error)")
-                    completion(.failure(.decodingError))
+                if let responseBody = String(data: data, encoding: .utf8) {
+                    print("Respuesta Servidor QR: \(responseBody)")
                 }
-            }
-        }.resume()
-    }
-
-    func getEstadoHoy(trabajadorId: Int, completion: @escaping (Result<AsistenciaResponse?, NetworkError>) -> Void) {
-        guard let url = URL(string: baseURL + "asistencias/estado-hoy/\(trabajadorId)") else {
-            completion(.failure(.invalidURL))
-            return
-        }
-
-        URLSession.shared.dataTask(with: url) { data, response, error in
-            if let error = error {
-                DispatchQueue.main.async { completion(.failure(.serverError(error.localizedDescription))) }
-                return
-            }
-
-            if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 204 {
-                DispatchQueue.main.async { completion(.success(nil)) }
-                return
-            }
-
-            guard let data = data else {
-                DispatchQueue.main.async { completion(.failure(.noData)) }
-                return
-            }
-
-            DispatchQueue.main.async {
                 do {
                     let asistencia = try JSONDecoder().decode(AsistenciaResponse.self, from: data)
                     completion(.success(asistencia))
                 } catch {
+                    print("Error decodificando asistencia: \(error)")
                     completion(.failure(.decodingError))
                 }
             }
@@ -282,6 +204,39 @@ class NetworkManager {
             if let httpResponse = response as? HTTPURLResponse, !(200...299).contains(httpResponse.statusCode) {
                 let errorMessage = String(data: data ?? Data(), encoding: .utf8) ?? "Error \(httpResponse.statusCode)"
                 DispatchQueue.main.async { completion(.failure(.serverError(errorMessage))) }
+                return
+            }
+
+            DispatchQueue.main.async { completion(.success(())) }
+        }.resume()
+    }
+
+    func updateConfiguracion(lat: Double, lng: Double, radius: Int, completion: @escaping (Result<Void, NetworkError>) -> Void) {
+        guard let url = URL(string: baseURL + "configuracion") else {
+            completion(.failure(.invalidURL))
+            return
+        }
+
+        var urlRequest = URLRequest(url: url)
+        urlRequest.httpMethod = "PUT"
+        urlRequest.addValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        let body: [String: Any] = [
+            "officeLat": lat,
+            "officeLng": lng,
+            "radius": radius
+        ]
+
+        urlRequest.httpBody = try? JSONSerialization.data(withJSONObject: body)
+
+        URLSession.shared.dataTask(with: urlRequest) { _, response, error in
+            if let error = error {
+                DispatchQueue.main.async { completion(.failure(.serverError(error.localizedDescription))) }
+                return
+            }
+
+            if let httpResponse = response as? HTTPURLResponse, !(200...299).contains(httpResponse.statusCode) {
+                DispatchQueue.main.async { completion(.failure(.serverError("Error \(httpResponse.statusCode)")))}
                 return
             }
 

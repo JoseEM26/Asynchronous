@@ -1,144 +1,144 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="NAV-1">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23094" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BV1-HI-3R1">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24504"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23084"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Navigation Controller-->
-        <scene sceneID="sc-nav">
-            <objects>
-                <navigationController id="NAV-1" sceneMemberID="viewController">
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="nb-1">
-                        <rect key="frame" x="0.0" y="59" width="393" height="44"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                    </navigationBar>
-                    <connections>
-                        <segue destination="LOG-1" kind="relationship" relationship="rootViewController" id="seg-root"/>
-                    </connections>
-                </navigationController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="ph-nav" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="-800" y="0.0"/>
-        </scene>
         <!--Login View Controller-->
-        <scene sceneID="sc-log">
+        <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="LOG-1" customClass="LoginViewController" customModule="IOS_mobil" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="view-log">
+                <viewController id="BV1-HI-3R1" customClass="LoginViewController" customModule="IOS_mobil" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="gradientView">
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="G1" userLabel="gradientView">
                                 <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
-                                <color key="backgroundColor" systemColor="systemGray6Color"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
-                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="loginCard">
-                                <rect key="frame" x="40" y="306" width="313" height="240"/>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="LC1" userLabel="loginCard">
+                                <rect key="frame" x="40" y="150" width="313" height="300"/>
                                 <subviews>
-                                    <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Usuario" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="usernameField">
-                                        <rect key="frame" x="0.0" y="0.0" width="313" height="50"/>
-                                        <constraints><constraint firstAttribute="height" constant="50" id="h1"/></constraints>
+                                    <label opaque="NO" userLabel="Login" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Login" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="L1">
+                                        <rect key="frame" x="0.0" y="0.0" width="313" height="40.666666666666664"/>
+                                        <fontDescription key="fontDescription" type="boldSystem" pointSize="34"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Username" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="T1" userLabel="usernameField">
+                                        <rect key="frame" x="0.0" y="56.666666666666657" width="313" height="44"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="44" id="h1"/>
+                                        </constraints>
                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                         <textInputTraits key="textInputTraits"/>
                                     </textField>
-                                    <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Contraseña" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="passwordField">
-                                        <rect key="frame" x="0.0" y="70" width="313" height="50"/>
-                                        <constraints><constraint firstAttribute="height" constant="50" id="h2"/></constraints>
+                                    <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Password" textAlignment="natural" secureTextEntry="YES" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="T2" userLabel="passwordField">
+                                        <rect key="frame" x="0.0" y="116.66666666666666" width="313" height="44"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="44" id="h2"/>
+                                        </constraints>
                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                        <textInputTraits key="textInputTraits" secureTextEntry="YES"/>
+                                        <textInputTraits key="textInputTraits"/>
                                     </textField>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="loginButton">
-                                        <rect key="frame" x="0.0" y="140" width="313" height="100"/>
-                                        <state key="normal" title="Button"/>
-                                        <buttonConfiguration key="configuration" style="filled" title="ACCEDER"/>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="B1" userLabel="loginButton">
+                                        <rect key="frame" x="0.0" y="176.66666666666669" width="313" height="50"/>
+                                        <color key="backgroundColor" systemColor="systemBlueColor"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="50" id="h3"/>
+                                        </constraints>
+                                        <state key="normal" title="Login">
+                                            <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        </state>
                                         <connections>
-                                            <action selector="loginPressed:" destination="LOG-1" eventType="touchUpInside" id="conn-log"/>
+                                            <action selector="loginPressed:" destination="BV1-HI-3R1" eventType="touchUpInside" id="act-login"/>
                                         </connections>
                                     </button>
                                 </subviews>
                             </stackView>
                         </subviews>
-                        <viewLayoutGuide key="safeArea" id="safe-log"/>
+                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="gradientView" firstAttribute="top" secondItem="view-log" secondAttribute="top" id="c1"/>
-                            <constraint firstItem="gradientView" firstAttribute="leading" secondItem="view-log" secondAttribute="leading" id="c2"/>
-                            <constraint firstAttribute="trailing" secondItem="gradientView" secondAttribute="trailing" id="c3"/>
-                            <constraint firstAttribute="bottom" secondItem="gradientView" secondAttribute="bottom" id="c4"/>
-                            <constraint firstItem="loginCard" firstAttribute="centerY" secondItem="view-log" secondAttribute="centerY" id="c5"/>
-                            <constraint firstItem="loginCard" firstAttribute="leading" secondItem="safe-log" secondAttribute="leading" constant="40" id="c6"/>
-                            <constraint firstItem="safe-log" firstAttribute="trailing" secondItem="loginCard" secondAttribute="trailing" constant="40" id="c7"/>
+                            <constraint firstItem="G1" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="g1"/>
+                            <constraint firstItem="G1" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="g2"/>
+                            <constraint firstAttribute="trailing" secondItem="G1" secondAttribute="trailing" id="g3"/>
+                            <constraint firstAttribute="bottom" secondItem="G1" secondAttribute="bottom" id="g4"/>
+                            <constraint firstItem="LC1" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="91" id="c1"/>
+                            <constraint firstItem="LC1" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="40" id="c2"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="LC1" secondAttribute="trailing" constant="40" id="c3"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="Ingreso" id="ni-log"/>
                     <connections>
-                        <outlet property="gradientView" destination="gradientView" id="out-log-1"/>
-                        <outlet property="loginButton" destination="loginButton" id="out-log-2"/>
-                        <outlet property="loginCard" destination="loginCard" id="out-log-3"/>
-                        <outlet property="passwordField" destination="passwordField" id="out-log-4"/>
-                        <outlet property="usernameField" destination="usernameField" id="out-log-5"/>
-                        <segue destination="DAB-1" kind="show" identifier="toDashboard" id="seg-log-dab"/>
+                        <outlet property="gradientView" destination="G1" id="out-grad"/>
+                        <outlet property="loginButton" destination="B1" id="out-login"/>
+                        <outlet property="loginCard" destination="LC1" id="out-card"/>
+                        <outlet property="passwordField" destination="T2" id="out-pass"/>
+                        <outlet property="usernameField" destination="T1" id="out-user"/>
+                        <segue destination="BYZ-38-t0r" kind="show" identifier="toDashboard" id="seg-login-dash"/>
                     </connections>
                 </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="ph-log" sceneMemberID="firstResponder"/>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="0.0" y="0.0"/>
         </scene>
         <!--Dashboard View Controller-->
-        <scene sceneID="sc-dab">
+        <scene sceneID="tne-QT-dash">
             <objects>
-                <viewController id="DAB-1" customClass="DashboardViewController" customModule="IOS_mobil" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="view-dab">
+                <viewController id="BYZ-38-t0r" customClass="DashboardViewController" customModule="IOS_mobil" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="dab-vw">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Hola, Usuario" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="greetingLabel">
-                                <rect key="frame" x="24" y="123" width="345" height="38.333333333333343"/>
-                                <fontDescription key="fontDescription" type="boldSystem" pointSize="32"/>
+                            <label opaque="NO" userLabel="Hola" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Hola!" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="greetingLabel">
+                                <rect key="frame" x="24" y="80" width="345" height="41"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="34"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="profileButton">
-                                <rect key="frame" x="24" y="193.33333333333334" width="345" height="60"/>
-                                <constraints><constraint firstAttribute="height" constant="60" id="h3"/></constraints>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="gray" title="Mi Perfil"/>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="profileButton">
+                                <rect key="frame" x="24" y="145" width="345" height="100"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="100" id="h-pro"/>
+                                </constraints>
+                                <state key="normal" title="  👤 Ver Mi Perfil"/>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="scannerButton">
-                                <rect key="frame" x="24" y="269.33333333333331" width="345" height="60"/>
-                                <constraints><constraint firstAttribute="height" constant="60" id="h4"/></constraints>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="gray" title="Escanear QR"/>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="scannerButton">
+                                <rect key="frame" x="24" y="261" width="345" height="100"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="100" id="h-sca"/>
+                                </constraints>
+                                <state key="normal" title="  📸 Escanear QR Asistencia"/>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="historyButton">
-                                <rect key="frame" x="24" y="345.33333333333331" width="345" height="60"/>
-                                <constraints><constraint firstAttribute="height" constant="60" id="h5"/></constraints>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="gray" title="Ver Historial"/>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="historyButton">
+                                <rect key="frame" x="24" y="377" width="345" height="100"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="100" id="h-his"/>
+                                </constraints>
+                                <state key="normal" title="  📅 Historial de Asistencia"/>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="logoutButton">
-                                <rect key="frame" x="24" y="758" width="345" height="40"/>
-                                <constraints><constraint firstAttribute="height" constant="40" id="h6"/></constraints>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" title="CERRAR SESIÓN">
-                                    <color key="baseForegroundColor" systemColor="systemRedColor"/>
-                                </buttonConfiguration>
-                                <connections>
-                                    <action selector="logoutPressed:" destination="DAB-1" eventType="touchUpInside" id="conn-dab"/>
-                                </connections>
+                                <rect key="frame" x="24" y="748" width="345" height="50"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="50" id="h-log"/>
+                                </constraints>
+                                <state key="normal" title="Cerrar Sesión"/>
                             </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="safe-dab"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="greetingLabel" firstAttribute="top" secondItem="safe-dab" secondAttribute="top" constant="20" id="d1"/>
-                            <constraint firstItem="safe-dab" firstAttribute="trailing" secondItem="greetingLabel" secondAttribute="trailing" constant="24" id="d2"/>
-                            <constraint firstItem="greetingLabel" firstAttribute="leading" secondItem="safe-dab" secondAttribute="leading" constant="24" id="d3"/>
-                            <constraint firstItem="profileButton" firstAttribute="top" secondItem="greetingLabel" secondAttribute="bottom" constant="32" id="d4"/>
+                            <constraint firstItem="greetingLabel" firstAttribute="top" secondItem="safe-dab" secondAttribute="top" constant="21" id="d1"/>
+                            <constraint firstItem="greetingLabel" firstAttribute="leading" secondItem="safe-dab" secondAttribute="leading" constant="24" id="d2"/>
+                            <constraint firstItem="safe-dab" firstAttribute="trailing" secondItem="greetingLabel" secondAttribute="trailing" constant="24" id="d3"/>
+                            <constraint firstItem="profileButton" firstAttribute="top" secondItem="greetingLabel" secondAttribute="bottom" constant="24" id="d4"/>
                             <constraint firstItem="profileButton" firstAttribute="leading" secondItem="safe-dab" secondAttribute="leading" constant="24" id="d5"/>
                             <constraint firstItem="safe-dab" firstAttribute="trailing" secondItem="profileButton" secondAttribute="trailing" constant="24" id="d6"/>
                             <constraint firstItem="scannerButton" firstAttribute="top" secondItem="profileButton" secondAttribute="bottom" constant="16" id="d7"/>
@@ -152,16 +152,16 @@
                             <constraint firstItem="safe-dab" firstAttribute="trailing" secondItem="logoutButton" secondAttribute="trailing" constant="24" id="d15"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="Dashboard" id="ni-dab"/>
                     <connections>
                         <outlet property="greetingLabel" destination="greetingLabel" id="out-dab-1"/>
                         <outlet property="historyButton" destination="historyButton" id="out-dab-2"/>
                         <outlet property="logoutButton" destination="logoutButton" id="out-dab-3"/>
                         <outlet property="profileButton" destination="profileButton" id="out-dab-4"/>
                         <outlet property="scannerButton" destination="scannerButton" id="out-dab-5"/>
-                        <segue destination="PRO-1" kind="show" identifier="toProfile" id="seg-dab-pro"/>
-                        <segue destination="SCA-1" kind="show" identifier="toScanner" id="seg-dab-sca"/>
-                        <segue destination="HIS-1" kind="show" identifier="toHistory" id="seg-dab-his"/>
+                        <segue destination="PRO-SCN" kind="show" identifier="toProfile" id="s1"/>
+                        <segue destination="SCA-SCN" kind="show" identifier="toScanner" id="s2"/>
+                        <segue destination="HIS-SCN" kind="show" identifier="toHistory" id="s3"/>
+                        <segue destination="ADM-SCN" kind="show" identifier="toAdminSettings" id="s4"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ph-dab" sceneMemberID="firstResponder"/>
@@ -169,117 +169,72 @@
             <point key="canvasLocation" x="800" y="0.0"/>
         </scene>
         <!--Profile View Controller-->
-        <scene sceneID="sc-pro">
+        <scene sceneID="scn-pro">
             <objects>
-                <viewController id="PRO-1" customClass="ProfileViewController" customModule="IOS_mobil" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="view-pro">
+                <viewController id="PRO-SCN" customClass="ProfileViewController" customModule="IOS_mobil" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="pro-vw">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Mi Perfil" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nameLabel">
-                                <rect key="frame" x="24" y="123" width="345" height="40"/>
-                                <constraints><constraint firstAttribute="height" constant="40" id="h7"/></constraints>
-                                <fontDescription key="fontDescription" type="boldSystem" pointSize="24"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" spacing="12" translatesAutoresizingMaskIntoConstraints="NO" id="infoStack">
-                                <rect key="frame" x="24" y="195" width="345" height="200"/>
-                                <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="DNI: -" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dniLabel">
-                                        <rect key="frame" x="0.0" y="0.0" width="345" height="20.333333333333332"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                        <nil key="textColor"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Email: -" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="emailLabel">
-                                        <rect key="frame" x="0.0" y="32.333333333333343" width="345" height="20.333333333333332"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                        <nil key="textColor"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Rol: -" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="roleLabel">
-                                        <rect key="frame" x="0.0" y="64.666666666666686" width="345" height="20.333333333333332"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                        <nil key="textColor"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Estado: -" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="statusLabel">
-                                        <rect key="frame" x="0.0" y="97.000000000000028" width="345" height="20.333333333333332"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                        <nil key="textColor"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
-                                </subviews>
-                                <constraints><constraint firstAttribute="height" constant="200" id="h8"/></constraints>
-                            </stackView>
-                        </subviews>
                         <viewLayoutGuide key="safeArea" id="safe-pro"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                        <constraints>
-                            <constraint firstItem="nameLabel" firstAttribute="top" secondItem="safe-pro" secondAttribute="top" constant="20" id="p1"/>
-                            <constraint firstItem="safe-pro" firstAttribute="trailing" secondItem="nameLabel" secondAttribute="trailing" constant="24" id="p2"/>
-                            <constraint firstItem="nameLabel" firstAttribute="leading" secondItem="safe-pro" secondAttribute="leading" constant="24" id="p3"/>
-                            <constraint firstItem="infoStack" firstAttribute="top" secondItem="nameLabel" secondAttribute="bottom" constant="32" id="p4"/>
-                            <constraint firstItem="infoStack" firstAttribute="leading" secondItem="safe-pro" secondAttribute="leading" constant="24" id="p5"/>
-                            <constraint firstItem="safe-pro" firstAttribute="trailing" secondItem="infoStack" secondAttribute="trailing" constant="24" id="p6"/>
-                        </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="Perfil" id="ni-pro"/>
-                    <connections>
-                        <outlet property="dniLabel" destination="dniLabel" id="out-pro-1"/>
-                        <outlet property="emailLabel" destination="emailLabel" id="out-pro-2"/>
-                        <outlet property="nameLabel" destination="nameLabel" id="out-pro-3"/>
-                        <outlet property="roleLabel" destination="roleLabel" id="out-pro-4"/>
-                        <outlet property="statusLabel" destination="statusLabel" id="out-pro-5"/>
-                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ph-pro" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1600" y="0.0"/>
+            <point key="canvasLocation" x="1600" y="-400"/>
         </scene>
         <!--Scanner View Controller-->
-        <scene sceneID="sc-sca">
+        <scene sceneID="scn-sca">
             <objects>
-                <viewController id="SCA-1" customClass="ScannerViewController" customModule="IOS_mobil" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="view-sca">
+                <viewController id="SCA-SCN" customClass="ScannerViewController" customModule="IOS_mobil" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="sca-vw">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <viewLayoutGuide key="safeArea" id="safe-sca"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     </view>
-                    <navigationItem key="navigationItem" title="Escáner" id="ni-sca"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ph-sca" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2400" y="0.0"/>
+            <point key="canvasLocation" x="1600" y="300"/>
         </scene>
         <!--History View Controller-->
-        <scene sceneID="sc-his">
+        <scene sceneID="scn-his">
             <objects>
-                <viewController id="HIS-1" customClass="HistoryViewController" customModule="IOS_mobil" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="view-his">
+                <viewController id="HIS-SCN" customClass="HistoryViewController" customModule="IOS_mobil" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="his-vw">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <viewLayoutGuide key="safeArea" id="safe-his"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     </view>
-                    <navigationItem key="navigationItem" title="Historial" id="ni-his"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ph-his" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3200" y="0.0"/>
+            <point key="canvasLocation" x="1600" y="1000"/>
+        </scene>
+        <!--Admin Settings View Controller-->
+        <scene sceneID="scn-adm">
+            <objects>
+                <viewController id="ADM-SCN" customClass="AdminSettingsViewController" customModule="IOS_mobil" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="adm-vw">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="safe-adm"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="ph-adm" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2400" y="300"/>
         </scene>
     </scenes>
     <resources>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
-        <systemColor name="systemGray6Color">
-            <color red="0.94901960780000005" green="0.94901960780000005" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-        </systemColor>
-        <systemColor name="systemRedColor">
-            <color red="1" green="0.23137254900000001" blue="0.18823529410000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        <systemColor name="systemBlueColor">
+            <color red="0.0" green="0.47843137254901963" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

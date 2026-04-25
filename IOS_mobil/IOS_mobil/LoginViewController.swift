@@ -63,7 +63,7 @@ class LoginViewController: UIViewController {
 
                 switch result {
                 case .success(let response):
-                    self?.performSegue(withIdentifier: "toDashboard", sender: response.id)
+                    self?.performSegue(withIdentifier: "toDashboard", sender: response)
                 case .failure(let error):
                     var message = "Error desconocido"
                     switch error {
@@ -87,8 +87,9 @@ class LoginViewController: UIViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "toDashboard",
            let dashboardVC = segue.destination as? DashboardViewController,
-           let id = sender as? Int {
-            dashboardVC.trabajadorId = id
+           let response = sender as? UsuarioResponse {
+            dashboardVC.trabajadorId = response.id
+            dashboardVC.userRole = response.rol?.nombre
         }
     }
 }

@@ -135,8 +135,11 @@ class ScannerViewController: UIViewController, AVCaptureMetadataOutputObjectsDel
         NetworkManager.shared.registrarAsistenciaQR(request: request) { [weak self] result in
             DispatchQueue.main.async {
                 switch result {
-                case .success: self?.showSuccess(tipo: tipo)
-                case .failure(let error): self?.showError(error: error)
+                case .success: 
+                    self?.showSuccess(tipo: tipo)
+                case .failure(let error): 
+                    print("Error en registro QR: \(error)")
+                    self?.showError(error: error)
                 }
             }
         }
