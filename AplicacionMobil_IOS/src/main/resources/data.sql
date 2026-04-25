@@ -4,6 +4,10 @@
 -- 1. Desactivar checks para inserción masiva
 SET FOREIGN_KEY_CHECKS = 0;
 
+-- 1.1 MIGRACIONES DE ESQUEMA AUTOMÁTICAS
+ALTER TABLE trabajadores MODIFY COLUMN dias_presencial VARCHAR(150);
+ALTER TABLE trabajadores MODIFY COLUMN dias_remotos VARCHAR(150);
+
 -- 2. Roles
 INSERT IGNORE INTO roles (id, nombre) VALUES 
 (1, 'ADMIN'), 

@@ -34,19 +34,24 @@ import { RolService } from '../../services/rol.service';
                 <div class="row g-3">
                   <div class="col-md-6">
                     <label class="form-label-base">Nombres</label>
-                    <input type="text" formControlName="nombres" class="form-input-base" placeholder="Nombres">
+                    <input type="text" formControlName="nombres" class="form-input-base" [class.border-danger]="form.get('nombres')?.invalid && form.get('nombres')?.touched" placeholder="Nombres">
+                    <div class="text-danger small mt-1" *ngIf="form.get('nombres')?.invalid && form.get('nombres')?.touched">Obligatorio</div>
                   </div>
                   <div class="col-md-6">
                     <label class="form-label-base">Apellidos</label>
-                    <input type="text" formControlName="apellidos" class="form-input-base" placeholder="Apellidos">
+                    <input type="text" formControlName="apellidos" class="form-input-base" [class.border-danger]="form.get('apellidos')?.invalid && form.get('apellidos')?.touched" placeholder="Apellidos">
+                    <div class="text-danger small mt-1" *ngIf="form.get('apellidos')?.invalid && form.get('apellidos')?.touched">Obligatorio</div>
                   </div>
                   <div class="col-md-4">
                     <label class="form-label-base">DNI</label>
-                    <input type="text" formControlName="dni" class="form-input-base" placeholder="DNI" maxlength="8">
+                    <input type="text" formControlName="dni" class="form-input-base" [class.border-danger]="form.get('dni')?.invalid && form.get('dni')?.touched" placeholder="DNI" maxlength="8">
+                    <div class="text-danger small mt-1" *ngIf="form.get('dni')?.hasError('required') && form.get('dni')?.touched">Obligatorio</div>
+                    <div class="text-danger small mt-1" *ngIf="form.get('dni')?.hasError('pattern') && form.get('dni')?.touched">Debe tener 8 dígitos</div>
                   </div>
                   <div class="col-md-8">
                     <label class="form-label-base">Email Corporativo</label>
-                    <input type="email" formControlName="email" class="form-input-base" placeholder="email@empresa.com">
+                    <input type="email" formControlName="email" class="form-input-base" [class.border-danger]="form.get('email')?.invalid && form.get('email')?.touched" placeholder="email@empresa.com">
+                    <div class="text-danger small mt-1" *ngIf="form.get('email')?.invalid && form.get('email')?.touched">Email inválido</div>
                   </div>
                   <div class="col-md-6">
                     <label class="form-label-base">Modalidad</label>
@@ -113,11 +118,18 @@ import { RolService } from '../../services/rol.service';
                     </div>
                     <div class="col-md-12" *ngIf="!editData">
                       <label class="form-label-base">Contraseña Inicial</label>
-                      <input type="password" formControlName="password" class="form-input-base" placeholder="Mínimo 6 caracteres">
+                      <input type="password" formControlName="password" class="form-input-base" [class.border-danger]="form.get('password')?.invalid && form.get('password')?.touched" placeholder="Mínimo 6 caracteres">
+                      <div class="text-danger small mt-1" *ngIf="form.get('password')?.hasError('minlength')">Mínimo 6 caracteres</div>
                     </div>
                     <div class="col-md-12" *ngIf="editData">
                       <p class="small text-muted mb-0 italic">La contraseña solo se cambia si se ingresa una nueva.</p>
-                      <input type="password" formControlName="password" class="form-input-base" placeholder="Nueva contraseña (opcional)">
+                      <input type="password" formControlName="password" class="form-input-base" [class.border-danger]="form.get('password')?.invalid && form.get('password')?.touched" placeholder="Nueva contraseña (opcional)">
+                      <div class="text-danger small mt-1" *ngIf="form.get('password')?.hasError('minlength')">Mínimo 6 caracteres</div>
+                    </div>
+                    <div class="col-md-12" *ngIf="!editData || form.get('password')?.value">
+                      <label class="form-label-base">Confirmar Contraseña</label>
+                      <input type="password" formControlName="confirmPassword" class="form-input-base" [class.border-danger]="form.hasError('mismatch') && form.get('confirmPassword')?.touched" placeholder="Repite la contraseña">
+                      <div class="text-danger small mt-1" *ngIf="form.hasError('mismatch') && form.get('confirmPassword')?.touched">Las contraseñas no coinciden</div>
                     </div>
                   </div>
                 </div>
@@ -211,8 +223,17 @@ export class FormPersonalComponent implements OnInit {
       username: ['', Validators.required],
       rolId: [2, Validators.required],
       password: [''],
+      confirmPassword: [''],
       usuarioActivo: [true]
-    });
+    }, { validators: this.passwordMatchValidator });
+  }
+
+  passwordMatchValidator(g: FormGroup) {
+    const password = g.get('password')?.value;
+    const confirmPassword = g.get('confirmPassword')?.value;
+    
+    if (!password && !confirmPassword) return null;
+    return password === confirmPassword ? null : { mismatch: true };
   }
 
   diasSemana = ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO', 'DOMINGO'];
@@ -272,8 +293,12 @@ export class FormPersonalComponent implements OnInit {
     if (this.editData) {
       this.form.patchValue(this.editData);
       this.form.get('password')?.clearValidators();
+      this.form.get('password')?.updateValueAndValidity();
+      this.form.get('confirmPassword')?.clearValidators();
+      this.form.get('confirmPassword')?.updateValueAndValidity();
     } else {
       this.form.get('password')?.setValidators([Validators.required, Validators.minLength(6)]);
+      this.form.get('password')?.updateValueAndValidity();
     }
   }
 

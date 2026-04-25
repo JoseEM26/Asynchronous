@@ -224,21 +224,21 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
         
         // 1. Lógica para SUPER_ADMIN (5)
         if role == "SUPER_ADMIN" || role == "5" {
-            scannerButton.isHidden = true
-            adminButton.isHidden = false // El Super Admin suele querer ver la configuración
+            scannerButton.isHidden = true // Un Super Admin puro de oficina no marca
+            adminButton.isHidden = false
             adminButton.setTitle("👁️ Ver Oficinas", for: .normal)
         }
         
         // 2. Lógica para ADMIN (1)
         else if role == "ADMIN" || role == "1" {
             adminButton.isHidden = false
-            scannerButton.isHidden = false 
+            // scannerButton lo maneja updateAttendanceButtonsVisibility
         }
         
         // 3. Roles de terreno o estándar
         else {
             adminButton.isHidden = true
-            scannerButton.isHidden = false
+            // scannerButton lo maneja updateAttendanceButtonsVisibility
         }
     }
 

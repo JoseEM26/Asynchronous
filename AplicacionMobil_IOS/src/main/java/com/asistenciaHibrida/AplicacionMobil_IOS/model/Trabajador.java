@@ -55,10 +55,10 @@ public class Trabajador {
     @Column(name = "longitud_virtual", precision = 11, scale = 8)
     private java.math.BigDecimal longitudVirtual;
 
-    @Column(name = "dias_presencial", length = 50)
+    @Column(name = "dias_presencial", length = 150)
     private String diasPresencial;
 
-    @Column(name = "dias_remotos", length = 50)
+    @Column(name = "dias_remotos", length = 150)
     private String diasRemotos;
 
     @Column(name = "hora_ingreso")
