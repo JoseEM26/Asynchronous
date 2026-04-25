@@ -205,6 +205,7 @@ class DashboardViewController: UIViewController {
         scannerButton.addTarget(self, action: #selector(scannerPressed), for: .touchUpInside)
         historyButton.addTarget(self, action: #selector(historyPressed), for: .touchUpInside)
         adminButton.addTarget(self, action: #selector(adminPressed), for: .touchUpInside)
+        logoutButton.addTarget(self, action: #selector(logoutActionTriggered), for: .touchUpInside)
     }
 
     // MARK: - Presentar como páginas flotantes (modal sheets)
@@ -251,28 +252,41 @@ class DashboardViewController: UIViewController {
         present(nav, animated: true)
     }
 
-    @IBAction func logoutPressed(_ sender: UIButton) {
+    @objc private func logoutActionTriggered() {
         let alert = UIAlertController(title: "¿Cerrar Sesión?", 
-                                      message: "Tu sesión actual finalizará y deberás ingresar tus credenciales nuevamente.", 
+                                      message: "Tu sesión actual finalizará. ¿Estás seguro de que deseas salir?", 
                                       preferredStyle: .actionSheet)
         
-        let logoutAction = UIAlertAction(title: "Cerrar Sesión", style: .destructive) { _ in
+        let logout = UIAlertAction(title: "Cerrar Sesión", style: .destructive) { _ in
             let generator = UIImpactFeedbackGenerator(style: .medium)
             generator.impactOccurred()
-            self.navigationController?.popViewController(animated: true)
+            
+            // Limpiar sesión
+            DashboardViewController.comunicadosMostrados = false
+            
+            // Intentar volver al Login
+            if let nav = self.navigationController {
+                nav.popToRootViewController(animated: true)
+            } else {
+                self.dismiss(animated: true, completion: nil)
+            }
         }
         
-        let cancelAction = UIAlertAction(title: "Cancelar", style: .cancel, handler: nil)
+        let cancel = UIAlertAction(title: "Cancelar", style: .cancel, handler: nil)
         
-        alert.addAction(logoutAction)
-        alert.addAction(cancelAction)
+        alert.addAction(logout)
+        alert.addAction(cancel)
         
-        // Soporte para iPad
+        // Soporte para iPad (importante para que no crashee)
         if let popoverController = alert.popoverPresentationController {
-            popoverController.sourceView = sender
-            popoverController.sourceRect = sender.bounds
+            popoverController.sourceView = self.logoutButton
+            popoverController.sourceRect = self.logoutButton.bounds
         }
         
-        present(alert, animated: true, completion: nil)
+        present(alert, animated: true)
+    }
+
+    @IBAction func logoutPressed(_ sender: UIButton) {
+        logoutActionTriggered()
     }
 }
