@@ -1,6 +1,7 @@
 import UIKit
+import CoreLocation
 
-class DashboardViewController: UIViewController {
+class DashboardViewController: UIViewController, CLLocationManagerDelegate {
 
     @IBOutlet weak var greetingLabel: UILabel!
     @IBOutlet weak var profileButton: UIButton!
@@ -14,6 +15,30 @@ class DashboardViewController: UIViewController {
     private var comunicados: [ComunicadoResponse] = []
     private static var comunicadosMostrados = false
     
+    // Propiedades para asistencia virtual/híbrida
+    private var trabajadorData: TrabajadorResponse?
+    private let activityIndicator = UIActivityIndicatorView(style: .large)
+    
+    private let locationManager = CLLocationManager()
+    private var isRequestingLocationForHomeSetup = false
+    private var isRequestingLocationForAttendance = false
+    
+    private let mainStackView: UIStackView = {
+        let s = UIStackView()
+        s.translatesAutoresizingMaskIntoConstraints = false
+        s.axis = .vertical
+        s.spacing = 16
+        s.distribution = .fillEqually
+        return s
+    }()
+    
+    private let virtualAttendanceButton: UIButton = {
+        let b = UIButton(type: .system)
+        b.translatesAutoresizingMaskIntoConstraints = false
+        b.isHidden = true
+        return b
+    }()
+    
     private let adminButton: UIButton = {
         let b = UIButton(type: .system)
         b.translatesAutoresizingMaskIntoConstraints = false
@@ -24,6 +49,7 @@ class DashboardViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(true, animated: false)
+        fetchTrabajadorData()
         if !DashboardViewController.comunicadosMostrados {
             fetchComunicados()
         }
@@ -32,9 +58,12 @@ class DashboardViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
-        setupAdminButton()
+        setupAdminButtonUI()
         configurePermissionsByRole()
         setupActions()
+        
+        locationManager.delegate = self
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest
     }
     
     private func fetchComunicados() {
@@ -85,62 +114,39 @@ class DashboardViewController: UIViewController {
                 : UIColor(red: 0.95, green: 0.95, blue: 0.97, alpha: 1.0)
         }
         
+        activityIndicator.center = view.center
+        activityIndicator.hidesWhenStopped = true
+        view.addSubview(activityIndicator)
+        
         // Greeting label
         greetingLabel.font = .systemFont(ofSize: 32, weight: .bold)
+        greetingLabel.numberOfLines = 0 // Permitir múltiples líneas
+        greetingLabel.lineBreakMode = .byWordWrapping
         greetingLabel.textColor = UIColor { trait in
             trait.userInterfaceStyle == .dark ? .white : UIColor(white: 0.15, alpha: 1.0)
         }
         
-        // Colores adaptativos
-        let cardBg = UIColor { trait in
-            trait.userInterfaceStyle == .dark
-                ? UIColor(red: 0.15, green: 0.15, blue: 0.18, alpha: 1.0)
-                : UIColor.white
-        }
-        let cardText = UIColor { trait in
-            trait.userInterfaceStyle == .dark ? .white : UIColor(white: 0.2, alpha: 1.0)
-        }
+        // Configurar StackView
+        view.addSubview(mainStackView)
+        NSLayoutConstraint.activate([
+            mainStackView.topAnchor.constraint(equalTo: greetingLabel.bottomAnchor, constant: 30),
+            mainStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
+            mainStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24)
+        ])
         
-        // Tarjetas con barra de color
-        let cardData: [(UIButton?, String, UIColor)] = [
-            (profileButton,  "👤  Mi Perfil", UIColor.systemBlue),
-            (scannerButton,  "📸  Escanear QR", UIColor.systemOrange),
-            (historyButton,  "📅  Historial", UIColor.systemGreen),
-        ]
+        // Estilizar botones existentes (ya vienen del Storyboard o se añaden)
+        setupMenuButton(profileButton, title: "👤  Mi Perfil", color: .systemBlue)
+        setupMenuButton(scannerButton, title: "📸  Escanear QR", color: .systemOrange)
+        setupMenuButton(historyButton, title: "📅  Historial", color: .systemGreen)
+        setupVirtualButtonUI() // Estilizar el virtual
+        setupAdminButtonUI()   // Estilizar el admin
         
-        for (button, title, accentColor) in cardData {
-            guard let btn = button else { continue }
-            btn.backgroundColor = cardBg
-            
-            // Configuración moderna para padding y texto
-            var config = UIButton.Configuration.plain()
-            config.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 24, bottom: 0, trailing: 24)
-            btn.configuration = config
-            
-            btn.setTitle(title, for: .normal)
-            btn.setTitleColor(cardText, for: .normal)
-            btn.titleLabel?.font = .systemFont(ofSize: 20, weight: .semibold)
-            btn.contentHorizontalAlignment = .left
-            btn.layer.cornerRadius = 20
-            btn.clipsToBounds = false
-            
-            let accentBar = UIView()
-            accentBar.backgroundColor = accentColor
-            accentBar.translatesAutoresizingMaskIntoConstraints = false
-            accentBar.layer.cornerRadius = 2
-            btn.addSubview(accentBar)
-            NSLayoutConstraint.activate([
-                accentBar.leadingAnchor.constraint(equalTo: btn.leadingAnchor, constant: 8),
-                accentBar.centerYAnchor.constraint(equalTo: btn.centerYAnchor),
-                accentBar.widthAnchor.constraint(equalToConstant: 4),
-                accentBar.heightAnchor.constraint(equalToConstant: 40)
-            ])
-            
-            btn.layer.shadowColor = UIColor.black.cgColor
-            btn.layer.shadowOpacity = 0.08
-            btn.layer.shadowOffset = CGSize(width: 0, height: 4)
-            btn.layer.shadowRadius = 12
-        }
+        // Añadir al stack en orden
+        mainStackView.addArrangedSubview(profileButton)
+        mainStackView.addArrangedSubview(scannerButton)
+        mainStackView.addArrangedSubview(virtualAttendanceButton)
+        mainStackView.addArrangedSubview(historyButton)
+        mainStackView.addArrangedSubview(adminButton)
         
         // Logout
         logoutButton.backgroundColor = .clear
@@ -151,11 +157,54 @@ class DashboardViewController: UIViewController {
         logoutButton.layer.borderWidth = 1.5
         logoutButton.layer.borderColor = UIColor.systemRed.cgColor
         
-        // Admin button
-        setupAdminButton()
+        NSLayoutConstraint.activate([
+            logoutButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
+            logoutButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            logoutButton.widthAnchor.constraint(equalToConstant: 200),
+            logoutButton.heightAnchor.constraint(equalToConstant: 50)
+        ])
     }
     
-    private func setupAdminButton() {
+    private func setupMenuButton(_ btn: UIButton?, title: String, color: UIColor) {
+        guard let btn = btn else { return }
+        let cardBg = UIColor { trait in
+            trait.userInterfaceStyle == .dark ? UIColor(red: 0.15, green: 0.15, blue: 0.18, alpha: 1.0) : .white
+        }
+        let cardText = UIColor { trait in
+            trait.userInterfaceStyle == .dark ? .white : UIColor(white: 0.2, alpha: 1.0)
+        }
+        
+        btn.backgroundColor = cardBg
+        var config = UIButton.Configuration.plain()
+        config.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 24, bottom: 0, trailing: 24)
+        btn.configuration = config
+        
+        btn.setTitle(title, for: .normal)
+        btn.setTitleColor(cardText, for: .normal)
+        btn.titleLabel?.font = .systemFont(ofSize: 20, weight: .semibold)
+        btn.contentHorizontalAlignment = .left
+        btn.layer.cornerRadius = 20
+        btn.heightAnchor.constraint(equalToConstant: 70).isActive = true
+        
+        let accentBar = UIView()
+        accentBar.backgroundColor = color
+        accentBar.translatesAutoresizingMaskIntoConstraints = false
+        accentBar.layer.cornerRadius = 2
+        btn.addSubview(accentBar)
+        NSLayoutConstraint.activate([
+            accentBar.leadingAnchor.constraint(equalTo: btn.leadingAnchor, constant: 8),
+            accentBar.centerYAnchor.constraint(equalTo: btn.centerYAnchor),
+            accentBar.widthAnchor.constraint(equalToConstant: 4),
+            accentBar.heightAnchor.constraint(equalToConstant: 40)
+        ])
+        
+        btn.layer.shadowColor = UIColor.black.cgColor
+        btn.layer.shadowOpacity = 0.08
+        btn.layer.shadowOffset = CGSize(width: 0, height: 4)
+        btn.layer.shadowRadius = 12
+    }
+    
+    private func setupAdminButtonUI() {
         adminButton.backgroundColor = UIColor.systemOrange
         adminButton.setTitle("⚙️  Configurar Oficina", for: .normal)
         adminButton.setTitleColor(.white, for: .normal)
@@ -165,14 +214,7 @@ class DashboardViewController: UIViewController {
         adminButton.layer.shadowOpacity = 0.3
         adminButton.layer.shadowOffset = CGSize(width: 0, height: 4)
         adminButton.layer.shadowRadius = 10
-        
-        view.addSubview(adminButton)
-        NSLayoutConstraint.activate([
-            adminButton.topAnchor.constraint(equalTo: historyButton.bottomAnchor, constant: 16),
-            adminButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
-            adminButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
-            adminButton.heightAnchor.constraint(equalToConstant: 60)
-        ])
+        adminButton.heightAnchor.constraint(equalToConstant: 70).isActive = true
     }
 
     private func configurePermissionsByRole() {
@@ -206,6 +248,209 @@ class DashboardViewController: UIViewController {
         historyButton.addTarget(self, action: #selector(historyPressed), for: .touchUpInside)
         adminButton.addTarget(self, action: #selector(adminPressed), for: .touchUpInside)
         logoutButton.addTarget(self, action: #selector(logoutActionTriggered), for: .touchUpInside)
+        virtualAttendanceButton.addTarget(self, action: #selector(virtualAttendancePressed), for: .touchUpInside)
+    }
+
+    private func fetchTrabajadorData() {
+        guard let id = trabajadorId else { return }
+        
+        DispatchQueue.main.async {
+            self.activityIndicator.startAnimating()
+            self.mainStackView.alpha = 0.5 // Atenuar mientras carga
+        }
+        
+        NetworkManager.shared.getUsuario(id: id) { [weak self] (result: Result<UsuarioResponse, NetworkError>) in
+            DispatchQueue.main.async {
+                self?.activityIndicator.stopAnimating()
+                self?.mainStackView.alpha = 1.0
+                
+                if case .success(let data) = result {
+                    self?.trabajadorData = data.trabajador
+                    self?.updateAttendanceButtonsVisibility()
+                }
+            }
+        }
+    }
+
+    private func updateAttendanceButtonsVisibility() {
+        guard let t = trabajadorData else { return }
+        
+        let weekday = Calendar.current.component(.weekday, from: Date())
+        let dayNames = ["DOMINGO", "LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES", "SABADO"]
+        let currentDayName = dayNames[weekday - 1]
+        
+        let isPresencialDay = t.diasPresencial?.uppercased().contains(currentDayName) ?? false
+        let isRemotoDay = t.diasRemotos?.uppercased().contains(currentDayName) ?? false
+        
+        print("Hoy es \(currentDayName). ¿Día Presencial?: \(isPresencialDay). ¿Día Remoto?: \(isRemotoDay)")
+        
+        // Si no es día de trabajo en ninguna modalidad, ocultar ambos
+        if !isPresencialDay && !isRemotoDay {
+            self.scannerButton.isHidden = true
+            self.virtualAttendanceButton.isHidden = true
+            self.greetingLabel.text = "¡Hola! Hoy es tu día de descanso."
+        } else if isRemotoDay {
+            // Es día remoto: ocultar escáner, mostrar virtual
+            self.scannerButton.isHidden = true
+            self.virtualAttendanceButton.isHidden = false
+        } else {
+            // Es día presencial: mostrar escáner, ocultar virtual
+            self.scannerButton.isHidden = false
+            self.virtualAttendanceButton.isHidden = true
+        }
+        
+        // Aplicar permisos de rol adicionales (Admin/Super Admin)
+        self.configurePermissionsByRole()
+    }
+
+    private func setupVirtualButtonUI() {
+        setupMenuButton(virtualAttendanceButton, title: "🏠  Asistencia Virtual", color: .systemIndigo)
+    }
+
+    @objc private func virtualAttendancePressed() {
+        guard let id = trabajadorId else { return }
+        
+        self.activityIndicator.startAnimating()
+        self.mainStackView.alpha = 0.5
+        
+        // Consultar los datos más frescos del servidor para no depender de la caché de la vista
+        NetworkManager.shared.getUsuario(id: id) { [weak self] result in
+            DispatchQueue.main.async {
+                self?.activityIndicator.stopAnimating()
+                self?.mainStackView.alpha = 1.0
+                
+                if case .success(let data) = result {
+                    self?.trabajadorData = data.trabajador
+                    self?.evaluarPermisoYMarcar()
+                } else {
+                    self?.mostrarAlerta(titulo: "Error de Conexión", mensaje: "No pudimos validar tus permisos con el servidor.")
+                }
+            }
+        }
+    }
+    
+    private func evaluarPermisoYMarcar() {
+        guard let t = trabajadorData else { return }
+        
+        let hasLocation = t.latitudVirtual != nil && t.longitudVirtual != nil
+        let canSetLocation = t.permitirCambioUbicacion ?? false
+        
+        if !hasLocation && !canSetLocation {
+            let alert = UIAlertController(title: "Ubicación No Establecida", 
+                                          message: "Aún no has definido tu ubicación de trabajo desde casa. Por favor, solicita al administrador que te habilite el permiso para establecerla por primera vez.", 
+                                          preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "Entendido", style: .default))
+            present(alert, animated: true)
+            return
+        }
+        
+        if canSetLocation {
+            confirmarYGuardarUbicacion()
+        } else {
+            realizarMarcadoVirtual()
+        }
+    }
+
+    private func confirmarYGuardarUbicacion() {
+        let alert = UIAlertController(title: "📍 Establecer Hogar", 
+                                      message: "Estás a punto de registrar tu ubicación actual como tu punto fijo de asistencia virtual.\n\n⚠️ Solo puedes hacerlo una vez. Asegúrate de estar en tu lugar de trabajo remoto.", 
+                                      preferredStyle: .alert)
+        
+        let confirmAction = UIAlertAction(title: "Establecer aquí", style: .default) { _ in
+            self.activityIndicator.startAnimating()
+            self.isRequestingLocationForHomeSetup = true
+            self.locationManager.requestWhenInUseAuthorization()
+            self.locationManager.requestLocation()
+        }
+        
+        alert.addAction(confirmAction)
+        alert.addAction(UIAlertAction(title: "Ahora no", style: .cancel))
+        
+        present(alert, animated: true)
+    }
+
+    private func realizarMarcadoVirtual() {
+        self.activityIndicator.startAnimating()
+        self.isRequestingLocationForAttendance = true
+        self.locationManager.requestWhenInUseAuthorization()
+        self.locationManager.requestLocation()
+    }
+    
+    // MARK: - CLLocationManagerDelegate
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        guard let location = locations.last else { return }
+        
+        if isRequestingLocationForHomeSetup {
+            isRequestingLocationForHomeSetup = false
+            obtenerUbicacionYGuardar(lat: location.coordinate.latitude, lng: location.coordinate.longitude)
+        } else if isRequestingLocationForAttendance {
+            isRequestingLocationForAttendance = false
+            validarDistanciaYMarcar(lat: location.coordinate.latitude, lng: location.coordinate.longitude)
+        }
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        activityIndicator.stopAnimating()
+        isRequestingLocationForHomeSetup = false
+        isRequestingLocationForAttendance = false
+        mostrarAlerta(titulo: "Error de GPS", mensaje: "No pudimos obtener tu ubicación actual. Revisa los permisos.")
+    }
+
+    private func obtenerUbicacionYGuardar(lat: Double, lng: Double) {
+        guard let id = trabajadorData?.id else { return } // Usar el ID del trabajador, no del usuario
+        
+        NetworkManager.shared.actualizarUbicacionVirtual(id: id, lat: lat, lng: lng) { [weak self] result in
+            DispatchQueue.main.async {
+                self?.activityIndicator.stopAnimating()
+                switch result {
+                case .success:
+                    self?.mostrarAlerta(titulo: "Éxito", mensaje: "Ubicación guardada. Ahora puedes marcar tu asistencia.")
+                    self?.fetchTrabajadorData() // Refrescar datos
+                case .failure(let err):
+                    self?.mostrarAlerta(titulo: "Error", mensaje: "No se pudo guardar la ubicación: \(err)")
+                }
+            }
+        }
+    }
+
+    private func validarDistanciaYMarcar(lat: Double, lng: Double) {
+        guard let t = trabajadorData, let homeLat = t.latitudVirtual, let homeLng = t.longitudVirtual else {
+            activityIndicator.stopAnimating()
+            return
+        }
+        
+        let currentLocation = CLLocation(latitude: lat, longitude: lng)
+        let homeLocation = CLLocation(latitude: homeLat, longitude: homeLng)
+        let distance = currentLocation.distance(from: homeLocation)
+        
+        if distance <= 10.0 {
+            // Está dentro del radio
+            guard let id = t.id else { return } // Usar el ID del trabajador
+            let request = AsistenciaQrRequest(trabajadorId: id, qrToken: "VIRTUAL_TOKEN", tipo: "AUTOMATICO", latitud: lat, longitud: lng)
+            
+            NetworkManager.shared.registrarAsistenciaQR(request: request) { [weak self] result in
+                DispatchQueue.main.async {
+                    self?.activityIndicator.stopAnimating()
+                    switch result {
+                    case .success(let res):
+                        self?.mostrarAlerta(titulo: "Asistencia Registrada", mensaje: "Se marcó tu \(res.tipo ?? "asistencia") correctamente.")
+                    case .failure(let err):
+                        self?.mostrarAlerta(titulo: "Error", mensaje: "No se pudo marcar asistencia: \(err)")
+                    }
+                }
+            }
+        } else {
+            // Fuera del radio
+            activityIndicator.stopAnimating()
+            let distanceStr = String(format: "%.0f", distance)
+            mostrarAlerta(titulo: "Zona Fuera de Alcance", mensaje: "Estás fuera de tu zona de trabajo (Casa). Distancia actual: \(distanceStr) metros. Debes estar a un máximo de 10 metros.")
+        }
+    }
+
+    private func mostrarAlerta(titulo: String, mensaje: String) {
+        let alert = UIAlertController(title: titulo, message: mensaje, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
     }
 
     // MARK: - Presentar como páginas flotantes (modal sheets)

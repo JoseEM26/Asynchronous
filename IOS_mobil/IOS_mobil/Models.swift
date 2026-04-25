@@ -44,12 +44,18 @@ final class TrabajadorResponse: Codable, @unchecked Sendable {
     let modalidadId: Int?
     let esJefeTerreno: Bool?
     let permitirCambioUbicacion: Bool?
+    let latitudVirtual: Double?
+    let longitudVirtual: Double?
+    let diasPresencial: String?
+    let diasRemotos: String?
+    let horaIngreso: String?
+    let horaSalida: String?
     let rolNombre: String?
     let modalidadNombre: String?
     let jefe: TrabajadorResponse?
 
     enum CodingKeys: String, CodingKey {
-        case id, dni, nombres, apellidos, email, telefono, direccion, fechaIngreso, activo, modalidadId, esJefeTerreno, permitirCambioUbicacion, rolNombre, modalidadNombre, jefe
+        case id, dni, nombres, apellidos, email, telefono, direccion, fechaIngreso, activo, modalidadId, esJefeTerreno, permitirCambioUbicacion, latitudVirtual, longitudVirtual, diasPresencial, diasRemotos, horaIngreso, horaSalida, rolNombre, modalidadNombre, jefe
     }
 
     required nonisolated init(from decoder: Decoder) throws {
@@ -61,12 +67,17 @@ final class TrabajadorResponse: Codable, @unchecked Sendable {
         self.email = try container.decodeIfPresent(String.self, forKey: .email)
         self.telefono = try container.decodeIfPresent(String.self, forKey: .telefono)
         self.direccion = try container.decodeIfPresent(String.self, forKey: .direccion)
-        // CORREGIDO: Ahora decodifica como Date
         self.fechaIngreso = try container.decodeIfPresent(Date.self, forKey: .fechaIngreso)
         self.activo = try container.decodeIfPresent(Bool.self, forKey: .activo)
         self.modalidadId = try container.decodeIfPresent(Int.self, forKey: .modalidadId)
         self.esJefeTerreno = try container.decodeIfPresent(Bool.self, forKey: .esJefeTerreno)
         self.permitirCambioUbicacion = try container.decodeIfPresent(Bool.self, forKey: .permitirCambioUbicacion)
+        self.latitudVirtual = try container.decodeIfPresent(Double.self, forKey: .latitudVirtual)
+        self.longitudVirtual = try container.decodeIfPresent(Double.self, forKey: .longitudVirtual)
+        self.diasPresencial = try container.decodeIfPresent(String.self, forKey: .diasPresencial)
+        self.diasRemotos = try container.decodeIfPresent(String.self, forKey: .diasRemotos)
+        self.horaIngreso = try container.decodeIfPresent(String.self, forKey: .horaIngreso)
+        self.horaSalida = try container.decodeIfPresent(String.self, forKey: .horaSalida)
         self.rolNombre = try container.decodeIfPresent(String.self, forKey: .rolNombre)
         self.modalidadNombre = try container.decodeIfPresent(String.self, forKey: .modalidadNombre)
         self.jefe = try container.decodeIfPresent(TrabajadorResponse.self, forKey: .jefe)

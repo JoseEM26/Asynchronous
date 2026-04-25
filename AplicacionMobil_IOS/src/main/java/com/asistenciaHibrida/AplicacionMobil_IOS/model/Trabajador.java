@@ -61,6 +61,12 @@ public class Trabajador {
     @Column(name = "dias_remotos", length = 50)
     private String diasRemotos;
 
+    @Column(name = "hora_ingreso")
+    private java.time.LocalTime horaIngreso;
+
+    @Column(name = "hora_salida")
+    private java.time.LocalTime horaSalida;
+
     @Column(name = "permitir_cambio_ubicacion")
     private Boolean permitirCambioUbicacion = false;
 

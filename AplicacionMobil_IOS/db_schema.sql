@@ -30,6 +30,9 @@ CREATE TABLE IF NOT EXISTS trabajadores (
     latitud_virtual DECIMAL(10, 8),
     longitud_virtual DECIMAL(11, 8),
     dias_presencial VARCHAR(100),
+    dias_remotos VARCHAR(100),
+    hora_ingreso TIME,
+    hora_salida TIME,
     CONSTRAINT fk_trabajador_modalidad FOREIGN KEY (modalidad_id) REFERENCES modalidades(id)
 ) ENGINE=InnoDB;
 

@@ -58,6 +58,41 @@ import { RolService } from '../../services/rol.service';
                     <label class="form-label-base">Teléfono</label>
                     <input type="text" formControlName="telefono" class="form-input-base" placeholder="Teléfono">
                   </div>
+                  
+                  <!-- HORARIOS -->
+                  <div class="col-md-6">
+                    <label class="form-label-base">Hora de Ingreso</label>
+                    <input type="time" formControlName="horaIngreso" class="form-input-base">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label-base">Hora de Salida</label>
+                    <input type="time" formControlName="horaSalida" class="form-input-base">
+                  </div>
+
+                  <!-- DÍAS SEGÚN MODALIDAD -->
+                  <div class="col-md-12" *ngIf="showDiasPresencial">
+                    <label class="form-label-base text-success">Días Presenciales <small class="text-muted fw-normal">(Click para seleccionar)</small></label>
+                    <div class="d-flex flex-wrap gap-2">
+                      <div *ngFor="let d of diasSemana" 
+                           class="day-checkbox presencial" 
+                           [class.selected]="isDiaSelected(d, 'presencial')"
+                           (click)="toggleDia(d, 'presencial')">
+                        {{ d.substring(0, 3) }}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-12" *ngIf="showDiasRemotos">
+                    <label class="form-label-base text-primary">Días Remotos (Virtual) <small class="text-muted fw-normal">(Click para seleccionar)</small></label>
+                    <div class="d-flex flex-wrap gap-2">
+                      <div *ngFor="let d of diasSemana" 
+                           class="day-checkbox remoto" 
+                           [class.selected]="isDiaSelected(d, 'remoto')"
+                           (click)="toggleDia(d, 'remoto')">
+                        {{ d.substring(0, 3) }}
+                      </div>
+                    </div>
+                  </div>
+                  <!-- FIN DÍAS -->
                 </div>
               </div>
 
@@ -102,10 +137,45 @@ import { RolService } from '../../services/rol.service';
     </div>
   `,
   styles: [`
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center; z-index: 2000; padding: 20px;
+    }
+    .modal-panel {
+      width: 100%; max-width: 800px; background: white; border-radius: 24px; overflow: hidden;
+      display: flex; flex-direction: column; max-height: 90vh;
+    }
+    .modal-header-base {
+      display: flex; justify-content: space-between; align-items: center; padding: 20px 24px;
+      border-bottom: 1px solid var(--glass-border); background: var(--bg-surface);
+    }
+    .modal-title-base { font-size: 1.25rem; font-weight: 700; color: var(--text-primary); }
+    .btn-close-modal {
+      background: transparent; border: none; font-size: 1.5rem; color: var(--text-secondary); opacity: 0.7; transition: 0.2s;
+    }
+    .btn-close-modal:hover { opacity: 1; transform: scale(1.1); }
+    .modal-body-base { padding: 24px; overflow-y: auto; }
+    .modal-footer-base {
+      display: flex; justify-content: flex-end; gap: 12px; padding: 20px 24px;
+      border-top: 1px solid var(--glass-border); background: var(--bg-surface);
+    }
+    .form-label-base { font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 6px; display: block; }
+    .form-input-base {
+      width: 100%; padding: 10px 16px; border-radius: 10px; border: 1px solid #e2e8f0; background: #f8fafc;
+      font-size: 0.95rem; color: #1e293b; transition: all 0.2s;
+    }
+    .form-input-base:focus { outline: none; border-color: var(--accent-primary); background: white; box-shadow: 0 0 0 3px rgba(249,115,22,0.1); }
     .section-title { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; margin-bottom: 16px; }
     .header-icon-box { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; background: var(--grad-main); }
     .custom-scrollbar { max-height: 70vh; overflow-y: auto; padding-right: 8px; }
     .btn { padding: 0.6rem 1.25rem; border-radius: 10px; font-weight: 600; }
+    .day-checkbox {
+      padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: 0.2s;
+      background: #f1f5f9; color: #64748b; border: 1px solid transparent; user-select: none;
+    }
+    .day-checkbox:hover { transform: translateY(-2px); }
+    .day-checkbox.presencial.selected { background: #dcfce7; color: #166534; border-color: #4ade80; }
+    .day-checkbox.remoto.selected { background: #e0f2fe; color: #0369a1; border-color: #38bdf8; }
   `]
 })
 export class FormPersonalComponent implements OnInit {
@@ -134,11 +204,65 @@ export class FormPersonalComponent implements OnInit {
       modalidadId: [1, Validators.required],
       activo: [true],
       esJefeTerreno: [false],
+      diasPresencial: [''],
+      diasRemotos: [''],
+      horaIngreso: ['09:00'],
+      horaSalida: ['18:00'],
       username: ['', Validators.required],
       rolId: [2, Validators.required],
       password: [''],
       usuarioActivo: [true]
     });
+  }
+
+  diasSemana = ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO', 'DOMINGO'];
+
+  get showDiasPresencial(): boolean {
+    const modId = this.form.get('modalidadId')?.value;
+    return modId == 1 || modId == 3; // 1: Presencial, 3: Híbrido
+  }
+
+  get showDiasRemotos(): boolean {
+    const modId = this.form.get('modalidadId')?.value;
+    return modId == 2 || modId == 3; // 2: Virtual, 3: Híbrido
+  }
+
+  toggleDia(dia: string, tipo: 'presencial'|'remoto') {
+    const controlName = tipo === 'presencial' ? 'diasPresencial' : 'diasRemotos';
+    const otherControlName = tipo === 'presencial' ? 'diasRemotos' : 'diasPresencial';
+    
+    const control = this.form.get(controlName);
+    const otherControl = this.form.get(otherControlName);
+    
+    // --- Lógica de exclusión mutua para Híbrido ---
+    if (this.form.get('modalidadId')?.value == 3) {
+      let otherStr = otherControl?.value || '';
+      let otherArray = otherStr ? otherStr.split(',').map((d:string) => d.trim()) : [];
+      if (otherArray.includes(dia)) {
+        // Si estaba en el otro, lo quitamos automáticamente
+        otherArray = otherArray.filter((d: string) => d !== dia);
+        otherControl?.setValue(otherArray.join(','));
+      }
+    }
+    // ----------------------------------------------
+
+    let diasStr = control?.value || '';
+    let diasArray = diasStr ? diasStr.split(',').map((d:string)=>d.trim()) : [];
+    
+    if (diasArray.includes(dia)) {
+      diasArray = diasArray.filter((d: string) => d !== dia);
+    } else {
+      diasArray.push(dia);
+      diasArray.sort((a:string, b:string) => this.diasSemana.indexOf(a) - this.diasSemana.indexOf(b));
+    }
+    control?.setValue(diasArray.join(','));
+  }
+
+  isDiaSelected(dia: string, tipo: 'presencial'|'remoto'): boolean {
+    const controlName = tipo === 'presencial' ? 'diasPresencial' : 'diasRemotos';
+    const control = this.form.get(controlName);
+    let diasStr = control?.value || '';
+    return diasStr.includes(dia);
   }
 
   ngOnInit() {

@@ -126,6 +126,8 @@ public class TrabajadorServiceImpl implements TrabajadorService {
         trabajador.setRol(detalles.getRol());
         trabajador.setDiasPresencial(detalles.getDiasPresencial());
         trabajador.setDiasRemotos(detalles.getDiasRemotos());
+        trabajador.setHoraIngreso(detalles.getHoraIngreso());
+        trabajador.setHoraSalida(detalles.getHoraSalida());
         
         Trabajador updated = trabajadorRepository.save(trabajador);
         

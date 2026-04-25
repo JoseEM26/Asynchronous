@@ -19,5 +19,7 @@ public class TrabajadorRequestDTO {
     private java.math.BigDecimal longitudVirtual;
     private String diasPresencial;
     private String diasRemotos;
+    private String horaIngreso;
+    private String horaSalida;
     private Boolean permitirCambioUbicacion;
 }
