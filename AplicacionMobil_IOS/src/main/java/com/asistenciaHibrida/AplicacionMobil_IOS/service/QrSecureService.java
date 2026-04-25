@@ -18,8 +18,12 @@ public class QrSecureService {
         rotateToken();
     }
 
+    private java.time.LocalDateTime getPeruTime() {
+        return java.time.ZonedDateTime.now(java.time.ZoneId.of("America/Lima")).toLocalDateTime();
+    }
+
     public synchronized String getActiveToken() {
-        if (currentToken == null || LocalDateTime.now().isAfter(expiryTime)) {
+        if (currentToken == null || getPeruTime().isAfter(expiryTime)) {
             rotateToken();
         }
         return currentToken;
@@ -29,14 +33,14 @@ public class QrSecureService {
         if (token == null) return false;
         
         // Validar contra el token actual
-        if (token.equals(currentToken) && LocalDateTime.now().isBefore(expiryTime)) {
+        if (token.equals(currentToken) && getPeruTime().isBefore(expiryTime)) {
             return true;
         }
         
         // Validar contra el token anterior (periodo de gracia)
         if (token.equals(previousToken) && previousExpiryTime != null) {
             // Permitimos el token anterior hasta N segundos después de su expiración
-            return LocalDateTime.now().isBefore(previousExpiryTime.plusSeconds(GRACE_PERIOD_SECONDS));
+            return getPeruTime().isBefore(previousExpiryTime.plusSeconds(GRACE_PERIOD_SECONDS));
         }
         
         return false;
@@ -46,12 +50,12 @@ public class QrSecureService {
         this.previousToken = this.currentToken;
         this.previousExpiryTime = this.expiryTime;
         this.currentToken = UUID.randomUUID().toString();
-        this.expiryTime = LocalDateTime.now().plusMinutes(ROTATION_MINUTES);
+        this.expiryTime = getPeruTime().plusMinutes(ROTATION_MINUTES);
     }
 
     public long getSecondsUntilNextRotation() {
         if (expiryTime == null) return 0;
-        long seconds = java.time.Duration.between(LocalDateTime.now(), expiryTime).getSeconds();
+        long seconds = java.time.Duration.between(getPeruTime(), expiryTime).getSeconds();
         return Math.max(0, seconds);
     }
 }

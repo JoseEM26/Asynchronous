@@ -74,7 +74,8 @@ public class AsistenciaServiceImpl implements AsistenciaService {
         asistencia.setModalidad(modalidad);
         asistencia.setTipo(tipo);
 
-        asistencia.setFechaHora(fechaHoraManual != null ? fechaHoraManual : LocalDateTime.now());
+        asistencia.setFechaHora(fechaHoraManual != null ? fechaHoraManual : 
+            java.time.ZonedDateTime.now(java.time.ZoneId.of("America/Lima")).toLocalDateTime());
 
         asistencia.setLatitud(latitud);
         asistencia.setLongitud(longitud);
@@ -304,8 +305,10 @@ public class AsistenciaServiceImpl implements AsistenciaService {
         Trabajador trabajador = trabajadorRepository.findById(trabajadorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Trabajador no encontrado"));
 
-        LocalDateTime inicioDia = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0);
-        LocalDateTime finDia = LocalDateTime.now().withHour(23).withMinute(59).withSecond(59).withNano(999999999);
+        java.time.ZoneId peruZone = java.time.ZoneId.of("America/Lima");
+        LocalDateTime ahoraPeru = java.time.ZonedDateTime.now(peruZone).toLocalDateTime();
+        LocalDateTime inicioDia = ahoraPeru.withHour(0).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime finDia = ahoraPeru.withHour(23).withMinute(59).withSecond(59).withNano(999999999);
 
         List<Asistencia> asistenciasHoy = asistenciaRepository
                 .findByTrabajadorAndFechaHoraBetweenOrderByFechaHoraDesc(trabajador, inicioDia, finDia);

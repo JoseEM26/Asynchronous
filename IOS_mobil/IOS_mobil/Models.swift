@@ -39,7 +39,7 @@ final class TrabajadorResponse: Codable, @unchecked Sendable {
     let email: String?
     let telefono: String?
     let direccion: String?
-    let fechaIngreso: String?
+    let fechaIngreso: Date?
     let activo: Bool?
     let modalidadId: Int?
     let esJefeTerreno: Bool?
@@ -61,7 +61,8 @@ final class TrabajadorResponse: Codable, @unchecked Sendable {
         self.email = try container.decodeIfPresent(String.self, forKey: .email)
         self.telefono = try container.decodeIfPresent(String.self, forKey: .telefono)
         self.direccion = try container.decodeIfPresent(String.self, forKey: .direccion)
-        self.fechaIngreso = try container.decodeIfPresent(String.self, forKey: .fechaIngreso)
+        // CORREGIDO: Ahora decodifica como Date
+        self.fechaIngreso = try container.decodeIfPresent(Date.self, forKey: .fechaIngreso)
         self.activo = try container.decodeIfPresent(Bool.self, forKey: .activo)
         self.modalidadId = try container.decodeIfPresent(Int.self, forKey: .modalidadId)
         self.esJefeTerreno = try container.decodeIfPresent(Bool.self, forKey: .esJefeTerreno)
@@ -82,7 +83,7 @@ struct ModalidadResponse: Codable, Sendable {
 struct AsistenciaQrRequest: Codable, Sendable {
     let trabajadorId: Int
     let qrToken: String
-    let tipo: String // "ENTRADA" or "SALIDA"
+    let tipo: String // "ENTRADA" or "SALIDA" or "AUTOMATICO"
     let latitud: Double?
     let longitud: Double?
 }
@@ -90,7 +91,7 @@ struct AsistenciaQrRequest: Codable, Sendable {
 struct AsistenciaResponse: Codable, Sendable {
     let id: Int
     let trabajador: TrabajadorResponse?
-    let fechaHora: String?
+    let fechaHora: Date?
     let tipo: String?
     let modalidad: ModalidadResponse?
     let latitud: Double?
@@ -103,12 +104,10 @@ struct ComunicadoResponse: Codable, Sendable {
     let id: Int
     let titulo: String?
     let contenido: String?
-    let fechaPublicacion: String?
+    let fechaPublicacion: Date?
     let tipo: String?
 }
 
-// MARK: - Empty Response
-struct EmptyResponse: Codable, Sendable {}
 // MARK: - Usuario
 struct UsuarioResponse: Codable, Sendable {
     let id: Int

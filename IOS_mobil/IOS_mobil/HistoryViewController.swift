@@ -41,7 +41,7 @@ class HistoryViewController: UIViewController, UITableViewDataSource, UITableVie
                 self?.refreshControl.endRefreshing()
                 switch result {
                 case .success(let data):
-                    self?.asistencias = data.sorted(by: { ($0.fechaHora ?? "") > ($1.fechaHora ?? "") })
+                    self?.asistencias = data.sorted(by: { ($0.fechaHora ?? Date()) > ($1.fechaHora ?? Date()) })
                     self?.tableView.reloadData()
                 case .failure:
                     print("Error cargando historial")
@@ -60,7 +60,12 @@ class HistoryViewController: UIViewController, UITableViewDataSource, UITableVie
         let item = asistencias[indexPath.row]
         
         let tipo = item.tipo ?? "REGISTRO"
-        cell.textLabel?.text = "\(tipo) - \(item.fechaHora ?? "")"
+        
+        let formatter = DateFormatter()
+        formatter.dateFormat = "dd/MM/yyyy HH:mm"
+        let dateString = item.fechaHora != nil ? formatter.string(from: item.fechaHora!) : "Fecha desconocida"
+        
+        cell.textLabel?.text = "\(tipo) - \(dateString)"
         cell.textLabel?.font = .boldSystemFont(ofSize: 16)
         cell.textLabel?.textColor = tipo == "ENTRADA" ? .systemGreen : .systemRed
         

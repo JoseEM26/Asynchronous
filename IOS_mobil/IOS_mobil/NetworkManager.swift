@@ -13,6 +13,25 @@ class NetworkManager {
 
     let baseURL = "https://asynchronous-production.up.railway.app/api/"
 
+    func getDecoder() -> JSONDecoder {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .custom { decoder in
+            let container = try decoder.singleValueContainer()
+            let dateString = try container.decode(String.self)
+            
+            let isoFormatter = ISO8601DateFormatter()
+            isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+            if let date = isoFormatter.date(from: dateString) { return date }
+            
+            let fallbackFormatter = DateFormatter()
+            fallbackFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+            if let date = fallbackFormatter.date(from: String(dateString.prefix(19))) { return date }
+            
+            return Date() // Fallback a fecha actual si todo falla
+        }
+        return decoder
+    }
+
     func login(request: LoginRequest, completion: @escaping (Result<UsuarioResponse, NetworkError>) -> Void) {
         guard let url = URL(string: baseURL + "usuarios/login") else {
             completion(.failure(.invalidURL))
@@ -43,9 +62,10 @@ class NetworkManager {
 
             DispatchQueue.main.async {
                 do {
-                    let usuario = try JSONDecoder().decode(UsuarioResponse.self, from: data)
+                    let usuario = try self.getDecoder().decode(UsuarioResponse.self, from: data)
                     completion(.success(usuario))
                 } catch {
+                    print("Login decoding error: \(error)")
                     completion(.failure(.decodingError))
                 }
             }
@@ -81,14 +101,12 @@ class NetworkManager {
             }
 
             DispatchQueue.main.async {
-                if let responseBody = String(data: data, encoding: .utf8) {
-                    print("Respuesta Servidor QR: \(responseBody)")
-                }
+                if let body = String(data: data, encoding: .utf8) { print("Server Response: \(body)") }
                 do {
-                    let asistencia = try JSONDecoder().decode(AsistenciaResponse.self, from: data)
+                    let asistencia = try self.getDecoder().decode(AsistenciaResponse.self, from: data)
                     completion(.success(asistencia))
                 } catch {
-                    print("Error decodificando asistencia: \(error)")
+                    print("QR decoding error: \(error)")
                     completion(.failure(.decodingError))
                 }
             }
@@ -114,10 +132,9 @@ class NetworkManager {
 
             DispatchQueue.main.async {
                 do {
-                    let usuario = try JSONDecoder().decode(UsuarioResponse.self, from: data)
+                    let usuario = try self.getDecoder().decode(UsuarioResponse.self, from: data)
                     completion(.success(usuario))
                 } catch {
-                    print("Decoding error: \(error)")
                     completion(.failure(.decodingError))
                 }
             }
@@ -143,7 +160,7 @@ class NetworkManager {
 
             DispatchQueue.main.async {
                 do {
-                    let asistencias = try JSONDecoder().decode([AsistenciaResponse].self, from: data)
+                    let asistencias = try self.getDecoder().decode([AsistenciaResponse].self, from: data)
                     completion(.success(asistencias))
                 } catch {
                     completion(.failure(.decodingError))
@@ -171,7 +188,7 @@ class NetworkManager {
 
             DispatchQueue.main.async {
                 do {
-                    let comunicados = try JSONDecoder().decode([ComunicadoResponse].self, from: data)
+                    let comunicados = try self.getDecoder().decode([ComunicadoResponse].self, from: data)
                     completion(.success(comunicados))
                 } catch {
                     completion(.failure(.decodingError))
