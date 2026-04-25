@@ -3,7 +3,6 @@ import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { SidebarService } from '../../services/sidebar.service';
 import { AuthService } from '../../services/auth.service';
-import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { UsuarioResponse } from '../../models/usuario.interface';
 import { NotificationService } from '../../services/notification.service';
@@ -299,7 +298,8 @@ export class SidebarComponent {
   constructor(
     public sidebarService: SidebarService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private notify: NotificationService
   ) {
     this.currentUser$ = this.authService.currentUser$;
   }
