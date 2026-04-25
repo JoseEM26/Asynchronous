@@ -111,7 +111,8 @@ export class LoginComponent {
 
       this.authService.login(username, password).subscribe({
         next: () => {
-          this.router.navigate(['/trabajadores']);
+          console.log('🚀 Redirigiendo a Dashboard/Personal...');
+          this.router.navigate(['/dashboard']); // Vamos al Dashboard primero
           this.isLoading = false;
         },
         error: (err) => {
