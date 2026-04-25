@@ -1,6 +1,7 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, AfterViewInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgxApexchartsModule } from 'ngx-apexcharts';
+import * as L from 'leaflet';
 
 @Component({
   selector: 'app-terreno-view',
@@ -14,31 +15,17 @@ import { NgxApexchartsModule } from 'ngx-apexcharts';
           <span class="text-muted">•</span>
           <span class="text-muted small">{{ userName }}</span>
         </div>
-        <h1 class="text-h1">Ruta en Terreno</h1>
+        <h1 class="text-h1">Operaciones en Campo</h1>
       </header>
 
       <div class="row g-4 mb-5">
         <div class="col-lg-8">
-          <div class="minimal-card h-100 p-0 overflow-hidden">
-            <div class="p-4 border-bottom d-flex justify-content-between align-items-center bg-light-subtle">
-               <h3 class="text-h3 mb-0" style="font-size: 1rem;">Ubicación en Tiempo Real</h3>
-               <span class="m-badge m-badge-success">GPS ACTIVO</span>
-            </div>
-            <div class="map-minimal d-flex flex-column align-items-center justify-content-center p-5 text-center">
-               <div class="minimal-marker mb-3"></div>
-               <span class="fw-bold mb-1">Sede Central - Punto Actual</span>
-               <p class="text-muted small">Lat: -12.0463 | Lng: -77.0427</p>
-               <button class="btn-text mt-2">Ver en Google Maps</button>
-            </div>
-            <div class="p-4 border-top">
-               <span class="text-label mb-3 d-block">Siguiente punto de interés</span>
-               <div class="d-flex align-items-center gap-3">
-                  <div class="minimal-step">2</div>
-                  <div>
-                    <p class="mb-0 fw-bold small">Sede Norte - Mantenimiento</p>
-                    <span class="text-muted extra-small">2.4km • 15 min estimado</span>
-                  </div>
-               </div>
+          <div class="minimal-card h-100 p-0 overflow-hidden position-relative" style="min-height: 500px;">
+            <div id="terreno-map" class="h-100 w-100"></div>
+            <div class="map-overlay-info">
+               <span class="m-badge m-badge-success mb-2">GPS Activo</span>
+               <p class="mb-0 fw-bold small text-primary">Sede Central - Punto de Control</p>
+               <span class="text-muted extra-small">Lat: -12.0463 | Lng: -77.0427</span>
             </div>
           </div>
         </div>
@@ -55,20 +42,19 @@ import { NgxApexchartsModule } from 'ngx-apexcharts';
                     [stroke]="efficiencyChart.stroke"
                     [colors]="efficiencyChart.colors"
                     [fill]="efficiencyChart.fill"
-                    [markers]="efficiencyChart.markers"
                   ></apx-chart>
                 </div>
              </div>
              <div class="col-12">
                 <div class="minimal-card">
-                  <span class="text-label mb-4 d-block">Tiempo en Punto (Promedio)</span>
-                  <apx-chart
-                    [series]="durationChart.series"
-                    [chart]="durationChart.chart"
-                    [plotOptions]="durationChart.plotOptions"
-                    [xaxis]="durationChart.xaxis"
-                    [colors]="durationChart.colors"
-                  ></apx-chart>
+                  <span class="text-label mb-3 d-block">Próximo Objetivo</span>
+                  <div class="d-flex align-items-center gap-3">
+                     <div class="step-circle">2</div>
+                     <div>
+                        <p class="mb-0 fw-bold small">Sede Norte</p>
+                        <span class="text-muted extra-small">Distancia: 2.4km</span>
+                     </div>
+                  </div>
                 </div>
              </div>
           </div>
@@ -77,17 +63,23 @@ import { NgxApexchartsModule } from 'ngx-apexcharts';
     </div>
   `,
   styles: [`
-    .map-minimal { height: 300px; background: #fcfcfd; }
-    .minimal-marker { width: 16px; height: 16px; background: var(--text-main); border: 4px solid #fff; border-radius: 50%; box-shadow: 0 0 0 8px rgba(15, 23, 42, 0.05); }
-    .bg-light-subtle { background: #fafafa; }
-    .btn-text { background: none; border: none; font-size: 0.8rem; font-weight: 600; text-decoration: underline; cursor: pointer; }
-    .minimal-step { width: 24px; height: 24px; border: 1px solid var(--text-main); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 800; }
+    .map-overlay-info {
+      position: absolute; bottom: 20px; left: 20px; z-index: 1000;
+      background: white; padding: 1rem; border-radius: 8px;
+      border: 1px solid var(--border-light); box-shadow: var(--shadow-minimal);
+    }
+    .step-circle {
+      width: 32px; height: 32px; border: 1px solid var(--text-main);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 0.8rem;
+    }
     .extra-small { font-size: 0.7rem; }
   `]
 })
-export class TerrenoViewComponent {
+export class TerrenoViewComponent implements AfterViewInit, OnDestroy {
   @Input() roleName: string = '';
   @Input() userName: string = '';
+  private map?: L.Map;
 
   public efficiencyChart: any = {
     series: [{ name: 'Desempeño', data: [80, 50, 30, 40, 100, 20] }],
@@ -95,15 +87,41 @@ export class TerrenoViewComponent {
     xaxis: { categories: ['Vel', 'Pts', 'Time', 'Ruta', 'GPS', 'Batt'] },
     colors: ['#0f172a'],
     stroke: { width: 1 },
-    fill: { opacity: 0.05 },
-    markers: { size: 0 }
+    fill: { opacity: 0.05 }
   };
 
-  public durationChart: any = {
-    series: [{ name: 'Minutos', data: [45, 52, 38, 24, 48] }],
-    chart: { type: 'bar', height: 180, toolbar: { show: false }, fontFamily: 'Inter' },
-    plotOptions: { bar: { horizontal: true, borderRadius: 2, barHeight: '40%' } },
-    xaxis: { categories: ['P1', 'P2', 'P3', 'P4', 'P5'], labels: { show: false }, axisBorder: { show: false }, axisTicks: { show: false } },
-    colors: ['#0f172a']
-  };
+  ngAfterViewInit() {
+    this.initMap();
+    setTimeout(() => {
+      this.map?.invalidateSize();
+    }, 1000);
+
+    window.addEventListener('resize', () => {
+      this.map?.invalidateSize();
+    });
+  }
+
+  private initMap() {
+    this.map = L.map('terreno-map', { zoomControl: false }).setView([-12.0463, -77.0427], 14);
+    
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; CartoDB'
+    }).addTo(this.map);
+
+    L.marker([-12.0463, -77.0427], {
+      icon: L.divIcon({
+        className: 'terreno-marker',
+        html: `<div style="width: 14px; height: 14px; background: #6366f1; border: 2px solid white; border-radius: 50%; box-shadow: 0 0 10px rgba(99, 102, 241, 0.4);"></div>`,
+        iconSize: [14, 14]
+      })
+    }).addTo(this.map);
+
+    setTimeout(() => {
+      this.map?.invalidateSize();
+    }, 500);
+  }
+
+  ngOnDestroy() {
+    this.map?.remove();
+  }
 }
