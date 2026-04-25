@@ -3,6 +3,9 @@ import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { SidebarService } from '../../services/sidebar.service';
 import { AuthService } from '../../services/auth.service';
+import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
+import { UsuarioResponse } from '../../models/usuario.interface';
 import { NotificationService } from '../../services/notification.service';
 
 @Component({
@@ -62,13 +65,13 @@ import { NotificationService } from '../../services/notification.service';
       </div>
 
       <div class="sidebar-footer">
-        <div class="user-block">
+        <div class="user-block" *ngIf="currentUser$ | async as user">
           <div class="user-avatar" style="overflow: hidden;">
              <img src="logo.jpeg" alt="User" style="width: 100%; height: 100%; object-fit: cover;">
           </div>
           <div class="user-meta">
-            <span class="user-role">Administrator</span>
-            <span class="user-status"><span class="status-dot"></span> Active</span>
+            <span class="user-role">{{ user.rol.nombre }}</span>
+            <span class="user-status"><span class="status-dot"></span> {{ user.username }}</span>
           </div>
           <button class="btn-logout" title="Logout" (click)="onLogout()">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
@@ -291,12 +294,15 @@ import { NotificationService } from '../../services/notification.service';
   `]
 })
 export class SidebarComponent {
+  currentUser$: Observable<UsuarioResponse | null>;
+
   constructor(
     public sidebarService: SidebarService,
     private authService: AuthService,
-    private router: Router,
-    private notify: NotificationService
-  ) { }
+    private router: Router
+  ) {
+    this.currentUser$ = this.authService.currentUser$;
+  }
 
   onLinkClick(): void {
     if (window.innerWidth <= 1024) {
