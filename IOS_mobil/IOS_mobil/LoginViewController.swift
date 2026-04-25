@@ -10,7 +10,7 @@ class LoginViewController: UIViewController {
 
     private let activityIndicator: UIActivityIndicatorView = {
         let ai = UIActivityIndicatorView(style: .large)
-        ai.color = .gray
+        ai.color = .systemOrange
         ai.hidesWhenStopped = true
         return ai
     }()
@@ -23,26 +23,54 @@ class LoginViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupActivityIndicator()
+        setupStyle()
+    }
+    
+    private func setupStyle() {
+        // Fondo gris oscuro elegante (fijo, no cambia con modo oscuro)
+        let darkBg = UIColor(red: 0.12, green: 0.12, blue: 0.14, alpha: 1.0)
+        view.backgroundColor = darkBg
+        gradientView.backgroundColor = darkBg
         
-        // Estilo ViajesApp
-        view.backgroundColor = UIColor(red: 0.91, green: 0.95, blue: 0.98, alpha: 1.0)
-        gradientView.backgroundColor = .clear
+        // Campos de texto - fondo claro con texto oscuro, funciona en cualquier modo
+        let fieldBg = UIColor(white: 0.95, alpha: 1.0)
+        let fieldText = UIColor(white: 0.1, alpha: 1.0)
+        let placeholderColor = UIColor(white: 0.5, alpha: 1.0)
         
-        usernameField.layer.cornerRadius = 14
-        usernameField.clipsToBounds = true
-        passwordField.layer.cornerRadius = 14
-        passwordField.clipsToBounds = true
+        for field in [usernameField, passwordField] {
+            field?.backgroundColor = fieldBg
+            field?.textColor = fieldText
+            field?.layer.cornerRadius = 14
+            field?.clipsToBounds = true
+            field?.layer.borderWidth = 0
+            field?.attributedPlaceholder = NSAttributedString(
+                string: field == usernameField ? "Usuario" : "Contraseña",
+                attributes: [.foregroundColor: placeholderColor]
+            )
+            // Padding interno
+            let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 44))
+            field?.leftView = paddingView
+            field?.leftViewMode = .always
+        }
         
-        loginButton.layer.cornerRadius = 18
-        loginButton.layer.shadowColor = UIColor.black.cgColor
-        loginButton.layer.shadowOpacity = 0.12
-        loginButton.layer.shadowOffset = CGSize(width: 0, height: 10)
-        loginButton.layer.shadowRadius = 14
+        // Botón naranja vibrante
+        loginButton.backgroundColor = UIColor(red: 1.0, green: 0.55, blue: 0.0, alpha: 1.0)
+        loginButton.setTitleColor(.white, for: .normal)
+        loginButton.layer.cornerRadius = 16
+        loginButton.layer.shadowColor = UIColor.orange.cgColor
+        loginButton.layer.shadowOpacity = 0.4
+        loginButton.layer.shadowOffset = CGSize(width: 0, height: 6)
+        loginButton.layer.shadowRadius = 12
+        loginButton.titleLabel?.font = .boldSystemFont(ofSize: 18)
     }
 
     private func setupActivityIndicator() {
         view.addSubview(activityIndicator)
-        activityIndicator.center = view.center
+        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+        ])
     }
 
     @IBAction func loginPressed(_ sender: UIButton) {

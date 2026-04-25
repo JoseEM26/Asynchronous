@@ -4,31 +4,70 @@ class HistoryViewController: UIViewController, UITableViewDataSource, UITableVie
 
     var usuarioId: Int?
     private var asistencias: [AsistenciaResponse] = []
-    private let tableView = UITableView()
+    private let tableView = UITableView(frame: .zero, style: .plain)
     private let refreshControl = UIRefreshControl()
+    
+    private let emptyLabel: UILabel = {
+        let lbl = UILabel()
+        lbl.text = "📭\nSin registros de asistencia"
+        lbl.numberOfLines = 0
+        lbl.textAlignment = .center
+        lbl.font = .systemFont(ofSize: 17, weight: .medium)
+        lbl.textColor = .secondaryLabel
+        lbl.isHidden = true
+        lbl.translatesAutoresizingMaskIntoConstraints = false
+        return lbl
+    }()
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Mi Historial"
-        view.backgroundColor = .white
+        title = "📅 Mi Historial"
+        
+        // Fondo adaptable
+        view.backgroundColor = UIColor { trait in
+            trait.userInterfaceStyle == .dark
+                ? UIColor(red: 0.08, green: 0.08, blue: 0.10, alpha: 1.0)
+                : UIColor(red: 0.95, green: 0.95, blue: 0.97, alpha: 1.0)
+        }
+        
+        // Botón cerrar (X)
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            barButtonSystemItem: .close,
+            target: self,
+            action: #selector(closeTapped)
+        )
+        navigationItem.rightBarButtonItem?.tintColor = .systemOrange
+        
         setupTableView()
         loadHistory()
     }
+    
+    @objc private func closeTapped() {
+        dismiss(animated: true)
+    }
 
     private func setupTableView() {
-        view.addSubview(tableView)
         tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.backgroundColor = .clear
+        tableView.separatorStyle = .none
+        view.addSubview(tableView)
+        view.addSubview(emptyLabel)
+        
         NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: view.topAnchor),
+            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
+            emptyLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            emptyLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor),
         ])
         
         tableView.dataSource = self
         tableView.delegate = self
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
         
+        refreshControl.tintColor = .systemOrange
         tableView.refreshControl = refreshControl
         refreshControl.addTarget(self, action: #selector(loadHistory), for: .valueChanged)
     }
@@ -43,16 +82,22 @@ class HistoryViewController: UIViewController, UITableViewDataSource, UITableVie
                 case .success(let data):
                     self?.asistencias = data.sorted(by: { ($0.fechaHora ?? Date()) > ($1.fechaHora ?? Date()) })
                     self?.tableView.reloadData()
+                    self?.emptyLabel.isHidden = !data.isEmpty
                 case .failure:
-                    print("Error cargando historial")
+                    self?.emptyLabel.isHidden = false
+                    self?.emptyLabel.text = "❌\nError al cargar historial"
                 }
             }
         }
     }
 
-    // MARK: - TableView Methods
+    // MARK: - TableView
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return asistencias.count
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 90
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -60,19 +105,118 @@ class HistoryViewController: UIViewController, UITableViewDataSource, UITableVie
         let item = asistencias[indexPath.row]
         
         let tipo = item.tipo ?? "REGISTRO"
+        let isEntrada = tipo == "ENTRADA"
         
+        // Fecha formateada
         let formatter = DateFormatter()
-        formatter.dateFormat = "dd/MM/yyyy HH:mm"
+        formatter.dateFormat = "dd MMM yyyy  •  HH:mm"
+        formatter.locale = Locale(identifier: "es_PE")
         let dateString = item.fechaHora != nil ? formatter.string(from: item.fechaHora!) : "Fecha desconocida"
         
-        cell.textLabel?.text = "\(tipo) - \(dateString)"
-        cell.textLabel?.font = .boldSystemFont(ofSize: 16)
-        cell.textLabel?.textColor = tipo == "ENTRADA" ? .systemGreen : .systemRed
+        // Contenedor visual (tarjeta interna)
+        cell.backgroundColor = .clear
+        cell.selectionStyle = .none
         
-        cell.detailTextLabel?.text = "Modalidad: \(item.modalidad?.nombre ?? "No especificada")"
-        cell.detailTextLabel?.textColor = .darkGray
+        // Limpiar subviews anteriores
+        cell.contentView.subviews.forEach { $0.removeFromSuperview() }
         
-        cell.accessoryType = .disclosureIndicator
+        let card = UIView()
+        card.backgroundColor = UIColor { trait in
+            trait.userInterfaceStyle == .dark
+                ? UIColor(red: 0.15, green: 0.15, blue: 0.18, alpha: 1.0)
+                : .white
+        }
+        card.layer.cornerRadius = 16
+        card.layer.shadowColor = UIColor.black.cgColor
+        card.layer.shadowOpacity = 0.06
+        card.layer.shadowOffset = CGSize(width: 0, height: 2)
+        card.layer.shadowRadius = 8
+        card.translatesAutoresizingMaskIntoConstraints = false
+        cell.contentView.addSubview(card)
+        
+        // Indicador lateral de color
+        let indicator = UIView()
+        indicator.backgroundColor = isEntrada ? .systemGreen : .systemRed
+        indicator.layer.cornerRadius = 3
+        indicator.translatesAutoresizingMaskIntoConstraints = false
+        card.addSubview(indicator)
+        
+        // Icono circular
+        let iconBg = UIView()
+        iconBg.backgroundColor = (isEntrada ? UIColor.systemGreen : UIColor.systemRed).withAlphaComponent(0.12)
+        iconBg.layer.cornerRadius = 22
+        iconBg.translatesAutoresizingMaskIntoConstraints = false
+        card.addSubview(iconBg)
+        
+        let iconLabel = UILabel()
+        iconLabel.text = isEntrada ? "↓" : "↑"
+        iconLabel.font = .systemFont(ofSize: 22, weight: .bold)
+        iconLabel.textColor = isEntrada ? .systemGreen : .systemRed
+        iconLabel.textAlignment = .center
+        iconLabel.translatesAutoresizingMaskIntoConstraints = false
+        iconBg.addSubview(iconLabel)
+        
+        // Texto principal
+        let titleLbl = UILabel()
+        titleLbl.text = tipo
+        titleLbl.font = .systemFont(ofSize: 17, weight: .semibold)
+        titleLbl.textColor = UIColor { trait in
+            trait.userInterfaceStyle == .dark ? .white : UIColor(white: 0.15, alpha: 1.0)
+        }
+        titleLbl.translatesAutoresizingMaskIntoConstraints = false
+        card.addSubview(titleLbl)
+        
+        // Subtítulo (fecha + modalidad)
+        let subtitleLbl = UILabel()
+        let modalidad = item.modalidad?.nombre ?? ""
+        subtitleLbl.text = "\(dateString)  •  \(modalidad)"
+        subtitleLbl.font = .systemFont(ofSize: 13, weight: .regular)
+        subtitleLbl.textColor = .secondaryLabel
+        subtitleLbl.translatesAutoresizingMaskIntoConstraints = false
+        card.addSubview(subtitleLbl)
+        
+        NSLayoutConstraint.activate([
+            card.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 4),
+            card.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor, constant: 16),
+            card.trailingAnchor.constraint(equalTo: cell.contentView.trailingAnchor, constant: -16),
+            card.bottomAnchor.constraint(equalTo: cell.contentView.bottomAnchor, constant: -4),
+            
+            indicator.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 6),
+            indicator.centerYAnchor.constraint(equalTo: card.centerYAnchor),
+            indicator.widthAnchor.constraint(equalToConstant: 4),
+            indicator.heightAnchor.constraint(equalToConstant: 36),
+            
+            iconBg.leadingAnchor.constraint(equalTo: indicator.trailingAnchor, constant: 12),
+            iconBg.centerYAnchor.constraint(equalTo: card.centerYAnchor),
+            iconBg.widthAnchor.constraint(equalToConstant: 44),
+            iconBg.heightAnchor.constraint(equalToConstant: 44),
+            
+            iconLabel.centerXAnchor.constraint(equalTo: iconBg.centerXAnchor),
+            iconLabel.centerYAnchor.constraint(equalTo: iconBg.centerYAnchor),
+            
+            titleLbl.topAnchor.constraint(equalTo: card.topAnchor, constant: 16),
+            titleLbl.leadingAnchor.constraint(equalTo: iconBg.trailingAnchor, constant: 14),
+            titleLbl.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -16),
+            
+            subtitleLbl.topAnchor.constraint(equalTo: titleLbl.bottomAnchor, constant: 4),
+            subtitleLbl.leadingAnchor.constraint(equalTo: titleLbl.leadingAnchor),
+            subtitleLbl.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -16),
+        ])
+        
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let item = asistencias[indexPath.row]
+        
+        let detailVC = AttendanceDetailViewController()
+        detailVC.asistencia = item
+        let nav = UINavigationController(rootViewController: detailVC)
+        nav.modalPresentationStyle = .pageSheet
+        if let sheet = nav.sheetPresentationController {
+            sheet.detents = [.large()]
+            sheet.prefersGrabberVisible = true
+        }
+        present(nav, animated: true)
     }
 }
