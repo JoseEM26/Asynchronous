@@ -21,16 +21,24 @@ export class AuthService {
   }
 
   login(username: string, password: string): Observable<UsuarioResponse> {
+    console.log(`🔐 Intentando login para usuario: ${username} en la URL: ${this.apiUrl}/login`);
     return this.http.post<UsuarioResponse>(`${this.apiUrl}/login`, { username, password }).pipe(
-      tap(user => {
-        localStorage.setItem('asistencia_user', JSON.stringify(user));
-        this.currentUserSubject.next(user);
+      tap({
+        next: (user) => {
+          console.log('✅ Login exitoso:', user);
+          localStorage.setItem('asistencia_user', JSON.stringify(user));
+          this.currentUserSubject.next(user);
+        },
+        error: (err) => {
+          console.error('❌ Error en el login:', err);
+        }
       })
     );
   }
 
   logout() {
     localStorage.removeItem('asistencia_user');
+    sessionStorage.removeItem('comunicados_mostrados');
     this.currentUserSubject.next(null);
     this.router.navigate(['/login']);
   }

@@ -3,9 +3,20 @@ import UIKit
 class HistoryViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
 
     var usuarioId: Int?
-    private var asistencias: [AsistenciaResponse] = []
+    private var todasAsistencias: [AsistenciaResponse] = []
+    private var asistenciasFiltradas: [AsistenciaResponse] = []
+    
     private let tableView = UITableView(frame: .zero, style: .plain)
     private let refreshControl = UIRefreshControl()
+    
+    private let filterSegment: UISegmentedControl = {
+        let sc = UISegmentedControl(items: ["Todos", "Entradas", "Salidas"])
+        sc.selectedSegmentIndex = 0
+        sc.selectedSegmentTintColor = .systemOrange
+        sc.setTitleTextAttributes([.foregroundColor: UIColor.white], for: .selected)
+        sc.translatesAutoresizingMaskIntoConstraints = false
+        return sc
+    }()
     
     private let emptyLabel: UILabel = {
         let lbl = UILabel()
@@ -23,14 +34,12 @@ class HistoryViewController: UIViewController, UITableViewDataSource, UITableVie
         super.viewDidLoad()
         title = "📅 Mi Historial"
         
-        // Fondo adaptable
         view.backgroundColor = UIColor { trait in
             trait.userInterfaceStyle == .dark
                 ? UIColor(red: 0.08, green: 0.08, blue: 0.10, alpha: 1.0)
                 : UIColor(red: 0.95, green: 0.95, blue: 0.97, alpha: 1.0)
         }
         
-        // Botón cerrar (X)
         navigationItem.rightBarButtonItem = UIBarButtonItem(
             barButtonSystemItem: .close,
             target: self,
@@ -38,7 +47,7 @@ class HistoryViewController: UIViewController, UITableViewDataSource, UITableVie
         )
         navigationItem.rightBarButtonItem?.tintColor = .systemOrange
         
-        setupTableView()
+        setupUI()
         loadHistory()
     }
     
@@ -46,15 +55,22 @@ class HistoryViewController: UIViewController, UITableViewDataSource, UITableVie
         dismiss(animated: true)
     }
 
-    private func setupTableView() {
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.backgroundColor = .clear
-        tableView.separatorStyle = .none
+    private func setupUI() {
+        view.addSubview(filterSegment)
         view.addSubview(tableView)
         view.addSubview(emptyLabel)
         
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.backgroundColor = .clear
+        tableView.separatorStyle = .none
+        
         NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8),
+            filterSegment.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 12),
+            filterSegment.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            filterSegment.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            filterSegment.heightAnchor.constraint(equalToConstant: 36),
+            
+            tableView.topAnchor.constraint(equalTo: filterSegment.bottomAnchor, constant: 12),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
@@ -70,6 +86,33 @@ class HistoryViewController: UIViewController, UITableViewDataSource, UITableVie
         refreshControl.tintColor = .systemOrange
         tableView.refreshControl = refreshControl
         refreshControl.addTarget(self, action: #selector(loadHistory), for: .valueChanged)
+        
+        filterSegment.addTarget(self, action: #selector(filterChanged), for: .valueChanged)
+    }
+
+    @objc private func filterChanged() {
+        let generator = UISelectionFeedbackGenerator()
+        generator.selectionChanged()
+        
+        applyFilter()
+    }
+
+    private func applyFilter() {
+        switch filterSegment.selectedSegmentIndex {
+        case 1: // Entradas
+            asistenciasFiltradas = todasAsistencias.filter { $0.tipo == "ENTRADA" }
+        case 2: // Salidas
+            asistenciasFiltradas = todasAsistencias.filter { $0.tipo == "SALIDA" }
+        default: // Todos
+            asistenciasFiltradas = todasAsistencias
+        }
+        
+        tableView.reloadData()
+        emptyLabel.isHidden = !asistenciasFiltradas.isEmpty
+        
+        if asistenciasFiltradas.isEmpty {
+            emptyLabel.text = filterSegment.selectedSegmentIndex == 0 ? "📭\nSin registros" : "🔍\nNo hay registros para este filtro"
+        }
     }
 
     @objc private func loadHistory() {
@@ -80,9 +123,8 @@ class HistoryViewController: UIViewController, UITableViewDataSource, UITableVie
                 self?.refreshControl.endRefreshing()
                 switch result {
                 case .success(let data):
-                    self?.asistencias = data.sorted(by: { ($0.fechaHora ?? Date()) > ($1.fechaHora ?? Date()) })
-                    self?.tableView.reloadData()
-                    self?.emptyLabel.isHidden = !data.isEmpty
+                    self?.todasAsistencias = data.sorted(by: { ($0.fechaHora ?? Date()) > ($1.fechaHora ?? Date()) })
+                    self?.applyFilter()
                 case .failure:
                     self?.emptyLabel.isHidden = false
                     self?.emptyLabel.text = "❌\nError al cargar historial"
@@ -93,7 +135,7 @@ class HistoryViewController: UIViewController, UITableViewDataSource, UITableVie
 
     // MARK: - TableView
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return asistencias.count
+        return asistenciasFiltradas.count
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -102,22 +144,18 @@ class HistoryViewController: UIViewController, UITableViewDataSource, UITableVie
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "cell")
-        let item = asistencias[indexPath.row]
+        let item = asistenciasFiltradas[indexPath.row]
         
         let tipo = item.tipo ?? "REGISTRO"
         let isEntrada = tipo == "ENTRADA"
         
-        // Fecha formateada
         let formatter = DateFormatter()
         formatter.dateFormat = "dd MMM yyyy  •  HH:mm"
         formatter.locale = Locale(identifier: "es_PE")
         let dateString = item.fechaHora != nil ? formatter.string(from: item.fechaHora!) : "Fecha desconocida"
         
-        // Contenedor visual (tarjeta interna)
         cell.backgroundColor = .clear
         cell.selectionStyle = .none
-        
-        // Limpiar subviews anteriores
         cell.contentView.subviews.forEach { $0.removeFromSuperview() }
         
         let card = UIView()
@@ -134,14 +172,12 @@ class HistoryViewController: UIViewController, UITableViewDataSource, UITableVie
         card.translatesAutoresizingMaskIntoConstraints = false
         cell.contentView.addSubview(card)
         
-        // Indicador lateral de color
         let indicator = UIView()
         indicator.backgroundColor = isEntrada ? .systemGreen : .systemRed
         indicator.layer.cornerRadius = 3
         indicator.translatesAutoresizingMaskIntoConstraints = false
         card.addSubview(indicator)
         
-        // Icono circular
         let iconBg = UIView()
         iconBg.backgroundColor = (isEntrada ? UIColor.systemGreen : UIColor.systemRed).withAlphaComponent(0.12)
         iconBg.layer.cornerRadius = 22
@@ -156,7 +192,6 @@ class HistoryViewController: UIViewController, UITableViewDataSource, UITableVie
         iconLabel.translatesAutoresizingMaskIntoConstraints = false
         iconBg.addSubview(iconLabel)
         
-        // Texto principal
         let titleLbl = UILabel()
         titleLbl.text = tipo
         titleLbl.font = .systemFont(ofSize: 17, weight: .semibold)
@@ -166,7 +201,6 @@ class HistoryViewController: UIViewController, UITableViewDataSource, UITableVie
         titleLbl.translatesAutoresizingMaskIntoConstraints = false
         card.addSubview(titleLbl)
         
-        // Subtítulo (fecha + modalidad)
         let subtitleLbl = UILabel()
         let modalidad = item.modalidad?.nombre ?? ""
         subtitleLbl.text = "\(dateString)  •  \(modalidad)"
@@ -207,7 +241,7 @@ class HistoryViewController: UIViewController, UITableViewDataSource, UITableVie
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let item = asistencias[indexPath.row]
+        let item = asistenciasFiltradas[indexPath.row]
         
         let detailVC = AttendanceDetailViewController()
         detailVC.asistencia = item

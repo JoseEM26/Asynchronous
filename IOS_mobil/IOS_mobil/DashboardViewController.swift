@@ -11,6 +11,9 @@ class DashboardViewController: UIViewController {
     var trabajadorId: Int?
     var userRole: String?
     
+    private var comunicados: [ComunicadoResponse] = []
+    private static var comunicadosMostrados = false
+    
     private let adminButton: UIButton = {
         let b = UIButton(type: .system)
         b.translatesAutoresizingMaskIntoConstraints = false
@@ -21,13 +24,57 @@ class DashboardViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(true, animated: false)
+        if !DashboardViewController.comunicadosMostrados {
+            fetchComunicados()
+        }
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
+        setupAdminButton()
+        configurePermissionsByRole()
         setupActions()
-        checkAdminRole()
+    }
+    
+    private func fetchComunicados() {
+        NetworkManager.shared.getComunicadosActivos { [weak self] (result: Result<[ComunicadoResponse], NetworkError>) in
+            switch result {
+            case .success(let data):
+                self?.comunicados = data
+                if !data.isEmpty {
+                    DashboardViewController.comunicadosMostrados = true
+                    self?.mostrarModalComunicados(data)
+                }
+            case .failure(let error):
+                print("Error cargando comunicados: \(error)")
+            }
+        }
+    }
+    
+    private func mostrarModalComunicados(_ lista: [ComunicadoResponse]) {
+        let alert = UIAlertController(title: "📢 Avisos Importantes", 
+                                      message: nil, 
+                                      preferredStyle: .alert)
+        
+        // Crear el mensaje concatenando todos los comunicados
+        var mensajeCompleto = ""
+        for (index, c) in lista.enumerated() {
+            let titulo = c.titulo ?? "Aviso"
+            let contenido = c.contenido ?? ""
+            mensajeCompleto += "• \(titulo.uppercased()):\n\(contenido)"
+            
+            if index < lista.count - 1 {
+                mensajeCompleto += "\n\n" // Espacio entre avisos
+            }
+        }
+        
+        alert.message = mensajeCompleto
+        
+        let action = UIAlertAction(title: "Entendido", style: .default, handler: nil)
+        alert.addAction(action)
+        
+        present(alert, animated: true)
     }
     
     private func setupUI() {
@@ -64,11 +111,16 @@ class DashboardViewController: UIViewController {
         for (button, title, accentColor) in cardData {
             guard let btn = button else { continue }
             btn.backgroundColor = cardBg
+            
+            // Configuración moderna para padding y texto
+            var config = UIButton.Configuration.plain()
+            config.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 24, bottom: 0, trailing: 24)
+            btn.configuration = config
+            
             btn.setTitle(title, for: .normal)
             btn.setTitleColor(cardText, for: .normal)
             btn.titleLabel?.font = .systemFont(ofSize: 20, weight: .semibold)
             btn.contentHorizontalAlignment = .left
-            btn.contentEdgeInsets = UIEdgeInsets(top: 0, left: 24, bottom: 0, right: 24)
             btn.layer.cornerRadius = 20
             btn.clipsToBounds = false
             
@@ -122,10 +174,29 @@ class DashboardViewController: UIViewController {
             adminButton.heightAnchor.constraint(equalToConstant: 60)
         ])
     }
-    
-    private func checkAdminRole() {
-        if userRole == "ADMIN" {
+
+    private func configurePermissionsByRole() {
+        guard let role = userRole else { return }
+        
+        print("Configurando permisos para el rol: \(role)")
+        
+        // 1. Lógica para SUPER_ADMIN (5)
+        if role == "SUPER_ADMIN" || role == "5" {
+            scannerButton.isHidden = true
+            adminButton.isHidden = false // El Super Admin suele querer ver la configuración
+            adminButton.setTitle("👁️ Ver Oficinas", for: .normal)
+        }
+        
+        // 2. Lógica para ADMIN (1)
+        else if role == "ADMIN" || role == "1" {
             adminButton.isHidden = false
+            scannerButton.isHidden = false 
+        }
+        
+        // 3. Roles de terreno o estándar
+        else {
+            adminButton.isHidden = true
+            scannerButton.isHidden = false
         }
     }
 
@@ -134,6 +205,7 @@ class DashboardViewController: UIViewController {
         scannerButton.addTarget(self, action: #selector(scannerPressed), for: .touchUpInside)
         historyButton.addTarget(self, action: #selector(historyPressed), for: .touchUpInside)
         adminButton.addTarget(self, action: #selector(adminPressed), for: .touchUpInside)
+        logoutButton.addTarget(self, action: #selector(logoutActionTriggered), for: .touchUpInside)
     }
 
     // MARK: - Presentar como páginas flotantes (modal sheets)
@@ -151,7 +223,10 @@ class DashboardViewController: UIViewController {
     }
 
     @objc private func scannerPressed() {
-        performSegue(withIdentifier: "toScanner", sender: trabajadorId)
+        let vc = ScannerViewController()
+        vc.usuarioId = trabajadorId
+        vc.modalPresentationStyle = .fullScreen
+        present(vc, animated: true)
     }
 
     @objc private func historyPressed() {
@@ -160,28 +235,58 @@ class DashboardViewController: UIViewController {
         let nav = UINavigationController(rootViewController: vc)
         nav.modalPresentationStyle = .pageSheet
         if let sheet = nav.sheetPresentationController {
-            sheet.detents = [.medium(), .large()]
+            sheet.detents = [.large()]
             sheet.prefersGrabberVisible = true
-            sheet.prefersScrollingExpandsWhenScrolledToEdge = true
         }
         present(nav, animated: true)
     }
     
     @objc private func adminPressed() {
-        performSegue(withIdentifier: "toAdminSettings", sender: nil)
+        let vc = AdminSettingsViewController()
+        let nav = UINavigationController(rootViewController: vc)
+        nav.modalPresentationStyle = .pageSheet
+        if let sheet = nav.sheetPresentationController {
+            sheet.detents = [.large()]
+            sheet.prefersGrabberVisible = true
+        }
+        present(nav, animated: true)
+    }
+
+    @objc private func logoutActionTriggered() {
+        let alert = UIAlertController(title: "¿Cerrar Sesión?", 
+                                      message: "Tu sesión actual finalizará. ¿Estás seguro de que deseas salir?", 
+                                      preferredStyle: .actionSheet)
+        
+        let logout = UIAlertAction(title: "Cerrar Sesión", style: .destructive) { _ in
+            let generator = UIImpactFeedbackGenerator(style: .medium)
+            generator.impactOccurred()
+            
+            // Limpiar sesión
+            DashboardViewController.comunicadosMostrados = false
+            
+            // Intentar volver al Login
+            if let nav = self.navigationController {
+                nav.popToRootViewController(animated: true)
+            } else {
+                self.dismiss(animated: true, completion: nil)
+            }
+        }
+        
+        let cancel = UIAlertAction(title: "Cancelar", style: .cancel, handler: nil)
+        
+        alert.addAction(logout)
+        alert.addAction(cancel)
+        
+        // Soporte para iPad (importante para que no crashee)
+        if let popoverController = alert.popoverPresentationController {
+            popoverController.sourceView = self.logoutButton
+            popoverController.sourceRect = self.logoutButton.bounds
+        }
+        
+        present(alert, animated: true)
     }
 
     @IBAction func logoutPressed(_ sender: UIButton) {
-        let generator = UIImpactFeedbackGenerator(style: .light)
-        generator.impactOccurred()
-        navigationController?.popViewController(animated: true)
-    }
-
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        let id = sender as? Int
-        if segue.identifier == "toScanner",
-           let scannerVC = segue.destination as? ScannerViewController {
-            scannerVC.usuarioId = id
-        }
+        logoutActionTriggered()
     }
 }

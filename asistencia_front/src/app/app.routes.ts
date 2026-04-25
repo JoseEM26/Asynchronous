@@ -12,14 +12,14 @@ import { AuthGuard } from './services/auth.guard';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
+  { path: 'asistencia-qr', loadComponent: () => import('./pages/public-qr/public-qr.component').then(m => m.PublicQrComponent) },
   {
     path: '',
     component: AsynchronousLayoutComponent,
     canActivate: [AuthGuard],
     children: [
       { path: 'dashboard', component: DashboardComponent },
-      { path: 'trabajadores', component: TrabajadoresListComponent },
-      { path: 'usuarios', component: UsuariosListComponent },
+      { path: 'personal', loadComponent: () => import('./pages/personal/personal-list.component').then(m => m.PersonalListComponent) },
       { path: 'asistencias', component: AsistenciasListComponent },
       { path: 'qr-generator', component: QrAsistenciaComponent },
       { path: 'comunicados', loadComponent: () => import('./pages/comunicados/comunicados-management.component').then(m => m.ComunicadosManagementComponent) },
