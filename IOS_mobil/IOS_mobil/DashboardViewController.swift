@@ -266,6 +266,11 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
                 
                 if case .success(let data) = result {
                     self?.trabajadorData = data.trabajador
+                    
+                    // Saludo personalizado con nombre
+                    let nombre = data.trabajador?.nombres.split(separator: " ").first.map(String.init) ?? "Usuario"
+                    self?.greetingLabel.text = "¡Hola, \(nombre)! 👋"
+                    
                     self?.updateAttendanceButtonsVisibility()
                 }
             }
@@ -302,7 +307,8 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
         if !isPresencialDay && !isRemotoDay {
             self.scannerButton.isHidden = true
             self.virtualAttendanceButton.isHidden = true
-            self.greetingLabel.text = "¡Hola! Hoy es tu día de descanso."
+            let nombre = t.nombres.split(separator: " ").first.map(String.init) ?? ""
+            self.greetingLabel.text = "¡Hola, \(nombre)! Hoy es tu día de descanso."
         } else if isRemotoDay && !isPresencialDay {
             // Es SOLO día remoto: ocultar escáner, mostrar virtual
             self.scannerButton.isHidden = true

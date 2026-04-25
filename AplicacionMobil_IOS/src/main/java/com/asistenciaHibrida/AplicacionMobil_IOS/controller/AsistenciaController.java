@@ -72,7 +72,9 @@ public class AsistenciaController {
 
     @PostMapping("/registrar-qr")
     public ResponseEntity<?> registrarConQr(@RequestBody AsistenciaQrRequestDTO request) {
-        if (!qrSecureService.isValidToken(request.getQrToken())) {
+        boolean esVirtual = "VIRTUAL_TOKEN".equals(request.getQrToken());
+        
+        if (!esVirtual && !qrSecureService.isValidToken(request.getQrToken())) {
             return ResponseEntity.status(401).body("QR Token inválido o expirado.");
         }
 
@@ -94,7 +96,7 @@ public class AsistenciaController {
             AsistenciaResponseDTO responseDTO = asistenciaService.registrarAsistencia(
                     trabajadorId, null, tipoEnum,
                     request.getLatitud(), request.getLongitud(),
-                    "Registro por QR móvil", null);
+                    esVirtual ? "Registro de Asistencia Virtual (Hogar)" : "Registro por QR móvil (Oficina)", null);
             
             return ResponseEntity.ok(responseDTO);
         } catch (IllegalArgumentException e) {
