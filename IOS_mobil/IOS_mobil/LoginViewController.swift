@@ -63,7 +63,7 @@ class LoginViewController: UIViewController {
 
                 switch result {
                 case .success(let response):
-                    self?.performSegue(withIdentifier: "toDashboard", sender: response.trabajador?.id)
+                    self?.performSegue(withIdentifier: "toDashboard", sender: response.id)
                 case .failure(let error):
                     var message = "Error desconocido"
                     switch error {

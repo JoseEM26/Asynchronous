@@ -173,6 +173,35 @@ class NetworkManager {
         }.resume()
     }
 
+    func getUsuario(id: Int, completion: @escaping (Result<UsuarioResponse, NetworkError>) -> Void) {
+        guard let url = URL(string: baseURL + "usuarios/\(id)") else {
+            completion(.failure(.invalidURL))
+            return
+        }
+
+        URLSession.shared.dataTask(with: url) { data, response, error in
+            if let error = error {
+                DispatchQueue.main.async { completion(.failure(.serverError(error.localizedDescription))) }
+                return
+            }
+
+            guard let data = data else {
+                DispatchQueue.main.async { completion(.failure(.noData)) }
+                return
+            }
+
+            DispatchQueue.main.async {
+                do {
+                    let usuario = try JSONDecoder().decode(UsuarioResponse.self, from: data)
+                    completion(.success(usuario))
+                } catch {
+                    print("Decoding error: \(error)")
+                    completion(.failure(.decodingError))
+                }
+            }
+        }.resume()
+    }
+
     func getAsistenciasPorTrabajador(id: Int, completion: @escaping (Result<[AsistenciaResponse], NetworkError>) -> Void) {
         guard let url = URL(string: baseURL + "asistencias/trabajador/\(id)") else {
             completion(.failure(.invalidURL))
@@ -218,11 +247,13 @@ class NetworkManager {
                 return
             }
 
-            do {
-                let comunicados = try JSONDecoder().decode([ComunicadoResponse].self, from: data)
-                DispatchQueue.main.async { completion(.success(comunicados)) }
-            } catch {
-                DispatchQueue.main.async { completion(.failure(.decodingError)) }
+            DispatchQueue.main.async {
+                do {
+                    let comunicados = try JSONDecoder().decode([ComunicadoResponse].self, from: data)
+                    completion(.success(comunicados))
+                } catch {
+                    completion(.failure(.decodingError))
+                }
             }
         }.resume()
     }

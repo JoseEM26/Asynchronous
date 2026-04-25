@@ -109,3 +109,17 @@ struct ComunicadoResponse: Codable, Sendable {
 
 // MARK: - Empty Response
 struct EmptyResponse: Codable, Sendable {}
+// MARK: - Usuario
+struct UsuarioResponse: Codable, Sendable {
+    let id: Int
+    let username: String
+    let rol: RolResponseDTO?
+    let trabajador: TrabajadorResponse?
+    let activo: Bool?
+    let token: String?
+}
+
+struct RolResponseDTO: Codable, Sendable {
+    let id: Int
+    let nombre: String
+}

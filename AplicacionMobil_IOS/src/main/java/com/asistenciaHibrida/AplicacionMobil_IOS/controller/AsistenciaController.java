@@ -34,6 +34,9 @@ public class AsistenciaController {
     @Autowired
     private QrSecureService qrSecureService;
 
+    @Autowired
+    private com.asistenciaHibrida.AplicacionMobil_IOS.service.UsuarioService usuarioService;
+
     @Operation(summary = "Registrar una nueva asistencia", description = "Permite registrar una asistencia manual indicando trabajador, modalidad y ubicación.")
     @PostMapping
     public ResponseEntity<AsistenciaResponseDTO> registrar(@RequestBody AsistenciaRequestDTO request) {
@@ -64,7 +67,12 @@ public class AsistenciaController {
 
     @GetMapping("/trabajador/{id}")
     public List<AsistenciaResponseDTO> listarPorTrabajador(@PathVariable Integer id) {
-        return asistenciaService.listarPorTrabajador(id).stream()
+        Integer trabajadorId = id;
+        com.asistenciaHibrida.AplicacionMobil_IOS.dto.response.UsuarioResponseDTO usuario = usuarioService.buscarPorId(id);
+        if (usuario != null && usuario.getTrabajador() != null) {
+            trabajadorId = usuario.getTrabajador().getId();
+        }
+        return asistenciaService.listarPorTrabajador(trabajadorId).stream()
                 .map(asistenciaMapper::toResponseDTO)
                 .collect(Collectors.toList());
     }
@@ -86,9 +94,16 @@ public class AsistenciaController {
         try {
             Asistencia.TipoAsistencia tipoEnum = Asistencia.TipoAsistencia.valueOf(request.getTipo().toUpperCase());
 
+            // Resolver trabajadorId si el ID enviado es de un Usuario
+            Integer trabajadorId = request.getTrabajadorId();
+            com.asistenciaHibrida.AplicacionMobil_IOS.dto.response.UsuarioResponseDTO usuario = usuarioService.buscarPorId(trabajadorId);
+            if (usuario != null && usuario.getTrabajador() != null) {
+                trabajadorId = usuario.getTrabajador().getId();
+            }
+
             // Registro por QR
             AsistenciaResponseDTO responseDTO = asistenciaService.registrarAsistencia(
-                    request.getTrabajadorId(),
+                    trabajadorId,
                     null, 
                     tipoEnum,
                     request.getLatitud(),
@@ -119,7 +134,13 @@ public class AsistenciaController {
     @Operation(summary = "Obtener el estado de asistencia de hoy para un trabajador", description = "Retorna la última marcación realizada hoy (Entrada o Salida) para determinar el siguiente paso en la app móvil.")
     @GetMapping("/estado-hoy/{trabajadorId}")
     public ResponseEntity<AsistenciaResponseDTO> obtenerEstadoHoy(@PathVariable Integer trabajadorId) {
-        AsistenciaResponseDTO response = asistenciaService.obtenerEstadoHoy(trabajadorId);
+        Integer realTrabajadorId = trabajadorId;
+        com.asistenciaHibrida.AplicacionMobil_IOS.dto.response.UsuarioResponseDTO usuario = usuarioService.buscarPorId(trabajadorId);
+        if (usuario != null && usuario.getTrabajador() != null) {
+            realTrabajadorId = usuario.getTrabajador().getId();
+        }
+        
+        AsistenciaResponseDTO response = asistenciaService.obtenerEstadoHoy(realTrabajadorId);
         if (response == null) {
             return ResponseEntity.noContent().build(); // No hay marcaciones hoy
         }

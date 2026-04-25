@@ -35,10 +35,20 @@ class DashboardViewController: UIViewController {
 
     private func setupActions() {
         profileButton.addTarget(self, action: #selector(profilePressed), for: .touchUpInside)
+        scannerButton.addTarget(self, action: #selector(scannerPressed), for: .touchUpInside)
+        historyButton.addTarget(self, action: #selector(historyPressed), for: .touchUpInside)
     }
 
     @objc private func profilePressed() {
         performSegue(withIdentifier: "toProfile", sender: trabajadorId)
+    }
+
+    @objc private func scannerPressed() {
+        performSegue(withIdentifier: "toScanner", sender: trabajadorId)
+    }
+
+    @objc private func historyPressed() {
+        performSegue(withIdentifier: "toHistory", sender: trabajadorId)
     }
 
     @IBAction func logoutPressed(_ sender: UIButton) {
@@ -48,10 +58,17 @@ class DashboardViewController: UIViewController {
     }
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        let id = sender as? Int
+        
         if segue.identifier == "toProfile",
-           let profileVC = segue.destination as? ProfileViewController,
-           let id = sender as? Int {
+           let profileVC = segue.destination as? ProfileViewController {
             profileVC.trabajadorId = id
+        } else if segue.identifier == "toScanner",
+                  let scannerVC = segue.destination as? ScannerViewController {
+            scannerVC.usuarioId = id
+        } else if segue.identifier == "toHistory",
+                  let historyVC = segue.destination as? HistoryViewController {
+            historyVC.usuarioId = id
         }
     }
 }

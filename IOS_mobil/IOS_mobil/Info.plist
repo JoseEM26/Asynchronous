@@ -26,5 +26,7 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>Necesitamos acceso a la cámara para escanear el código QR de asistencia y registrar tu entrada/salida.</string>
 </dict>
 </plist>

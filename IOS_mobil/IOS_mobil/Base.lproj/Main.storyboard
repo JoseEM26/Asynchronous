@@ -160,6 +160,8 @@
                         <outlet property="profileButton" destination="profileButton" id="out-dab-4"/>
                         <outlet property="scannerButton" destination="scannerButton" id="out-dab-5"/>
                         <segue destination="PRO-1" kind="show" identifier="toProfile" id="seg-dab-pro"/>
+                        <segue destination="SCA-1" kind="show" identifier="toScanner" id="seg-dab-sca"/>
+                        <segue destination="HIS-1" kind="show" identifier="toHistory" id="seg-dab-his"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ph-dab" sceneMemberID="firstResponder"/>
@@ -181,7 +183,7 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="12" translatesAutoresizingMaskIntoConstraints="NO" id="infoStack">
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" spacing="12" translatesAutoresizingMaskIntoConstraints="NO" id="infoStack">
                                 <rect key="frame" x="24" y="195" width="345" height="200"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="DNI: -" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dniLabel">
@@ -235,6 +237,38 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ph-pro" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1600" y="0.0"/>
+        </scene>
+        <!--Scanner View Controller-->
+        <scene sceneID="sc-sca">
+            <objects>
+                <viewController id="SCA-1" customClass="ScannerViewController" customModule="IOS_mobil" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="view-sca">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <viewLayoutGuide key="safeArea" id="safe-sca"/>
+                    </view>
+                    <navigationItem key="navigationItem" title="Escáner" id="ni-sca"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="ph-sca" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2400" y="0.0"/>
+        </scene>
+        <!--History View Controller-->
+        <scene sceneID="sc-his">
+            <objects>
+                <viewController id="HIS-1" customClass="HistoryViewController" customModule="IOS_mobil" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="view-his">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <viewLayoutGuide key="safeArea" id="safe-his"/>
+                    </view>
+                    <navigationItem key="navigationItem" title="Historial" id="ni-his"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="ph-his" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="3200" y="0.0"/>
         </scene>
     </scenes>
     <resources>

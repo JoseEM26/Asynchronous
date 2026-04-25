@@ -8,7 +8,7 @@ class ProfileViewController: UIViewController {
     @IBOutlet weak var emailLabel: UILabel!
     @IBOutlet weak var statusLabel: UILabel!
 
-    var trabajadorId: Int?
+    var trabajadorId: Int? // Este ahora recibirá el ID de Usuario para mayor compatibilidad
     
     private let activityIndicator: UIActivityIndicatorView = {
         let ai = UIActivityIndicatorView(style: .large)
@@ -25,10 +25,13 @@ class ProfileViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
-        loadProfileData()
         
         // Estilo ViajesApp
         view.backgroundColor = UIColor(red: 0.91, green: 0.95, blue: 0.98, alpha: 1.0)
+        
+        DispatchQueue.main.async {
+            self.loadProfileData()
+        }
     }
 
     private func setupUI() {
@@ -38,17 +41,18 @@ class ProfileViewController: UIViewController {
 
     private func loadProfileData() {
         guard let id = trabajadorId else { 
-            showErrorAlert(message: "ID de trabajador no encontrado")
+            showErrorAlert(message: "ID de usuario no encontrado")
             return 
         }
         
         activityIndicator.startAnimating()
-        NetworkManager.shared.getTrabajador(id: id) { [weak self] result in
+        // Usamos getUsuario en lugar de getTrabajador para mayor compatibilidad
+        NetworkManager.shared.getUsuario(id: id) { [weak self] result in
             DispatchQueue.main.async {
                 self?.activityIndicator.stopAnimating()
                 switch result {
-                case .success(let trabajador):
-                    self?.updateUI(with: trabajador)
+                case .success(let usuario):
+                    self?.updateUI(with: usuario)
                 case .failure(let error):
                     let message: String
                     switch error {
@@ -63,27 +67,48 @@ class ProfileViewController: UIViewController {
         }
     }
 
-    private func updateUI(with t: TrabajadorResponse) {
-        let nombre = t.nombres ?? "Nombre"
-        let apellido = t.apellidos ?? "Desconocido"
-        nameLabel.text = "\(nombre) \(apellido)"
-        roleLabel.text = "Rol: \(t.rolNombre ?? "Trabajador")"
-        dniLabel.text = "DNI: \(t.dni ?? "No registrado")"
-        emailLabel.text = "Email: \(t.email ?? "No registrado")"
+    private func updateUI(with u: UsuarioResponse) {
+        // Extraer datos, ya sea del trabajador o del usuario directamente
+        let username = u.username
+        let rol = u.rol?.nombre ?? "Usuario"
         
-        let isActive = t.activo ?? false
-        statusLabel.text = "Estado: \(isActive ? "ACTIVO" : "INACTIVO")"
-        statusLabel.textColor = isActive ? .systemGreen : .systemRed
+        if let t = u.trabajador {
+            let nombre = t.nombres ?? ""
+            let apellido = t.apellidos ?? ""
+            nameLabel.text = "\(nombre) \(apellido)"
+            dniLabel.text = "DNI: \(t.dni ?? "No registrado")"
+            emailLabel.text = "Email: \(t.email ?? "No registrado")"
+            statusLabel.text = "Estado: \(t.activo == true ? "ACTIVO" : "INACTIVO")"
+            statusLabel.textColor = t.activo == true ? .systemGreen : .systemRed
+        } else {
+            // Caso para administradores sin registro de trabajador
+            nameLabel.text = username.capitalized
+            dniLabel.text = "ID: \(u.id)"
+            emailLabel.text = "Email: Sistema"
+            statusLabel.text = "Estado: ADMINISTRADOR"
+            statusLabel.textColor = .systemBlue
+        }
+        
+        roleLabel.text = "Rol: \(rol)"
     }
 
     private func showErrorAlert(message: String) {
+        DispatchQueue.main.async {
+            if self.view.window == nil {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    self.presentAlert(message: message)
+                }
+            } else {
+                self.presentAlert(message: message)
+            }
+        }
+    }
+    
+    private func presentAlert(message: String) {
         let alert = UIAlertController(title: "Error al Cargar Perfil", message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { [weak self] _ in
-            // Use a slight delay to avoid "Unbalanced call" if another transition is happening
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                self?.navigationController?.popViewController(animated: true)
-            }
+            self?.navigationController?.popViewController(animated: true)
         }))
-        present(alert, animated: true)
+        self.present(alert, animated: true)
     }
 }
