@@ -38,6 +38,7 @@ export class AuthService {
 
   logout() {
     localStorage.removeItem('asistencia_user');
+    sessionStorage.removeItem('comunicados_mostrados');
     this.currentUserSubject.next(null);
     this.router.navigate(['/login']);
   }

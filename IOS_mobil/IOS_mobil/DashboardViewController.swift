@@ -11,6 +11,9 @@ class DashboardViewController: UIViewController {
     var trabajadorId: Int?
     var userRole: String?
     
+    private var comunicados: [ComunicadoResponse] = []
+    private static var comunicadosMostrados = false
+    
     private let adminButton: UIButton = {
         let b = UIButton(type: .system)
         b.translatesAutoresizingMaskIntoConstraints = false
@@ -21,14 +24,57 @@ class DashboardViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(true, animated: false)
+        if !DashboardViewController.comunicadosMostrados {
+            fetchComunicados()
+        }
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
-        setupAdminButton() // Primero creamos el botón
-        configurePermissionsByRole() // Luego aplicamos los permisos del rol
+        setupAdminButton()
+        configurePermissionsByRole()
         setupActions()
+    }
+    
+    private func fetchComunicados() {
+        NetworkManager.shared.getComunicadosActivos { [weak self] (result: Result<[ComunicadoResponse], NetworkError>) in
+            switch result {
+            case .success(let data):
+                self?.comunicados = data
+                if !data.isEmpty {
+                    DashboardViewController.comunicadosMostrados = true
+                    self?.mostrarModalComunicados(data)
+                }
+            case .failure(let error):
+                print("Error cargando comunicados: \(error)")
+            }
+        }
+    }
+    
+    private func mostrarModalComunicados(_ lista: [ComunicadoResponse]) {
+        let alert = UIAlertController(title: "📢 Avisos Importantes", 
+                                      message: nil, 
+                                      preferredStyle: .alert)
+        
+        // Crear el mensaje concatenando todos los comunicados
+        var mensajeCompleto = ""
+        for (index, c) in lista.enumerated() {
+            let titulo = c.titulo ?? "Aviso"
+            let contenido = c.contenido ?? ""
+            mensajeCompleto += "• \(titulo.uppercased()):\n\(contenido)"
+            
+            if index < lista.count - 1 {
+                mensajeCompleto += "\n\n" // Espacio entre avisos
+            }
+        }
+        
+        alert.message = mensajeCompleto
+        
+        let action = UIAlertAction(title: "Entendido", style: .default, handler: nil)
+        alert.addAction(action)
+        
+        present(alert, animated: true)
     }
     
     private func setupUI() {
@@ -65,11 +111,16 @@ class DashboardViewController: UIViewController {
         for (button, title, accentColor) in cardData {
             guard let btn = button else { continue }
             btn.backgroundColor = cardBg
+            
+            // Configuración moderna para padding y texto
+            var config = UIButton.Configuration.plain()
+            config.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 24, bottom: 0, trailing: 24)
+            btn.configuration = config
+            
             btn.setTitle(title, for: .normal)
             btn.setTitleColor(cardText, for: .normal)
             btn.titleLabel?.font = .systemFont(ofSize: 20, weight: .semibold)
             btn.contentHorizontalAlignment = .left
-            btn.contentEdgeInsets = UIEdgeInsets(top: 0, left: 24, bottom: 0, right: 24)
             btn.layer.cornerRadius = 20
             btn.clipsToBounds = false
             
@@ -201,8 +252,27 @@ class DashboardViewController: UIViewController {
     }
 
     @IBAction func logoutPressed(_ sender: UIButton) {
-        let generator = UIImpactFeedbackGenerator(style: .light)
-        generator.impactOccurred()
-        navigationController?.popViewController(animated: true)
+        let alert = UIAlertController(title: "¿Cerrar Sesión?", 
+                                      message: "Tu sesión actual finalizará y deberás ingresar tus credenciales nuevamente.", 
+                                      preferredStyle: .actionSheet)
+        
+        let logoutAction = UIAlertAction(title: "Cerrar Sesión", style: .destructive) { _ in
+            let generator = UIImpactFeedbackGenerator(style: .medium)
+            generator.impactOccurred()
+            self.navigationController?.popViewController(animated: true)
+        }
+        
+        let cancelAction = UIAlertAction(title: "Cancelar", style: .cancel, handler: nil)
+        
+        alert.addAction(logoutAction)
+        alert.addAction(cancelAction)
+        
+        // Soporte para iPad
+        if let popoverController = alert.popoverPresentationController {
+            popoverController.sourceView = sender
+            popoverController.sourceRect = sender.bounds
+        }
+        
+        present(alert, animated: true, completion: nil)
     }
 }

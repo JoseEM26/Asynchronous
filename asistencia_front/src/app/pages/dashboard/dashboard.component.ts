@@ -2,6 +2,8 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NotificationService } from '../../services/notification.service';
 import { SupabaseService } from '../../services/supabase.service';
+import { ComunicadoService } from '../../services/comunicado.service';
+import { ComunicadoResponse } from '../../models/comunicado.interface';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -13,7 +15,7 @@ import { Subscription } from 'rxjs';
       <div class="row mb-4">
         <div class="col-12">
           <h1 class="display-4 fw-bold">Dashboard</h1>
-          <p class="text-secondary">Información en tiempo real del sistema Asynchronous.</p>
+          <p class="text-secondary">Información en tiempo real del sistema Geocheck.</p>
         </div>
       </div>
 
@@ -67,9 +69,6 @@ import { Subscription } from 'rxjs';
                     <small class="text-secondary">{{ log.creado_en | date:'short' }}</small>
                   </div>
                 </div>
-              </div>
-              <div *ngIf="logs.length === 0" class="text-center py-5 text-secondary">
-                Esperando actividad...
               </div>
             </div>
           </div>
@@ -132,16 +131,42 @@ export class DashboardComponent implements OnInit, OnDestroy {
   isLive = true;
   private sub?: Subscription;
 
-  constructor(private supabase: SupabaseService) { }
+  constructor(
+    private supabase: SupabaseService,
+    private comunicadoService: ComunicadoService,
+    private notify: NotificationService
+  ) { }
 
   async ngOnInit() {
-    // Cargar logs iniciales
     this.logs = await this.supabase.getInitialLogs();
     
-    // Suscribirse a cambios en tiempo real
+    // Solo mostrar si no se han mostrado ya en esta sesión
+    const yaMostrados = sessionStorage.getItem('comunicados_mostrados');
+    if (!yaMostrados) {
+      this.mostrarComunicados();
+      sessionStorage.setItem('comunicados_mostrados', 'true');
+    }
+
     this.sub = this.supabase.getActivityFeed().subscribe(newLog => {
       this.logs.unshift(newLog);
       if (this.logs.length > 20) this.logs.pop();
+    });
+  }
+
+  mostrarComunicados() {
+    this.comunicadoService.listarActivos().subscribe({
+      next: (data: ComunicadoResponse[]) => {
+        if (data.length > 0) {
+          const content = data.map(c => `
+            <div class="text-start mb-4 p-3 rounded bg-light border-start border-primary border-4 shadow-sm">
+               <h5 class="fw-bold text-dark mb-1">${c.titulo}</h5>
+               <p class="text-secondary small mb-0">${c.contenido}</p>
+            </div>
+          `).join('');
+
+          this.notify.showAnnouncements(content);
+        }
+      }
     });
   }
 

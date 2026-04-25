@@ -1,9 +1,9 @@
 import { Component, ViewEncapsulation } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { SidebarService } from '../../services/sidebar.service';
 import { AuthService } from '../../services/auth.service';
-import { Router } from '@angular/router';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -294,7 +294,8 @@ export class SidebarComponent {
   constructor(
     public sidebarService: SidebarService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private notify: NotificationService
   ) { }
 
   onLinkClick(): void {
@@ -303,8 +304,14 @@ export class SidebarComponent {
     }
   }
 
-  onLogout(): void {
-    if (confirm('¿Cerrar sesión?')) {
+  async onLogout() {
+    const confirm = await this.notify.confirm(
+      '¿Cerrar Sesión?',
+      '¿Estás seguro de que deseas salir del sistema?',
+      'Sí, Salir'
+    );
+    
+    if (confirm) {
       this.authService.logout();
     }
   }
