@@ -42,6 +42,7 @@ INSERT IGNORE INTO usuarios (id, username, password, rol_id, trabajador_id, acti
 (6, 'cvargas', '123456', 4, 5, 1);
 
 -- 7. Asistencias
+-- USE asistencia_db; -- Comentado para que use la base de datos de la conexión JDBC
 INSERT IGNORE INTO asistencias (id, trabajador_id, fecha_hora, tipo, modalidad_id, latitud, longitud, notas) VALUES
 (1, 1, '2024-03-01 08:00:00', 'ENTRADA', 1, -12.046374, -77.042793, 'Ingreso a tiempo oficina'),
 (2, 2, '2024-03-01 08:10:00', 'ENTRADA', 2, -12.055010, -77.035020, 'Ingreso virtual desde casa');
