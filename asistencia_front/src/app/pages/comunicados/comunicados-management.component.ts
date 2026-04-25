@@ -6,14 +6,14 @@ import { FormComunicadoComponent } from './form-comunicado.component';
 import { PaginationComponent } from '../../component/pagination.component/pagination.component';
 import { PageRequest, PaginatedResponse } from '../../models/pagination.interface';
 import { NotificationService } from '../../services/notification.service';
-import { FormsModule } from '@angular/forms';
-import { Subject } from 'rxjs';
+import { ReactiveFormsModule, FormControl } from '@angular/forms';
+import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'app-comunicados-management',
   standalone: true,
-  imports: [CommonModule, FormComunicadoComponent, PaginationComponent, FormsModule],
+  imports: [CommonModule, FormComunicadoComponent, PaginationComponent, ReactiveFormsModule],
   template: `
     <div class="container-fluid animate-fade px-4 py-4">
       <div class="row mb-5 align-items-end">
@@ -42,11 +42,17 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
               <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
               <input 
                 type="text" 
-                class="form-control ps-5 rounded-pill border-0 bg-light-subtle shadow-none" 
+                class="form-control ps-5 pe-5 rounded-pill border-0 bg-light-subtle shadow-none" 
                 placeholder="Buscar comunicado por título..."
-                [(ngModel)]="searchFilter"
-                (ngModelChange)="onSearchChange($event)"
+                [formControl]="searchControl"
               >
+              <button 
+                *ngIf="searchFilter"
+                class="btn-clear-search" 
+                (click)="limpiarFiltros()"
+                aria-label="Limpiar búsqueda">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              </button>
             </div>
           </div>
           <div class="col-lg-6 text-end">
@@ -171,6 +177,12 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
       background: white !important; border-color: var(--accent-primary) !important;
       box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1) !important;
     }
+    .btn-clear-search {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; color: var(--text-muted); cursor: pointer;
+      padding: 4px; display: flex; align-items: center; transition: 0.2s;
+    }
+    .btn-clear-search:hover { color: var(--accent-danger); }
     .icon-box-primary {
       padding: 10px; background: var(--grad-main); color: white;
       border-radius: 12px; display: flex; align-items: center; justify-content: center;
@@ -229,20 +241,24 @@ export class ComunicadosManagementComponent implements OnInit {
   totalItems = 0;
   totalPages = 0;
 
-  searchFilter = '';
-  private searchSubject = new Subject<string>();
+  searchControl = new FormControl('');
+  private searchSub?: Subscription;
 
   constructor(
     private comunicadoService: ComunicadoService,
     private notify: NotificationService
   ) {
-    this.searchSubject.pipe(
+    this.searchSub = this.searchControl.valueChanges.pipe(
       debounceTime(400),
       distinctUntilChanged()
-    ).subscribe(val => {
+    ).subscribe(() => {
       this.currentPage = 0;
       this.cargar();
     });
+  }
+
+  ngOnDestroy(): void {
+    if (this.searchSub) this.searchSub.unsubscribe();
   }
 
   ngOnInit(): void {
@@ -256,7 +272,7 @@ export class ComunicadosManagementComponent implements OnInit {
       pageSize: this.pageSize,
       sortBy: 'id',
       sortDir: 'DESC',
-      filters: this.searchFilter ? { q: this.searchFilter } : {}
+      filters: this.searchControl.value ? { q: this.searchControl.value } : {}
     };
 
     this.comunicadoService.listarPaginado(request).subscribe({
@@ -273,9 +289,7 @@ export class ComunicadosManagementComponent implements OnInit {
     });
   }
 
-  onSearchChange(val: string) {
-    this.searchSubject.next(val);
-  }
+  // onSearchChange removed, using valueChanges subscription
 
   onNuevo() {
     this.selectedItem = null;
@@ -292,16 +306,29 @@ export class ComunicadosManagementComponent implements OnInit {
     this.selectedItem = null;
   }
 
-  onSave(req: ComunicadoRequest) {
+  onSave(formValue: ComunicadoRequest) {
     this.isLoading = true;
+    
+    // Copy the request to transform fields
+    const req = { ...formValue };
+
+    // Fix: Backend expects LocalDateTime (ISO format with time). 
+    // If empty string, set to null to avoid parsing errors.
+    if (req.fechaExpiracion && req.fechaExpiracion.trim() !== '') {
+      req.fechaExpiracion = `${req.fechaExpiracion}T23:59:59`;
+    } else {
+      delete req.fechaExpiracion;
+    }
+
     const observer = {
       next: () => {
         this.notify.success(this.selectedItem ? 'Comunicado actualizado' : 'Comunicado publicado');
         this.onCloseForm();
         this.cargar();
       },
-      error: () => {
-        this.notify.error('Error al guardar comunicado');
+      error: (err: any) => {
+        console.error('Error saving announcement:', err);
+        this.notify.error('Error al guardar comunicado. Verifique los datos.');
         this.isLoading = false;
       }
     };
@@ -371,7 +398,7 @@ export class ComunicadosManagementComponent implements OnInit {
   }
 
   limpiarFiltros() {
-    this.searchFilter = '';
+    this.searchControl.setValue('', { emitEvent: true });
     this.currentPage = 0;
     this.cargar();
   }

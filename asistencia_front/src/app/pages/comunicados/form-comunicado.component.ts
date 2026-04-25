@@ -87,27 +87,45 @@ import { ComunicadoRequest, ComunicadoResponse } from '../../models/comunicado.i
     </div>
   `,
   styles: [`
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(8px); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px;
+    }
+    .modal-panel {
+      width: 100%; max-width: 600px; background: white; border-radius: 24px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); overflow: hidden; display: flex; flex-direction: column;
+    }
+    .modal-header-base { padding: 24px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; }
+    .modal-body-base { padding: 24px; overflow-y: auto; max-height: 70vh; }
+    .modal-footer-base { padding: 20px 24px; border-top: 1px solid #f1f5f9; display: flex; justify-content: flex-end; gap: 12px; background: #fcfcfd; }
+    
     .header-icon-box {
       width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white;
     }
-    .bg-edit { background: var(--accent-primary); }
+    .bg-edit { background: var(--text-main); }
     .bg-new { background: #10b981; }
 
-    .btn-close-modal { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 5px; border-radius: 6px; transition: var(--transition-fast); display: flex; }
-    .btn-close-modal:hover { background: var(--bg-deep); color: var(--accent-danger); }
-    .btn { padding: 0.6rem 1.25rem; border-radius: var(--border-radius-sm); font-weight: 600; font-size: 0.875rem; transition: var(--transition-fast); border: none; }
-    .btn-light { background: #e2e8f0; color: #475569; }
-    .btn-light:hover { background: #cbd5e1; }
+    .btn-close-modal { background: none; border: none; color: #94a3b8; cursor: pointer; padding: 5px; border-radius: 6px; transition: 0.2s; display: flex; }
+    .btn-close-modal:hover { background: #f1f5f9; color: #ef4444; }
+    .btn { padding: 0.75rem 1.5rem; border-radius: 10px; font-weight: 700; font-size: 0.85rem; transition: 0.2s; border: none; }
+    .btn-light { background: #f1f5f9; color: #475569; }
+    .btn-light:hover { background: #e2e8f0; }
     
     .form-section { position: relative; }
     .section-title { 
-      font-size: 0.85rem; font-weight: 800; color: var(--accent-primary); text-transform: uppercase; 
-      letter-spacing: 0.5px; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; margin-bottom: 16px;
+      font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase; 
+      letter-spacing: 0.5px; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; margin-bottom: 16px;
       display: flex; align-items: center; gap: 8px;
     }
 
+    .form-label-base { display: block; font-size: 0.8rem; font-weight: 700; color: #334155; margin-bottom: 6px; }
+    .form-input-base { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #e2e8f0; background: #f8fafc; font-size: 0.9rem; transition: 0.2s; }
+    .form-input-base:focus { border-color: var(--text-main); background: white; outline: none; }
+    .form-input-base.is-invalid { border-color: #ef4444; background: #fef2f2; }
+
     .form-error-base { color: #ef4444; font-size: 0.75rem; margin-top: 4px; font-weight: 500; }
-    .custom-scrollbar { max-height: 70vh; overflow-y: auto; padding-right: 8px; }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
   `]
 })
 export class FormComunicadoComponent implements OnInit {

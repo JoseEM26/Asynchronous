@@ -30,101 +30,109 @@ interface WorkerLocation {
   imports: [CommonModule, NgxApexchartsModule],
   template: `
     <div class="container-fluid animate-in">
-      <header class="mb-5">
-        <div class="d-flex align-items-center gap-2 mb-1">
-          <span class="text-label">{{ roleName }}</span>
-          <span class="text-muted">•</span>
-          <span class="text-muted small">{{ userName }}</span>
+      <header class="mb-5 d-flex justify-content-between align-items-end">
+        <div>
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="text-label">{{ roleName }}</span>
+            <span class="text-muted">•</span>
+            <span class="text-muted small">{{ userName }}</span>
+          </div>
+          <h1 class="text-h1">Panel Administrativo</h1>
         </div>
-        <h1 class="text-h1">Panel Administrativo</h1>
+        <div class="d-flex gap-2">
+           <div class="m-badge m-badge-success">SISTEMA ONLINE</div>
+           <div class="m-badge m-badge-info">{{ workers.length }} TRABAJADORES</div>
+        </div>
       </header>
 
       <!-- Live Tracking Map Section -->
       <div class="row mb-5">
         <div class="col-12">
-          <div class="minimal-card p-0 overflow-hidden position-relative" style="height: 600px;">
+          <div class="minimal-card p-0 overflow-hidden position-relative" style="height: 650px; border-radius: 20px;">
             <div id="admin-map" class="h-100 w-100"></div>
             
             <!-- Map Overlay: Worker Filter & Route Info -->
             <div class="map-overlay-panel animate-in" *ngIf="showFilter">
               <div class="p-3 border-bottom d-flex justify-content-between align-items-center bg-white sticky-top">
-                <span class="text-label">{{ selectedWorkerId ? 'Hoja de Ruta' : 'Rastreo en Vivo' }}</span>
+                <span class="text-label-bold">{{ selectedWorkerId ? 'Hoja de Ruta' : 'Personal en Línea' }}</span>
                 <button class="btn-close-sm" (click)="showFilter = false">×</button>
               </div>
               
               <div class="p-3">
                 <ng-container *ngIf="!selectedWorkerId; else workerDetails">
-                  <input type="text" class="form-control-minimal mb-3" placeholder="Buscar trabajador..." (input)="filterWorkers($event)">
+                  <div class="search-box mb-3">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="search-icon"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    <input type="text" class="form-control-minimal" placeholder="Buscar por nombre..." (input)="filterWorkers($event)">
+                  </div>
+                  
                   <div class="worker-list custom-scroll">
                     <div *ngFor="let worker of filteredWorkers" 
-                         class="worker-item" 
+                         class="worker-card-mini animate-in" 
                          (click)="focusWorker(worker)">
-                      <div class="d-flex justify-content-between align-items-center">
-                        <span class="fw-bold small">{{ worker.name }}</span>
-                        <span class="m-badge" [class]="getBadgeClass(worker.status)">{{ worker.status }}</span>
+                      <div class="worker-avatar-mini">{{ worker.name[0] }}</div>
+                      <div class="flex-grow-1">
+                        <div class="d-flex justify-content-between align-items-start">
+                          <span class="fw-bold small-title">{{ worker.name }}</span>
+                          <div class="status-indicator" [class]="worker.status.toLowerCase()"></div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-1">
+                          <span class="text-muted extra-small">{{ worker.role }}</span>
+                          <span class="text-primary extra-small fw-bold">{{ worker.lastScan }}</span>
+                        </div>
                       </div>
-                      <span class="text-muted extra-small">Última: {{ worker.lastScan }} • {{ worker.role }}</span>
                     </div>
                   </div>
                 </ng-container>
 
                 <ng-template #workerDetails>
                   <div class="selected-worker-info animate-in" *ngIf="getSelectedWorker() as sw">
-                    <div class="d-flex align-items-center gap-3 mb-4 p-2 bg-light rounded-3">
-                       <div class="avatar-sm shadow-sm">{{ sw.name[0] }}</div>
+                    <div class="d-flex align-items-center gap-3 mb-4 p-3 bg-dark text-white rounded-4 shadow-sm">
+                       <div class="avatar-sm-circle">{{ sw.name[0] }}</div>
                        <div>
-                         <p class="mb-0 fw-bold">{{ sw.name }}</p>
-                         <span class="m-badge m-badge-info" style="font-size: 0.6rem;">{{ sw.role }}</span>
+                         <p class="mb-0 fw-bold fs-6">{{ sw.name }}</p>
+                         <span class="text-white-50 extra-small">{{ sw.role }}</span>
                        </div>
                     </div>
 
                     <!-- Enhanced Start/End Cards -->
                     <div class="row g-2 mb-4">
                        <div class="col-6">
-                          <div class="summary-card start">
-                             <div class="card-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg></div>
-                             <span class="text-label-xs">Inicio</span>
-                             <p class="mb-0 small-time">{{ sw.history[0].time }}</p>
+                          <div class="summary-card-v2 start">
+                             <span class="text-label-xs">Primer Escaneo</span>
+                             <p class="mb-0 small-time-v2">{{ sw.history[0].time }}</p>
                              <span class="text-muted truncate-text">{{ sw.history[0].location }}</span>
                           </div>
                        </div>
                        <div class="col-6">
-                          <div class="summary-card end">
-                             <div class="card-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg></div>
-                             <span class="text-label-xs">Actual</span>
-                             <p class="mb-0 small-time">{{ sw.lastScan }}</p>
+                          <div class="summary-card-v2 end">
+                             <span class="text-label-xs">Último Punto</span>
+                             <p class="mb-0 small-time-v2">{{ sw.lastScan }}</p>
                              <span class="text-muted truncate-text">{{ sw.history[sw.history.length-1].location }}</span>
                           </div>
                        </div>
                     </div>
 
-                    <div class="route-metadata mb-4 px-2">
-                       <div class="d-flex justify-content-between mb-1">
-                          <span class="text-muted small">Puntos registrados</span>
-                          <span class="fw-bold small">{{ sw.history.length }}</span>
-                       </div>
-                       <div class="d-flex justify-content-between">
-                          <span class="text-muted small">Estado actual</span>
-                          <span class="m-badge m-badge-success">Activo</span>
-                       </div>
+                    <div class="timeline-header d-flex justify-content-between align-items-center mb-3 px-1">
+                       <span class="text-label-bold">Bitácora del Día</span>
+                       <span class="m-badge m-badge-info" style="font-size: 0.6rem;">{{ sw.history.length }} Puntos</span>
                     </div>
 
-                    <span class="text-label mb-2 d-block px-2">Línea de Tiempo</span>
-                    <div class="history-timeline custom-scroll px-2">
-                       <div *ngFor="let p of sw.history; let first = first; let last = last" class="timeline-step" [class.last]="last">
-                          <div class="timeline-marker" [class.is-start]="first" [class.is-end]="last"></div>
-                          <div class="timeline-content">
-                             <div class="d-flex justify-content-between">
-                                <span class="fw-bold extra-small">{{ p.time }}</span>
-                                <span class="text-muted extra-small">{{ p.type }}</span>
+                    <div class="history-timeline-v2 custom-scroll px-1">
+                       <div *ngFor="let p of sw.history; let first = first; let last = last" class="timeline-step-v2" [class.last]="last">
+                          <div class="timeline-marker-v2" [class.is-start]="first" [class.is-end]="last"></div>
+                          <div class="timeline-content-v2">
+                             <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="fw-bold extra-small text-dark">{{ p.time }}</span>
+                                <span class="badge-type" [class]="p.type.toLowerCase()">{{ p.type }}</span>
                              </div>
-                             <p class="mb-0 small text-secondary">{{ p.location }}</p>
+                             <p class="mb-0 small text-muted lh-sm">{{ p.location }}</p>
                           </div>
                        </div>
                     </div>
 
-                    <button class="btn-minimal-outline w-100 mt-4" (click)="resetMap()">
-                      ← Volver al listado
+                    <button class="btn-back-list w-100 mt-4" (click)="resetMap()">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="me-2"><path d="m15 18-6-6 6-6"/></svg>
+                      Volver al listado
                     </button>
                   </div>
                 </ng-template>
@@ -132,8 +140,9 @@ interface WorkerLocation {
             </div>
 
             <!-- Toggle Filter Button -->
-            <button class="btn-map-toggle shadow-minimal" *ngIf="!showFilter" (click)="showFilter = true">
-               🔍 {{ selectedWorkerId ? 'Ver Hoja de Ruta' : 'Filtrar Personal' }}
+            <button class="btn-map-toggle-v2 shadow-sm" *ngIf="!showFilter" (click)="showFilter = true">
+               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+               {{ selectedWorkerId ? 'Ver Detalles' : 'Filtrar Personal' }}
             </button>
           </div>
         </div>
@@ -151,7 +160,7 @@ interface WorkerLocation {
         </div>
       </div>
 
-      <div class="row g-4 mb-5">
+      <div class="row g-4">
         <div class="col-lg-8">
           <div class="minimal-card h-100">
             <h3 class="text-h3 mb-4">Asistencia Semanal</h3>
@@ -182,35 +191,61 @@ interface WorkerLocation {
     </div>
   `,
   styles: [`
-    .extra-small { font-size: 0.7rem; }
-    .truncate-text { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.6rem; }
+    .extra-small { font-size: 0.65rem; }
+    .small-title { font-size: 0.85rem; letter-spacing: -0.2px; }
+    .truncate-text { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.6rem; opacity: 0.7; }
+    .text-label-bold { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-main); }
     
-    /* Map Overlay Styles */
+    /* Map Overlay Redesign */
     .map-overlay-panel {
-      position: absolute; top: 20px; right: 20px; width: 340px; z-index: 1000;
-      background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(10px);
-      border-radius: 16px; border: 1px solid var(--border-light); box-shadow: 0 20px 40px rgba(0,0,0,0.12);
-      max-height: 560px; display: flex; flex-direction: column;
+      position: absolute; top: 20px; right: 20px; width: 350px; z-index: 1000;
+      background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(12px);
+      border-radius: 20px; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15);
+      max-height: 610px; display: flex; flex-direction: column;
     }
-    .worker-list, .history-timeline { max-height: 280px; overflow-y: auto; }
     
-    .summary-card { padding: 12px; border-radius: 12px; border: 1px solid var(--border-light); position: relative; }
-    .summary-card.start { background: #f0fdf4; border-color: #dcfce7; }
-    .summary-card.end { background: #fef2f2; border-color: #fee2e2; }
-    .card-icon { position: absolute; top: 10px; right: 10px; opacity: 0.5; }
-    .text-label-xs { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.6; color: inherit; }
-    .small-time { font-size: 1.1rem; font-weight: 800; color: var(--text-main); }
+    .search-box { position: relative; }
+    .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; }
+    .form-control-minimal { width: 100%; padding: 10px 10px 10px 38px; border-radius: 12px; border: 1.5px solid #f1f5f9; background: #f8fafc; font-size: 0.85rem; outline: none; transition: 0.2s; }
+    .form-control-minimal:focus { border-color: var(--text-main); background: white; }
 
-    .timeline-step { display: flex; gap: 15px; padding-bottom: 20px; position: relative; }
-    .timeline-step:not(.last)::before { content: ''; position: absolute; left: 6px; top: 15px; bottom: 0; width: 2px; background: #f1f5f9; }
-    .timeline-marker { width: 14px; height: 14px; border-radius: 50%; background: #e2e8f0; border: 3px solid white; flex-shrink: 0; z-index: 1; }
-    .timeline-marker.is-start { background: #10b981; }
-    .timeline-marker.is-end { background: #ef4444; box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2); }
-    .timeline-content { flex-grow: 1; }
+    .worker-list { max-height: 400px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+    .worker-card-mini { 
+      display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 14px; 
+      background: white; border: 1.5px solid #f1f5f9; cursor: pointer; transition: 0.2s;
+    }
+    .worker-card-mini:hover { border-color: var(--text-main); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .worker-avatar-mini { width: 38px; height: 38px; background: #f1f5f9; color: var(--text-main); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 800; }
+    
+    .status-indicator { width: 8px; height: 8px; border-radius: 50%; }
+    .status-indicator.puntual { background: #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,0.1); }
+    .status-indicator.tardanza { background: #f59e0b; }
 
-    .avatar-sm { width: 44px; height: 44px; background: var(--text-main); color: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.2rem; }
-    .btn-minimal-outline { background: #fff; border: 1px solid var(--border-light); padding: 12px; border-radius: 10px; font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: 0.2s; }
-    .btn-minimal-outline:hover { background: #f8fafc; border-color: var(--text-main); }
+    .summary-card-v2 { padding: 14px; border-radius: 16px; border: 1px solid transparent; }
+    .summary-card-v2.start { background: #f0fdf4; border-color: #dcfce7; color: #166534; }
+    .summary-card-v2.end { background: #fef2f2; border-color: #fee2e2; color: #991b1b; }
+    .small-time-v2 { font-size: 1.25rem; font-weight: 900; letter-spacing: -0.5px; }
+
+    .history-timeline-v2 { max-height: 240px; overflow-y: auto; }
+    .timeline-step-v2 { display: flex; gap: 16px; padding-bottom: 24px; position: relative; }
+    .timeline-step-v2:not(.last)::before { content: ''; position: absolute; left: 7px; top: 18px; bottom: 0; width: 2px; background: #f1f5f9; }
+    .timeline-marker-v2 { width: 16px; height: 16px; border-radius: 50%; background: #e2e8f0; border: 3px solid white; flex-shrink: 0; z-index: 1; }
+    .timeline-marker-v2.is-start { background: #10b981; }
+    .timeline-marker-v2.is-end { background: #ef4444; }
+    
+    .badge-type { font-size: 0.55rem; padding: 2px 6px; border-radius: 4px; font-weight: 800; text-transform: uppercase; }
+    .badge-type.entrada { background: #dcfce7; color: #166534; }
+    .badge-type.visita { background: #f1f5f9; color: #475569; }
+
+    .avatar-sm-circle { width: 44px; height: 44px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; border: 1px solid rgba(255,255,255,0.3); }
+    .btn-back-list { background: var(--text-main); color: white; border: none; padding: 14px; border-radius: 14px; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
+    .btn-back-list:hover { opacity: 0.9; transform: translateY(-2px); }
+
+    .btn-map-toggle-v2 {
+      position: absolute; top: 20px; right: 20px; z-index: 1000;
+      background: white; border: 1px solid #f1f5f9; padding: 12px 24px;
+      border-radius: 14px; font-weight: 700; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    }
   `]
 })
 export class AdminViewComponent implements OnInit, OnDestroy, AfterViewInit {
@@ -223,7 +258,6 @@ export class AdminViewComponent implements OnInit, OnDestroy, AfterViewInit {
   private sub?: Subscription;
   private map?: L.Map;
   private markers: Map<number, L.Marker[]> = new Map();
-  private polylines: Map<number, L.Polyline> = new Map();
 
   workers: WorkerLocation[] = [
     { 
@@ -236,14 +270,28 @@ export class AdminViewComponent implements OnInit, OnDestroy, AfterViewInit {
     },
     { 
       id: 2, name: 'Maria Lopez', role: 'Terreno', lat: -12.0550, lng: -77.0350, lastScan: '08:45', status: 'Tardanza',
+      history: [{ lat: -12.0550, lng: -77.0350, time: '08:45', location: 'Centro Distribución Sur', type: 'Entrada' }]
+    },
+    { 
+      id: 3, name: 'Carlos Ruiz', role: 'Seguridad', lat: -12.0620, lng: -77.0310, lastScan: '16:10', status: 'Puntual',
       history: [
-        { lat: -12.0550, lng: -77.0350, time: '08:45', location: 'Centro Distribución Sur', type: 'Entrada' }
+        { lat: -12.0620, lng: -77.0310, time: '07:30', location: 'Puerta Principal', type: 'Entrada' },
+        { lat: -12.0650, lng: -77.0350, time: '12:00', location: 'Ronda Perimetral', type: 'Visita' }
       ]
+    },
+    { 
+      id: 4, name: 'Ana Gomez', role: 'Supervisor', lat: -12.0400, lng: -77.0500, lastScan: '15:30', status: 'Puntual',
+      history: [{ lat: -12.0400, lng: -77.0500, time: '08:15', location: 'Oficinas Administrativas', type: 'Entrada' }]
     }
   ];
   filteredWorkers: WorkerLocation[] = [...this.workers];
 
-  quickStats = [{ label: 'Usuarios', value: '1,240', trend: '+12%' }, { label: 'Asistencia Hoy', value: '86%', trend: '+4%' }, { label: 'Sedes', value: '12', trend: null }, { label: 'Alertas', value: '0', trend: null }];
+  quickStats = [
+    { label: 'Colaboradores', value: '482', trend: '+5' },
+    { label: 'Escaneos Hoy', value: '724', trend: '+12%' },
+    { label: 'Asistencia', value: '94%', trend: '+2%' },
+    { label: 'Sedes Activas', value: '6', trend: null }
+  ];
 
   public attendanceChart: any = {
     series: [{ name: 'Asistencia', data: [85, 92, 88, 95, 90, 87, 91] }],
@@ -308,18 +356,12 @@ export class AdminViewComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private clearMapLayers() {
     this.markers.forEach(ms => ms.forEach(m => this.map?.removeLayer(m)));
-    this.polylines.forEach(p => this.map?.removeLayer(p));
     this.markers.clear();
-    this.polylines.clear();
   }
 
   focusWorker(worker: WorkerLocation) {
     this.selectedWorkerId = worker.id;
     this.clearMapLayers();
-
-    const points = worker.history.map(p => L.latLng(p.lat, p.lng));
-    const polyline = L.polyline(points, { color: '#0f172a', weight: 4, dashArray: '8, 12', opacity: 0.5 }).addTo(this.map!);
-    this.polylines.set(worker.id, polyline);
 
     const workerMarkers: L.Marker[] = [];
     worker.history.forEach((p, index) => {
@@ -341,7 +383,10 @@ export class AdminViewComponent implements OnInit, OnDestroy, AfterViewInit {
     });
 
     this.markers.set(worker.id, workerMarkers);
-    this.map?.flyToBounds(polyline.getBounds(), { padding: [80, 80], duration: 1.5 });
+    
+    // Auto zoom to fit all markers of the worker
+    const group = L.featureGroup(workerMarkers);
+    this.map?.flyToBounds(group.getBounds(), { padding: [100, 100], duration: 1.5 });
   }
 
   resetMap() {
@@ -352,6 +397,5 @@ export class AdminViewComponent implements OnInit, OnDestroy, AfterViewInit {
 
   getSelectedWorker() { return this.workers.find(w => w.id === this.selectedWorkerId); }
   filterWorkers(event: any) { this.filteredWorkers = this.workers.filter(w => w.name.toLowerCase().includes(event.target.value.toLowerCase())); }
-  getBadgeClass(s: string) { return s === 'Puntual' ? 'm-badge-success' : s === 'Tardanza' ? 'm-badge-warning' : 'm-badge-danger'; }
   ngOnDestroy() { this.sub?.unsubscribe(); this.map?.remove(); }
 }

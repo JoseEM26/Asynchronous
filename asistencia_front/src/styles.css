@@ -149,3 +149,37 @@ body {
   0% { transform: scale(0.8); opacity: 0.8; }
   100% { transform: scale(2.4); opacity: 0; }
 }
+
+/* Button Utilities */
+.btn-primary-grad {
+  background: var(--text-main);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-primary-grad:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.btn-primary-grad:disabled {
+  background: #cbd5e1;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+}
