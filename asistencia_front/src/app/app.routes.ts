@@ -12,6 +12,7 @@ import { AuthGuard } from './services/auth.guard';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
+  { path: 'asistencia-qr', loadComponent: () => import('./pages/public-qr/public-qr.component').then(m => m.PublicQrComponent) },
   {
     path: '',
     component: AsynchronousLayoutComponent,
