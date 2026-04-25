@@ -18,6 +18,7 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
     // Propiedades para asistencia virtual/híbrida
     private var trabajadorData: TrabajadorResponse?
     private let activityIndicator = UIActivityIndicatorView(style: .large)
+    private var tipoAsistenciaSeleccionado: String = "AUTOMATICO"
     
     private let locationManager = CLLocationManager()
     private var isRequestingLocationForHomeSetup = false
@@ -116,6 +117,8 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
         
         activityIndicator.center = view.center
         activityIndicator.hidesWhenStopped = true
+        activityIndicator.color = .systemIndigo
+        activityIndicator.transform = CGAffineTransform(scaleX: 1.5, y: 1.5)
         view.addSubview(activityIndicator)
         
         // Greeting label
@@ -268,7 +271,7 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
                     self?.trabajadorData = data.trabajador
                     
                     // Saludo personalizado con nombre
-                    let nombre = data.trabajador?.nombres.split(separator: " ").first.map(String.init) ?? "Usuario"
+                    let nombre = data.trabajador?.nombres?.split(separator: " ").first.map(String.init) ?? "Usuario"
                     self?.greetingLabel.text = "¡Hola, \(nombre)! 👋"
                     
                     self?.updateAttendanceButtonsVisibility()
@@ -307,7 +310,7 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
         if !isPresencialDay && !isRemotoDay {
             self.scannerButton.isHidden = true
             self.virtualAttendanceButton.isHidden = true
-            let nombre = t.nombres.split(separator: " ").first.map(String.init) ?? ""
+            let nombre = t.nombres?.split(separator: " ").first.map(String.init) ?? ""
             self.greetingLabel.text = "¡Hola, \(nombre)! Hoy es tu día de descanso."
         } else if isRemotoDay && !isPresencialDay {
             // Es SOLO día remoto: ocultar escáner, mostrar virtual
@@ -371,8 +374,34 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
         if canSetLocation {
             confirmarYGuardarUbicacion()
         } else {
-            realizarMarcadoVirtual()
+            // Mostrar selector de Entrada/Salida antes de marcar
+            let alert = UIAlertController(title: "🏠 Asistencia Virtual", 
+                                          message: "¿Qué acción deseas realizar hoy?", 
+                                          preferredStyle: .actionSheet)
+            
+            alert.addAction(UIAlertAction(title: "Marcar ENTRADA", style: .default) { _ in
+                self.iniciarProcesoDeMarcado(tipo: "ENTRADA")
+            })
+            
+            alert.addAction(UIAlertAction(title: "Marcar SALIDA", style: .default) { _ in
+                self.iniciarProcesoDeMarcado(tipo: "SALIDA")
+            })
+            
+            alert.addAction(UIAlertAction(title: "Cancelar", style: .cancel))
+            
+            // Soporte para iPad
+            if let popover = alert.popoverPresentationController {
+                popover.sourceView = virtualAttendanceButton
+                popover.sourceRect = virtualAttendanceButton.bounds
+            }
+            
+            present(alert, animated: true)
         }
+    }
+    
+    private func iniciarProcesoDeMarcado(tipo: String) {
+        self.tipoAsistenciaSeleccionado = tipo
+        self.realizarMarcadoVirtual()
     }
 
     private func confirmarYGuardarUbicacion() {
@@ -450,16 +479,18 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
         if distance <= 10.0 {
             // Está dentro del radio
             guard let id = t.id else { return } // Usar el ID del trabajador
-            let request = AsistenciaQrRequest(trabajadorId: id, qrToken: "VIRTUAL_TOKEN", tipo: "AUTOMATICO", latitud: lat, longitud: lng)
+            let request = AsistenciaQrRequest(trabajadorId: id, qrToken: "VIRTUAL_TOKEN", tipo: self.tipoAsistenciaSeleccionado, latitud: lat, longitud: lng)
             
             NetworkManager.shared.registrarAsistenciaQR(request: request) { [weak self] result in
                 DispatchQueue.main.async {
                     self?.activityIndicator.stopAnimating()
                     switch result {
-                    case .success(let res):
-                        self?.mostrarAlerta(titulo: "Asistencia Registrada", mensaje: "Se marcó tu \(res.tipo ?? "asistencia") correctamente.")
+                    case .success:
+                        let tipoText = self?.tipoAsistenciaSeleccionado == "ENTRADA" ? "entrada" : "salida"
+                        self?.mostrarAlertaConHistorial(titulo: "¡Asistencia Exitosa!", 
+                                                       mensaje: "Tu \(tipoText) se ha registrado correctamente desde casa.")
                     case .failure(let err):
-                        self?.mostrarAlerta(titulo: "Error", mensaje: "No se pudo marcar asistencia: \(err)")
+                        self?.mostrarAlerta(titulo: "Error", mensaje: "No se pudo registrar: \(err)")
                     }
                 }
             }
@@ -469,6 +500,15 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
             let distanceStr = String(format: "%.0f", distance)
             mostrarAlerta(titulo: "Zona Fuera de Alcance", mensaje: "Estás fuera de tu zona de trabajo (Casa). Distancia actual: \(distanceStr) metros. Debes estar a un máximo de 10 metros.")
         }
+    }
+
+    private func mostrarAlertaConHistorial(titulo: String, mensaje: String) {
+        let alert = UIAlertController(title: titulo, message: mensaje, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Ver Mi Historial", style: .default) { _ in
+            self.historyPressed()
+        })
+        alert.addAction(UIAlertAction(title: "Cerrar", style: .cancel))
+        present(alert, animated: true)
     }
 
     private func mostrarAlerta(titulo: String, mensaje: String) {
