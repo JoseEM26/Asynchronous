@@ -9,7 +9,7 @@ enum NetworkError: Error {
 
 class NetworkManager {
     static let shared = NetworkManager()
-    private let baseURL = "http://57.156.64.242/api/"
+    private let baseURL = "https://asistenciashibridas.up.railway.app/api/"
 
     private init() {}
 
@@ -82,6 +82,164 @@ class NetworkManager {
                 print("DECODING ERROR: \(error)")
                 DispatchQueue.main.async { completion(.failure(.decodingError)) }
             }
+        }.resume()
+    }
+
+    func registrarAsistenciaQR(request: AsistenciaQrRequest, completion: @escaping (Result<AsistenciaResponse, NetworkError>) -> Void) {
+        guard let url = URL(string: baseURL + "asistencias/registrar-qr") else {
+            completion(.failure(.invalidURL))
+            return
+        }
+
+        var urlRequest = URLRequest(url: url)
+        urlRequest.httpMethod = "POST"
+        urlRequest.addValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        do {
+            let body = try JSONEncoder().encode(request)
+            urlRequest.httpBody = body
+        } catch {
+            completion(.failure(.decodingError))
+            return
+        }
+
+        URLSession.shared.dataTask(with: urlRequest) { data, response, error in
+            if let error = error {
+                DispatchQueue.main.async { completion(.failure(.serverError(error.localizedDescription))) }
+                return
+            }
+
+            guard let data = data else {
+                DispatchQueue.main.async { completion(.failure(.noData)) }
+                return
+            }
+
+            if let httpResponse = response as? HTTPURLResponse, !(200...299).contains(httpResponse.statusCode) {
+                let errorMessage = String(data: data, encoding: .utf8) ?? "Error \(httpResponse.statusCode)"
+                DispatchQueue.main.async { completion(.failure(.serverError(errorMessage))) }
+                return
+            }
+
+            do {
+                let responseData = try JSONDecoder().decode(AsistenciaResponse.self, from: data)
+                DispatchQueue.main.async { completion(.success(responseData)) }
+            } catch {
+                DispatchQueue.main.async { completion(.failure(.decodingError)) }
+            }
+        }.resume()
+    }
+
+    func getEstadoHoy(trabajadorId: Int, completion: @escaping (Result<AsistenciaResponse?, NetworkError>) -> Void) {
+        guard let url = URL(string: baseURL + "asistencias/estado-hoy/\(trabajadorId)") else {
+            completion(.failure(.invalidURL))
+            return
+        }
+
+        URLSession.shared.dataTask(with: url) { data, response, error in
+            if let error = error {
+                DispatchQueue.main.async { completion(.failure(.serverError(error.localizedDescription))) }
+                return
+            }
+
+            if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 204 {
+                DispatchQueue.main.async { completion(.success(nil)) }
+                return
+            }
+
+            guard let data = data else {
+                DispatchQueue.main.async { completion(.failure(.noData)) }
+                return
+            }
+
+            do {
+                let asistencia = try JSONDecoder().decode(AsistenciaResponse.self, from: data)
+                DispatchQueue.main.async { completion(.success(asistencia)) }
+            } catch {
+                DispatchQueue.main.async { completion(.failure(.decodingError)) }
+            }
+        }.resume()
+    }
+
+    func getAsistenciasPorTrabajador(id: Int, completion: @escaping (Result<[AsistenciaResponse], NetworkError>) -> Void) {
+        guard let url = URL(string: baseURL + "asistencias/trabajador/\(id)") else {
+            completion(.failure(.invalidURL))
+            return
+        }
+
+        URLSession.shared.dataTask(with: url) { data, response, error in
+            if let error = error {
+                DispatchQueue.main.async { completion(.failure(.serverError(error.localizedDescription))) }
+                return
+            }
+
+            guard let data = data else {
+                DispatchQueue.main.async { completion(.failure(.noData)) }
+                return
+            }
+
+            do {
+                let asistencias = try JSONDecoder().decode([AsistenciaResponse].self, from: data)
+                DispatchQueue.main.async { completion(.success(asistencias)) }
+            } catch {
+                DispatchQueue.main.async { completion(.failure(.decodingError)) }
+            }
+        }.resume()
+    }
+
+    func getComunicadosActivos(completion: @escaping (Result<[ComunicadoResponse], NetworkError>) -> Void) {
+        guard let url = URL(string: baseURL + "comunicados/activos") else {
+            completion(.failure(.invalidURL))
+            return
+        }
+
+        URLSession.shared.dataTask(with: url) { data, response, error in
+            if let error = error {
+                DispatchQueue.main.async { completion(.failure(.serverError(error.localizedDescription))) }
+                return
+            }
+
+            guard let data = data else {
+                DispatchQueue.main.async { completion(.failure(.noData)) }
+                return
+            }
+
+            do {
+                let comunicados = try JSONDecoder().decode([ComunicadoResponse].self, from: data)
+                DispatchQueue.main.async { completion(.success(comunicados)) }
+            } catch {
+                DispatchQueue.main.async { completion(.failure(.decodingError)) }
+            }
+        }.resume()
+    }
+
+    func actualizarUbicacionVirtual(id: Int, lat: Double, lng: Double, completion: @escaping (Result<Void, NetworkError>) -> Void) {
+        var components = URLComponents(string: baseURL + "trabajadores/\(id)/ubicacion-virtual")
+        components?.queryItems = [
+            URLQueryItem(name: "lat", value: String(lat)),
+            URLQueryItem(name: "lng", value: String(lng))
+        ]
+
+        guard let url = components?.url else {
+            completion(.failure(.invalidURL))
+            return
+        }
+
+        var urlRequest = URLRequest(url: url)
+        urlRequest.httpMethod = "PUT"
+
+        URLSession.shared.dataTask(with: urlRequest) { data, response, error in
+            if let error = error {
+                DispatchQueue.main.async { completion(.failure(.serverError(error.localizedDescription))) }
+                return
+            }
+
+            if let httpResponse = response as? HTTPURLResponse, !(200...299).contains(httpResponse.statusCode) {
+                let errorMessage = String(data: data ?? Data(), encoding: .utf8) ?? "Error \(httpResponse.statusCode)"
+                DispatchQueue.main.async { completion(.failure(.serverError(errorMessage))) }
+                return
+            }
+
+            DispatchQueue.main.async { completion(.success(())) }
         }.resume()
     }
 }

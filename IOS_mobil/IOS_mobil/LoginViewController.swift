@@ -10,7 +10,7 @@ class LoginViewController: UIViewController {
 
     private let activityIndicator: UIActivityIndicatorView = {
         let ai = UIActivityIndicatorView(style: .large)
-        ai.color = .white
+        ai.color = .gray
         ai.hidesWhenStopped = true
         return ai
     }()
@@ -23,6 +23,21 @@ class LoginViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupActivityIndicator()
+        
+        // Estilo ViajesApp
+        view.backgroundColor = UIColor(red: 0.91, green: 0.95, blue: 0.98, alpha: 1.0)
+        gradientView.backgroundColor = .clear
+        
+        usernameField.layer.cornerRadius = 14
+        usernameField.clipsToBounds = true
+        passwordField.layer.cornerRadius = 14
+        passwordField.clipsToBounds = true
+        
+        loginButton.layer.cornerRadius = 18
+        loginButton.layer.shadowColor = UIColor.black.cgColor
+        loginButton.layer.shadowOpacity = 0.12
+        loginButton.layer.shadowOffset = CGSize(width: 0, height: 10)
+        loginButton.layer.shadowRadius = 14
     }
 
     private func setupActivityIndicator() {

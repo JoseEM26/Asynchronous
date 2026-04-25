@@ -18,6 +18,19 @@ class DashboardViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupActions()
+        
+        // Estilo ViajesApp
+        view.backgroundColor = UIColor(red: 0.96, green: 0.97, blue: 0.94, alpha: 1.0)
+        
+        let buttons = [profileButton, scannerButton, historyButton, logoutButton]
+        for button in buttons {
+            button?.layer.cornerRadius = 24
+            button?.backgroundColor = .white
+            button?.layer.shadowColor = UIColor.black.cgColor
+            button?.layer.shadowOpacity = 0.12
+            button?.layer.shadowOffset = CGSize(width: 0, height: 10)
+            button?.layer.shadowRadius = 14
+        }
     }
 
     private func setupActions() {

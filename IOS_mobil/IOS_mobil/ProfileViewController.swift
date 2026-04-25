@@ -26,6 +26,9 @@ class ProfileViewController: UIViewController {
         super.viewDidLoad()
         setupUI()
         loadProfileData()
+        
+        // Estilo ViajesApp
+        view.backgroundColor = UIColor(red: 0.91, green: 0.95, blue: 0.98, alpha: 1.0)
     }
 
     private func setupUI() {

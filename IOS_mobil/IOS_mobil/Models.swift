@@ -71,3 +71,41 @@ final class TrabajadorResponse: Codable, @unchecked Sendable {
         self.jefe = try container.decodeIfPresent(TrabajadorResponse.self, forKey: .jefe)
     }
 }
+
+// MARK: - Modalidad Response
+struct ModalidadResponse: Codable, Sendable {
+    let id: Int
+    let nombre: String
+}
+
+// MARK: - Asistencia
+struct AsistenciaQrRequest: Codable, Sendable {
+    let trabajadorId: Int
+    let qrToken: String
+    let tipo: String // "ENTRADA" or "SALIDA"
+    let latitud: Double?
+    let longitud: Double?
+}
+
+struct AsistenciaResponse: Codable, Sendable {
+    let id: Int
+    let trabajador: TrabajadorResponse?
+    let fechaHora: String?
+    let tipo: String?
+    let modalidad: ModalidadResponse?
+    let latitud: Double?
+    let longitud: Double?
+    let notas: String?
+}
+
+// MARK: - Comunicado
+struct ComunicadoResponse: Codable, Sendable {
+    let id: Int
+    let titulo: String?
+    let contenido: String?
+    let fechaPublicacion: String?
+    let tipo: String?
+}
+
+// MARK: - Empty Response
+struct EmptyResponse: Codable, Sendable {}

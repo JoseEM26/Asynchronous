@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://asynchronous-production.up.railway.app/api'
+  apiUrl: 'https://asistenciashibridas.up.railway.app/api'
 };

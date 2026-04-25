@@ -1,0 +1,72 @@
+{
+  "buildCommand" : {
+    "command" : "build",
+    "skipDependencies" : false,
+    "style" : "buildOnly"
+  },
+  "configuredTargets" : [
+    {
+      "guid" : "3c1c286c60e04116f999e81b3c941af737548775507eb4be54982d444a5dc02b"
+    }
+  ],
+  "containerPath" : "/Users/alvarocoello/Documents/proyectos GPT/DAMII/Tema 7 - 8/ViajesApp/ViajesApp.xcodeproj",
+  "continueBuildingAfterErrors" : false,
+  "dependencyScope" : "workspace",
+  "enableIndexBuildArena" : false,
+  "hideShellScriptEnvironment" : false,
+  "parameters" : {
+    "action" : "build",
+    "activeArchitecture" : "arm64",
+    "activeRunDestination" : {
+      "disableOnlyActiveArch" : false,
+      "platform" : "iphoneos",
+      "sdk" : "iphoneos26.2",
+      "sdkVariant" : "iphoneos",
+      "supportedArchitectures" : [
+        "arm64e",
+        "arm64",
+        "x86_64"
+      ],
+      "targetArchitecture" : "arm64"
+    },
+    "arenaInfo" : {
+      "buildIntermediatesPath" : "/Users/alvarocoello/Documents/proyectos GPT/DAMII/Tema 7 - 8/ViajesApp/.derived/Build/Intermediates.noindex",
+      "buildProductsPath" : "/Users/alvarocoello/Documents/proyectos GPT/DAMII/Tema 7 - 8/ViajesApp/.derived/Build/Products",
+      "derivedDataPath" : "/Users/alvarocoello/Documents/proyectos GPT/DAMII/Tema 7 - 8/ViajesApp/.derived",
+      "indexDataStoreFolderPath" : "/Users/alvarocoello/Documents/proyectos GPT/DAMII/Tema 7 - 8/ViajesApp/.derived/Index.noindex/DataStore",
+      "indexEnableDataStore" : true,
+      "indexPCHPath" : "/Users/alvarocoello/Documents/proyectos GPT/DAMII/Tema 7 - 8/ViajesApp/.derived/Index.noindex/PrecompiledHeaders",
+      "pchPath" : "/Users/alvarocoello/Documents/proyectos GPT/DAMII/Tema 7 - 8/ViajesApp/.derived/Build/Intermediates.noindex/PrecompiledHeaders"
+    },
+    "configurationName" : "Debug",
+    "overrides" : {
+      "commandLine" : {
+        "table" : {
+          "CODE_SIGNING_ALLOWED" : "NO"
+        }
+      },
+      "synthesized" : {
+        "table" : {
+          "ACTION" : "build",
+          "ASSETCATALOG_FILTER_FOR_DEVICE_MODEL" : "MacFamily20,1",
+          "ASSETCATALOG_FILTER_FOR_DEVICE_OS_VERSION" : "26.3",
+          "ASSETCATALOG_FILTER_FOR_THINNING_DEVICE_CONFIGURATION" : "MacFamily20,1",
+          "BUILD_ACTIVE_RESOURCES_ONLY" : "YES",
+          "ENABLE_PREVIEWS" : "NO",
+          "ENABLE_XOJIT_PREVIEWS" : "YES",
+          "ONLY_ACTIVE_ARCH" : "YES",
+          "TARGET_DEVICE_IDENTIFIER" : "00008132-000A31D1110B801C",
+          "TARGET_DEVICE_MODEL" : "Mac16,1",
+          "TARGET_DEVICE_OS_VERSION" : "26.3.1",
+          "TARGET_DEVICE_PLATFORM_NAME" : "macosx"
+        }
+      }
+    }
+  },
+  "schemeCommand" : "launch",
+  "showNonLoggedProgress" : true,
+  "useDryRun" : false,
+  "useImplicitDependencies" : true,
+  "useLegacyBuildLocations" : false,
+  "useParallelTargets" : true
+}

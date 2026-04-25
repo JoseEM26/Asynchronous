@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="tab-001">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24504"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--Tab Bar Controller-->
+        <scene sceneID="scene-tab">
+            <objects>
+                <tabBarController id="tab-001" sceneMemberID="viewController">
+                    <tabBar key="tabBar" contentMode="scaleToFill" id="tabbar-main">
+                        <rect key="frame" x="0.0" y="769" width="393" height="83"/>
+                    </tabBar>
+                    <connections>
+                        <segue destination="nav-destinos" kind="relationship" relationship="viewControllers" id="rel-destinos"/>
+                        <segue destination="nav-reservas" kind="relationship" relationship="viewControllers" id="rel-reservas"/>
+                    </connections>
+                </tabBarController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="fr-tab" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-976" y="54"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="scene-nav-destinos">
+            <objects>
+                <navigationController id="nav-destinos" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" title="Destinos" image="airplane.circle.fill" catalog="system" id="item-destinos"/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="navBar-destinos">
+                        <rect key="frame" x="0.0" y="59" width="393" height="44"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="vc-destinos" kind="relationship" relationship="rootViewController" id="root-destinos"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="fr-nav-destinos" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-255" y="-176"/>
+        </scene>
+        <!--Destinos-->
+        <scene sceneID="scene-destinos">
+            <objects>
+                <viewController id="vc-destinos" customClass="DestinosViewController" customModule="ViajesApp" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="view-destinos">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="Escapadas que inspiran" textAlignment="natural" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ttl-destinos">
+                                <rect key="frame" x="24" y="115" width="345" height="42"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="34"/>
+                                <color key="textColor" red="0.09803921569" green="0.2" blue="0.2509803922" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="Explora ideas para tu proximo viaje y compara precios base." lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="sub-destinos">
+                                <rect key="frame" x="24" y="169" width="345" height="44"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" red="0.2784313725" green="0.3647058824" blue="0.3960784314" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            </label>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hero-card">
+                                <rect key="frame" x="24" y="233" width="345" height="116"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="Promo destacada" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hero-small">
+                                        <rect key="frame" x="20" y="18" width="110" height="18"/>
+                                        <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="15"/>
+                                        <color key="textColor" white="1" alpha="0.9" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    </label>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="Semana de playas y montañas" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hero-title">
+                                        <rect key="frame" x="20" y="44" width="214" height="47"/>
+                                        <fontDescription key="fontDescription" type="boldSystem" pointSize="24"/>
+                                        <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    </label>
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" translatesAutoresizingMaskIntoConstraints="NO" id="hero-image">
+                                        <rect key="frame" x="263" y="18" width="62" height="80"/>
+                                        <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <image name="airplane.departure" catalog="system"/>
+                                    </imageView>
+                                </subviews>
+                                <color key="backgroundColor" red="0.1529411765" green="0.3803921569" blue="0.4823529412" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <constraints>
+                                    <constraint firstItem="hero-image" firstAttribute="centerY" secondItem="hero-card" secondAttribute="centerY" id="hc-1"/>
+                                    <constraint firstAttribute="trailing" secondItem="hero-image" secondAttribute="trailing" constant="20" id="hc-2"/>
+                                    <constraint firstItem="hero-title" firstAttribute="top" secondItem="hero-small" secondAttribute="bottom" constant="8" id="hc-3"/>
+                                    <constraint firstItem="hero-small" firstAttribute="leading" secondItem="hero-card" secondAttribute="leading" constant="20" id="hc-4"/>
+                                    <constraint firstItem="hero-title" firstAttribute="leading" secondItem="hero-card" secondAttribute="leading" constant="20" id="hc-5"/>
+                                    <constraint firstItem="hero-small" firstAttribute="top" secondItem="hero-card" secondAttribute="top" constant="18" id="hc-6"/>
+                                </constraints>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                        <real key="value" value="28"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
+                            </view>
+                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="col-destinos">
+                                <rect key="frame" x="24" y="373" width="345" height="376"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="18" minimumInteritemSpacing="14" id="layout-destinos">
+                                    <size key="itemSize" width="164" height="214"/>
+                                    <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                                    <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                                    <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                </collectionViewFlowLayout>
+                                <cells>
+                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="DestinoCell" id="cell-destino" customClass="DestinoCollectionViewCell" customModule="ViajesApp" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="0.0" width="164" height="214"/>
+                                        <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="content-destino">
+                                            <rect key="frame" x="0.0" y="0.0" width="164" height="214"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="tarjeta-destino">
+                                                    <rect key="frame" x="0.0" y="0.0" width="164" height="214"/>
+                                                    <subviews>
+                                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" translatesAutoresizingMaskIntoConstraints="NO" id="img-destino">
+                                                            <rect key="frame" x="20" y="20" width="124" height="70"/>
+                                                            <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                            <image name="airplane.circle.fill" catalog="system"/>
+                                                        </imageView>
+                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="Cusco" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lbl-nombre-destino">
+                                                            <rect key="frame" x="18" y="117" width="128" height="28"/>
+                                                            <fontDescription key="fontDescription" type="boldSystem" pointSize="24"/>
+                                                            <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                        </label>
+                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="Peru" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lbl-pais-destino">
+                                                            <rect key="frame" x="18" y="152" width="128" height="20"/>
+                                                            <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                                            <color key="textColor" white="1" alpha="0.86" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                        </label>
+                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="Desde S/ 420" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lbl-precio-destino">
+                                                            <rect key="frame" x="18" y="179" width="128" height="19"/>
+                                                            <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="16"/>
+                                                            <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                        </label>
+                                                    </subviews>
+                                                    <constraints>
+                                                        <constraint firstItem="img-destino" firstAttribute="top" secondItem="tarjeta-destino" secondAttribute="top" constant="20" id="td-1"/>
+                                                        <constraint firstItem="img-destino" firstAttribute="leading" secondItem="tarjeta-destino" secondAttribute="leading" constant="20" id="td-2"/>
+                                                        <constraint firstAttribute="trailing" secondItem="img-destino" secondAttribute="trailing" constant="20" id="td-3"/>
+                                                        <constraint firstItem="lbl-nombre-destino" firstAttribute="top" secondItem="img-destino" secondAttribute="bottom" constant="27" id="td-4"/>
+                                                        <constraint firstItem="lbl-nombre-destino" firstAttribute="leading" secondItem="tarjeta-destino" secondAttribute="leading" constant="18" id="td-5"/>
+                                                        <constraint firstItem="lbl-pais-destino" firstAttribute="top" secondItem="lbl-nombre-destino" secondAttribute="bottom" constant="7" id="td-6"/>
+                                                        <constraint firstItem="lbl-pais-destino" firstAttribute="leading" secondItem="tarjeta-destino" secondAttribute="leading" constant="18" id="td-7"/>
+                                                        <constraint firstItem="lbl-precio-destino" firstAttribute="top" secondItem="lbl-pais-destino" secondAttribute="bottom" constant="7" id="td-8"/>
+                                                        <constraint firstItem="lbl-precio-destino" firstAttribute="leading" secondItem="tarjeta-destino" secondAttribute="leading" constant="18" id="td-9"/>
+                                                        <constraint firstAttribute="bottom" secondItem="lbl-precio-destino" secondAttribute="bottom" constant="16" id="td-10"/>
+                                                    </constraints>
+                                                </view>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstItem="tarjeta-destino" firstAttribute="top" secondItem="content-destino" secondAttribute="top" id="cc-1"/>
+                                                <constraint firstAttribute="bottom" secondItem="tarjeta-destino" secondAttribute="bottom" id="cc-2"/>
+                                                <constraint firstAttribute="trailing" secondItem="tarjeta-destino" secondAttribute="trailing" id="cc-3"/>
+                                                <constraint firstItem="tarjeta-destino" firstAttribute="leading" secondItem="content-destino" secondAttribute="leading" id="cc-4"/>
+                                            </constraints>
+                                        </view>
+                                        <connections>
+                                            <outlet property="imgDestino" destination="img-destino" id="out-cell-1"/>
+                                            <outlet property="lblNombre" destination="lbl-nombre-destino" id="out-cell-2"/>
+                                            <outlet property="lblPais" destination="lbl-pais-destino" id="out-cell-3"/>
+                                            <outlet property="lblPrecio" destination="lbl-precio-destino" id="out-cell-4"/>
+                                            <outlet property="vistaTarjeta" destination="tarjeta-destino" id="out-cell-5"/>
+                                        </connections>
+                                    </collectionViewCell>
+                                </cells>
+                            </collectionView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="safe-destinos"/>
+                        <color key="backgroundColor" red="0.9568627451" green="0.968627451" blue="0.9411764706" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="ttl-destinos" firstAttribute="top" secondItem="safe-destinos" secondAttribute="top" constant="12" id="de-1"/>
+                            <constraint firstItem="ttl-destinos" firstAttribute="leading" secondItem="safe-destinos" secondAttribute="leading" constant="24" id="de-2"/>
+                            <constraint firstItem="sub-destinos" firstAttribute="top" secondItem="ttl-destinos" secondAttribute="bottom" constant="12" id="de-3"/>
+                            <constraint firstItem="sub-destinos" firstAttribute="leading" secondItem="safe-destinos" secondAttribute="leading" constant="24" id="de-4"/>
+                            <constraint firstItem="sub-destinos" firstAttribute="trailing" secondItem="safe-destinos" secondAttribute="trailing" constant="-24" id="de-5"/>
+                            <constraint firstItem="hero-card" firstAttribute="top" secondItem="sub-destinos" secondAttribute="bottom" constant="20" id="de-6"/>
+                            <constraint firstItem="hero-card" firstAttribute="leading" secondItem="safe-destinos" secondAttribute="leading" constant="24" id="de-7"/>
+                            <constraint firstItem="hero-card" firstAttribute="trailing" secondItem="safe-destinos" secondAttribute="trailing" constant="-24" id="de-8"/>
+                            <constraint firstItem="hero-card" firstAttribute="height" constant="116" id="de-9"/>
+                            <constraint firstItem="col-destinos" firstAttribute="top" secondItem="hero-card" secondAttribute="bottom" constant="24" id="de-10"/>
+                            <constraint firstItem="col-destinos" firstAttribute="leading" secondItem="safe-destinos" secondAttribute="leading" constant="24" id="de-11"/>
+                            <constraint firstItem="col-destinos" firstAttribute="trailing" secondItem="safe-destinos" secondAttribute="trailing" constant="-24" id="de-12"/>
+                            <constraint firstItem="col-destinos" firstAttribute="bottom" secondItem="safe-destinos" secondAttribute="bottom" id="de-13"/>
+                            <constraint firstItem="ttl-destinos" firstAttribute="trailing" secondItem="safe-destinos" secondAttribute="trailing" constant="-24" id="de-14"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" title="Destinos" id="navitem-destinos"/>
+                    <connections>
+                        <outlet property="collectionDestinos" destination="col-destinos" id="out-destinos-1"/>
+                        <outlet property="lblSubtitulo" destination="sub-destinos" id="out-destinos-2"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="fr-destinos" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="521" y="-176"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="scene-nav-reservas">
+            <objects>
+                <navigationController id="nav-reservas" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" title="Reservas" image="clock.arrow.circlepath" catalog="system" id="item-reservas"/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="navBar-reservas">
+                        <rect key="frame" x="0.0" y="59" width="393" height="44"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="vc-reservas" kind="relationship" relationship="rootViewController" id="root-reservas"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="fr-nav-reservas" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-256" y="507"/>
+        </scene>
+        <!--Reservas-->
+        <scene sceneID="scene-reservas">
+            <objects>
+                <viewController id="vc-reservas" customClass="ReservasViewController" customModule="ViajesApp" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="view-reservas">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="Simulador de reserva" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ttl-reservas">
+                                <rect key="frame" x="24" y="115" width="345" height="42"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="34"/>
+                                <color key="textColor" red="0.0862745098" green="0.2039215686" blue="0.2901960784" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="Usa esta pantalla para explicar procesos en segundo plano y actualizacion segura de la interfaz." lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="sub-reservas">
+                                <rect key="frame" x="24" y="169" width="345" height="64"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" red="0.2784313725" green="0.3647058824" blue="0.3960784314" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            </label>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="panel-reserva">
+                                <rect key="frame" x="24" y="257" width="345" height="438"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="Estado actual" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ttl-estado">
+                                        <rect key="frame" x="20" y="24" width="305" height="31"/>
+                                        <fontDescription key="fontDescription" type="boldSystem" pointSize="28"/>
+                                        <color key="textColor" red="0.0862745098" green="0.2039215686" blue="0.2901960784" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                    </label>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="La simulacion aun no ha comenzado." lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="desc-estado">
+                                        <rect key="frame" x="20" y="67" width="305" height="44"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <color key="textColor" red="0.2784313725" green="0.3647058824" blue="0.3960784314" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                    </label>
+                                    <progressView opaque="NO" contentMode="scaleToFill" progress="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="progress-reserva">
+                                        <rect key="frame" x="20" y="137" width="305" height="8"/>
+                                        <color key="progressTintColor" red="0.1490196078" green="0.4549019608" blue="0.6705882353" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <color key="trackTintColor" red="0.8549019608" green="0.9058823529" blue="0.937254902" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                    </progressView>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" translatesAutoresizingMaskIntoConstraints="NO" id="btn-start">
+                                        <rect key="frame" x="20" y="169" width="305" height="46"/>
+                                        <state key="normal" title="Iniciar reserva"/>
+                                        <buttonConfiguration key="configuration" style="filled" title="Iniciar reserva">
+                                            <backgroundConfiguration key="background">
+                                                <color key="backgroundColor" red="0.1490196078" green="0.4549019608" blue="0.6705882353" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            </backgroundConfiguration>
+                                        </buttonConfiguration>
+                                        <connections>
+                                            <action selector="btnIniciarProceso:" destination="vc-reservas" eventType="touchUpInside" id="act-start"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" translatesAutoresizingMaskIntoConstraints="NO" id="btn-reset">
+                                        <rect key="frame" x="20" y="227" width="305" height="42"/>
+                                        <state key="normal" title="Limpiar panel"/>
+                                        <buttonConfiguration key="configuration" style="gray" title="Limpiar panel"/>
+                                        <connections>
+                                            <action selector="btnLimpiar:" destination="vc-reservas" eventType="touchUpInside" id="act-reset"/>
+                                        </connections>
+                                    </button>
+                                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" scrollEnabled="YES" text="Bitacora del proceso:" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="txt-log">
+                                        <rect key="frame" x="20" y="293" width="305" height="121"/>
+                                        <color key="backgroundColor" red="0.9803921569" green="0.9921568627" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                        <textInputTraits key="textInputTraits" autocorrectionType="no"/>
+                                    </textView>
+                                </subviews>
+                                <color key="backgroundColor" white="1" alpha="0.96" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstItem="ttl-estado" firstAttribute="top" secondItem="panel-reserva" secondAttribute="top" constant="24" id="rs-1"/>
+                                    <constraint firstItem="ttl-estado" firstAttribute="leading" secondItem="panel-reserva" secondAttribute="leading" constant="20" id="rs-2"/>
+                                    <constraint firstItem="ttl-estado" firstAttribute="trailing" secondItem="panel-reserva" secondAttribute="trailing" constant="-20" id="rs-3"/>
+                                    <constraint firstItem="desc-estado" firstAttribute="top" secondItem="ttl-estado" secondAttribute="bottom" constant="12" id="rs-4"/>
+                                    <constraint firstItem="desc-estado" firstAttribute="leading" secondItem="panel-reserva" secondAttribute="leading" constant="20" id="rs-5"/>
+                                    <constraint firstItem="desc-estado" firstAttribute="trailing" secondItem="panel-reserva" secondAttribute="trailing" constant="-20" id="rs-6"/>
+                                    <constraint firstItem="progress-reserva" firstAttribute="top" secondItem="desc-estado" secondAttribute="bottom" constant="26" id="rs-7"/>
+                                    <constraint firstItem="progress-reserva" firstAttribute="leading" secondItem="panel-reserva" secondAttribute="leading" constant="20" id="rs-8"/>
+                                    <constraint firstItem="progress-reserva" firstAttribute="trailing" secondItem="panel-reserva" secondAttribute="trailing" constant="-20" id="rs-9"/>
+                                    <constraint firstItem="btn-start" firstAttribute="top" secondItem="progress-reserva" secondAttribute="bottom" constant="22" id="rs-10"/>
+                                    <constraint firstItem="btn-start" firstAttribute="leading" secondItem="panel-reserva" secondAttribute="leading" constant="20" id="rs-11"/>
+                                    <constraint firstItem="btn-start" firstAttribute="trailing" secondItem="panel-reserva" secondAttribute="trailing" constant="-20" id="rs-12"/>
+                                    <constraint firstItem="btn-reset" firstAttribute="top" secondItem="btn-start" secondAttribute="bottom" constant="12" id="rs-13"/>
+                                    <constraint firstItem="btn-reset" firstAttribute="leading" secondItem="panel-reserva" secondAttribute="leading" constant="20" id="rs-14"/>
+                                    <constraint firstItem="btn-reset" firstAttribute="trailing" secondItem="panel-reserva" secondAttribute="trailing" constant="-20" id="rs-15"/>
+                                    <constraint firstItem="txt-log" firstAttribute="top" secondItem="btn-reset" secondAttribute="bottom" constant="24" id="rs-16"/>
+                                    <constraint firstItem="txt-log" firstAttribute="leading" secondItem="panel-reserva" secondAttribute="leading" constant="20" id="rs-17"/>
+                                    <constraint firstItem="txt-log" firstAttribute="trailing" secondItem="panel-reserva" secondAttribute="trailing" constant="-20" id="rs-18"/>
+                                    <constraint firstAttribute="bottom" secondItem="txt-log" secondAttribute="bottom" constant="24" id="rs-19"/>
+                                </constraints>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                        <real key="value" value="28"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
+                            </view>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="safe-reservas"/>
+                        <color key="backgroundColor" red="0.9098039216" green="0.9490196078" blue="0.9803921569" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="ttl-reservas" firstAttribute="top" secondItem="safe-reservas" secondAttribute="top" constant="12" id="rv-1"/>
+                            <constraint firstItem="ttl-reservas" firstAttribute="leading" secondItem="safe-reservas" secondAttribute="leading" constant="24" id="rv-2"/>
+                            <constraint firstItem="ttl-reservas" firstAttribute="trailing" secondItem="safe-reservas" secondAttribute="trailing" constant="-24" id="rv-3"/>
+                            <constraint firstItem="sub-reservas" firstAttribute="top" secondItem="ttl-reservas" secondAttribute="bottom" constant="12" id="rv-4"/>
+                            <constraint firstItem="sub-reservas" firstAttribute="leading" secondItem="safe-reservas" secondAttribute="leading" constant="24" id="rv-5"/>
+                            <constraint firstItem="sub-reservas" firstAttribute="trailing" secondItem="safe-reservas" secondAttribute="trailing" constant="-24" id="rv-6"/>
+                            <constraint firstItem="panel-reserva" firstAttribute="top" secondItem="sub-reservas" secondAttribute="bottom" constant="24" id="rv-7"/>
+                            <constraint firstItem="panel-reserva" firstAttribute="leading" secondItem="safe-reservas" secondAttribute="leading" constant="24" id="rv-8"/>
+                            <constraint firstItem="panel-reserva" firstAttribute="trailing" secondItem="safe-reservas" secondAttribute="trailing" constant="-24" id="rv-9"/>
+                            <constraint firstItem="panel-reserva" firstAttribute="bottom" lessThanOrEqualTo="YES" secondItem="safe-reservas" secondAttribute="bottom" constant="-24" id="rv-10"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" title="Reservas" id="navitem-reservas"/>
+                    <connections>
+                        <outlet property="btnIniciarProceso" destination="btn-start" id="out-res-1"/>
+                        <outlet property="btnLimpiar" destination="btn-reset" id="out-res-2"/>
+                        <outlet property="lblDescripcionEstado" destination="desc-estado" id="out-res-3"/>
+                        <outlet property="lblTituloEstado" destination="ttl-estado" id="out-res-4"/>
+                        <outlet property="progressReserva" destination="progress-reserva" id="out-res-5"/>
+                        <outlet property="txtBitacora" destination="txt-log" id="out-res-6"/>
+                        <outlet property="vistaPanel" destination="panel-reserva" id="out-res-7"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="fr-reservas" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="521" y="507"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="airplane.circle.fill" catalog="system" width="128" height="122"/>
+        <image name="airplane.departure" catalog="system" width="128" height="87"/>
+        <image name="clock.arrow.circlepath" catalog="system" width="128" height="123"/>
+    </resources>
+</document>
