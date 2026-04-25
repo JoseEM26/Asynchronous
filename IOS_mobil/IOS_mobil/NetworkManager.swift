@@ -19,16 +19,13 @@ class NetworkManager {
             let container = try decoder.singleValueContainer()
             let dateString = try container.decode(String.self)
             
-            let isoFormatter = ISO8601DateFormatter()
-            isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-            if let date = isoFormatter.date(from: dateString) { return date }
-            
-            // Si tiene muchos decimales (ej: .26570915), cortamos a 3 o lo procesamos sin decimales
-            let cleanedDate = dateString.contains(".") ? String(dateString.split(separator: ".")[0]) : dateString
+            // Limpieza robusta: tomamos solo los primeros 19 caracteres (yyyy-MM-ddTHH:mm:ss)
+            // Esto ignora cualquier cantidad de decimales o zonas horarias que confundan al formateador
+            let baseDate = String(dateString.prefix(19))
             
             let fallbackFormatter = DateFormatter()
             fallbackFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
-            if let date = fallbackFormatter.date(from: cleanedDate) { return date }
+            if let date = fallbackFormatter.date(from: baseDate) { return date }
             
             return Date()
         }
@@ -175,6 +172,7 @@ class NetworkManager {
             }
 
             DispatchQueue.main.async {
+                if let body = String(data: data, encoding: .utf8) { print("📦 Historial Recibido: \(body)") }
                 do {
                     let asistencias = try self.getDecoder().decode([AsistenciaResponse].self, from: data)
                     completion(.success(asistencias))

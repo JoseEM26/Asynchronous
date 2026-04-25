@@ -126,12 +126,15 @@ public class AsistenciaController {
 
     private Integer resolverTrabajadorId(Integer id) {
         try {
+            // Intentamos buscar si el ID proporcionado es un ID de Usuario
             com.asistenciaHibrida.AplicacionMobil_IOS.dto.response.UsuarioResponseDTO usuario = usuarioService.buscarPorId(id);
             if (usuario != null && usuario.getTrabajador() != null) {
+                System.out.println("ID " + id + " resuelto como Usuario. Trabajador asociado: " + usuario.getTrabajador().getId());
                 return usuario.getTrabajador().getId();
             }
         } catch (Exception e) {
-            // Si no es usuario, asumimos que es ID de trabajador directo
+            // Si falla, es probable que ya sea un ID de trabajador o el usuario no existe
+            System.out.println("ID " + id + " no es un Usuario válido, se usará como ID de Trabajador directo.");
         }
         return id;
     }
