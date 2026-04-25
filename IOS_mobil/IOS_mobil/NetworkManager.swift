@@ -9,7 +9,7 @@ enum NetworkError: Error {
 
 class NetworkManager {
     static let shared = NetworkManager()
-    private let baseURL = "https://asistenciashibridas.up.railway.app/api/"
+    private let baseURL = "https://asynchronous-production.up.railway.app/api/"
 
     private init() {}
 
@@ -120,11 +120,22 @@ class NetworkManager {
                 return
             }
 
-            do {
-                let responseData = try JSONDecoder().decode(AsistenciaResponse.self, from: data)
-                DispatchQueue.main.async { completion(.success(responseData)) }
-            } catch {
-                DispatchQueue.main.async { completion(.failure(.decodingError)) }
+            DispatchQueue.main.async {
+                do {
+                    let responseData = try JSONDecoder().decode(AsistenciaResponse.self, from: data)
+                    
+                    // Log a Supabase (Real-time Feed)
+                    SupabaseService.shared.enviarLog(
+                        mensaje: "✅ Asistencia registrada (\(request.tipo)): Trabajador #\(request.trabajadorId)",
+                        tipo: "ASISTENCIA",
+                        usuario: "App iOS"
+                    )
+                    
+                    completion(.success(responseData))
+                } catch {
+                    print("Decoding error: \(error)")
+                    completion(.failure(.decodingError))
+                }
             }
         }.resume()
     }
@@ -151,11 +162,13 @@ class NetworkManager {
                 return
             }
 
-            do {
-                let asistencia = try JSONDecoder().decode(AsistenciaResponse.self, from: data)
-                DispatchQueue.main.async { completion(.success(asistencia)) }
-            } catch {
-                DispatchQueue.main.async { completion(.failure(.decodingError)) }
+            DispatchQueue.main.async {
+                do {
+                    let asistencia = try JSONDecoder().decode(AsistenciaResponse.self, from: data)
+                    completion(.success(asistencia))
+                } catch {
+                    completion(.failure(.decodingError))
+                }
             }
         }.resume()
     }
@@ -177,11 +190,13 @@ class NetworkManager {
                 return
             }
 
-            do {
-                let asistencias = try JSONDecoder().decode([AsistenciaResponse].self, from: data)
-                DispatchQueue.main.async { completion(.success(asistencias)) }
-            } catch {
-                DispatchQueue.main.async { completion(.failure(.decodingError)) }
+            DispatchQueue.main.async {
+                do {
+                    let asistencias = try JSONDecoder().decode([AsistenciaResponse].self, from: data)
+                    completion(.success(asistencias))
+                } catch {
+                    completion(.failure(.decodingError))
+                }
             }
         }.resume()
     }

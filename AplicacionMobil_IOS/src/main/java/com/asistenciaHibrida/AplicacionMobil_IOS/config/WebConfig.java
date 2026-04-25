@@ -17,9 +17,11 @@ public class WebConfig {
         CorsConfiguration config = new CorsConfiguration();
 
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(Arrays.asList(
-                "https://asistenciashibridas.up.railway.app",
-                "http://localhost:4200"));
+        config.setAllowedOriginPatterns(Arrays.asList(
+                "https://asynchronous-production.up.railway.app",
+                "https://*.up.railway.app",
+                "http://localhost:4200",
+                "http://localhost:8080"));
         config.setAllowedHeaders(Arrays.asList("*"));
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 
