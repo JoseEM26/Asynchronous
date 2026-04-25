@@ -28,5 +28,7 @@
 	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>Necesitamos acceso a la cámara para escanear el código QR de asistencia y registrar tu entrada/salida.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Necesitamos tu ubicación para verificar que estás en el lugar de trabajo al marcar asistencia.</string>
 </dict>
 </plist>
