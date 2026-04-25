@@ -228,7 +228,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
     .search-input-group .form-control:focus {
       background: white !important;
       border-color: var(--accent-primary) !important;
-      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1) !important;
+      box-shadow: 0 4px 12px rgba(249, 115, 22, 0.1) !important;
     }
 
     .form-select {
@@ -240,7 +240,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
     .icon-box-primary {
       padding: 10px; background: var(--grad-main); color: white;
       border-radius: 12px; display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+      box-shadow: 0 4px 12px rgba(249, 115, 22, 0.25);
     }
 
     .main-list-card {
@@ -256,7 +256,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
     }
 
     .list-row { transition: background 0.2s ease; border-bottom: 1px solid var(--glass-border); }
-    .list-row:hover { background: rgba(37,99,235,0.02); }
+    .list-row:hover { background: rgba(249,115,22,0.05); }
 
     .avatar-box {
       width: 42px; height: 42px; background: var(--bg-deep);
@@ -289,7 +289,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
     }
     .action-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
     
-    .action-btn.view:hover { background: #e0e7ff; color: #4338ca; }
+    .action-btn.view:hover { background: #fff7ed; color: #ea580c; }
     .action-btn.edit:hover { background: #fef3c7; color: #b45309; }
     .status-deactivate:hover { background: #fee2e2; color: #b91c1c; }
     .status-activate:hover { background: #dcfce7; color: #15803d; }

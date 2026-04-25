@@ -2,10 +2,10 @@
   /* Core Colors - Professional Slate & Blue */
   --bg-deep: #f1f5f9;
   --bg-surface: #ffffff;
-  --accent-primary: #2563eb;
-  /* Royal Blue */
-  --accent-secondary: #1e293b;
-  /* Dark Slate */
+  --accent-primary: #f97316;
+  /* Vibrant Orange */
+  --accent-secondary: #475569;
+  /* Lead Gray */
   --accent-success: #10b981;
   --accent-warning: #f59e0b;
   --accent-danger: #ef4444;
@@ -32,8 +32,8 @@
   --shadow-2xl: 0 35px 60px -15px rgba(0, 0, 0, 0.3);
 
   /* Gradients */
-  --grad-main: linear-gradient(135deg, var(--accent-primary), #4f46e5);
-  /* Deeper Blue */
+  --grad-main: linear-gradient(135deg, var(--accent-primary), #ea580c);
+  /* Deeper Orange */
   --grad-surface: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
 
   /* Dimensions */
@@ -127,8 +127,8 @@ body::after {
 
 .glass-card:hover {
   box-shadow: var(--shadow-lg);
-  border-color: rgba(37, 99, 235, 0.2);
-  /* Subtle blue border on hover */
+  border-color: rgba(249, 115, 22, 0.3);
+  /* Subtle orange border on hover */
 }
 
 /* Layout Utilities */
@@ -272,7 +272,7 @@ body::after {
   outline: none;
   border-color: var(--accent-primary);
   background: var(--bg-surface);
-  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+  box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.1);
 }
 
 .form-field {
@@ -303,7 +303,7 @@ body::after {
 .form-input-base:focus {
   outline: none;
   border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
 }
 
 .form-error-base {

@@ -85,7 +85,7 @@ import { TrabajadorService } from '../../services/trabajador.service';
       width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white;
     }
     .bg-edit { background: var(--accent-primary); }
-    .bg-new { background: #10b981; }
+    .bg-new { background: var(--grad-main); }
 
     .btn-close-modal {
       background: none; border: none; color: var(--text-muted); cursor: pointer;

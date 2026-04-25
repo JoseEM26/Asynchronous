@@ -128,7 +128,7 @@ import { FormAsistenciaComponent } from './form-asistencia.component';
     .icon-box-primary {
       padding: 10px; background: var(--grad-main); color: white;
       border-radius: 12px; display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+      box-shadow: 0 4px 12px rgba(249, 115, 22, 0.25);
     }
 
     .main-list-card {
@@ -144,7 +144,7 @@ import { FormAsistenciaComponent } from './form-asistencia.component';
     }
 
     .list-row { transition: background 0.2s ease; border-bottom: 1px solid var(--glass-border); }
-    .list-row:hover { background: rgba(37,99,235,0.02); }
+    .list-row:hover { background: rgba(249,115,22,0.05); }
 
     .avatar-box {
       width: 42px; height: 42px; background: var(--bg-deep);

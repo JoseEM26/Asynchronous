@@ -115,7 +115,7 @@ import { Subscription } from 'rxjs';
   `,
   styles: [`
     .icon-circle { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
-    .bg-soft-primary { background: rgba(37, 99, 235, 0.1); }
+    .bg-soft-primary { background: rgba(249, 115, 22, 0.1); }
     .icon-box-small { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
     .extra-small { font-size: 0.65rem; }
     
@@ -134,7 +134,7 @@ import { Subscription } from 'rxjs';
     }
     .status-marker { width: 8px; height: 8px; border-radius: 50%; }
     
-    .alert-info-mini { background: #f0f9ff; border: 1px solid #e0f2fe; color: #0369a1; }
+    .alert-info-mini { background: #fff7ed; border: 1px solid #ffedd5; color: #c2410c; }
     .btn-primary-grad { background: var(--grad-main); border: none; color: white; border-radius: 12px; font-weight: 700; }
     .form-error-base { color: #ef4444; font-size: 0.75rem; margin-top: 4px; }
   `]

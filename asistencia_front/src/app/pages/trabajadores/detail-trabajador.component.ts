@@ -207,15 +207,15 @@ import { TrabajadorResponse } from '../../models/trabajador.interface';
       background: #fff; padding: 12px 10px; border-radius: 12px; border: 1px solid #e2e8f0;
       text-align: center; display: flex; flex-direction: column; gap: 4px;
     }
-    .schedule-day.OFC { border-color: #3b82f6; background: #eff6ff; }
+    .schedule-day.OFC { border-color: #ea580c; background: #fff7ed; }
     .schedule-day.REM { border-color: #64748b; background: #f1f5f9; }
     .day-label { font-size: 0.65rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; }
     .state-label { font-size: 0.75rem; font-weight: 700; color: #475569; }
-    .OFC .day-label, .OFC .state-label { color: #2563eb; }
+    .OFC .day-label, .OFC .state-label { color: #ea580c; }
 
     .geo-badge { display: flex; flex-direction: column; background: #fff; padding: 10px 15px; border-radius: 12px; border: 1px solid #e2e8f0; }
     .geo-badge label { font-size: 0.6rem; color: #94a3b8; font-weight: 700; }
-    .geo-badge span { font-family: 'JetBrains Mono', monospace; font-weight: 800; color: #0891b2; }
+    .geo-badge span { font-family: 'JetBrains Mono', monospace; font-weight: 800; color: #ea580c; }
 
     .detail-footer { padding: 20px 40px 30px; text-align: center; }
     .btn-premium-close {

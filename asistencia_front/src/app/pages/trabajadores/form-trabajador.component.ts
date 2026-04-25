@@ -177,7 +177,7 @@ import { RolResponse } from '../../models/rol.interface';
       width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white;
     }
     .bg-edit { background: var(--accent-primary); }
-    .bg-new { background: #10b981; }
+    .bg-new { background: var(--grad-main); }
 
     .btn-close-modal { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 5px; border-radius: 6px; transition: var(--transition-fast); display: flex; }
     .btn-close-modal:hover { background: var(--bg-deep); color: var(--accent-danger); }
@@ -207,18 +207,18 @@ import { RolResponse } from '../../models/rol.interface';
       background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px;
       display: flex; flex-direction: column; gap: 8px; transition: all 0.2s;
     }
-    .day-card.card-ofc { border-color: #3b82f6; background: #eff6ff; }
+    .day-card.card-ofc { border-color: #ea580c; background: #fff7ed; }
     .day-card.card-rem { border-color: #64748b; background: #f8fafc; }
     
     .day-name { font-weight: 700; font-size: 0.7rem; text-transform: uppercase; color: #94a3b8; }
-    .card-ofc .day-name { color: #3b82f6; }
+    .card-ofc .day-name { color: #ea580c; }
     
     .state-buttons-triple { display: flex; border-radius: 6px; overflow: hidden; border: 1px solid #e2e8f0; height: 24px; }
     .btn-triple {
       flex: 1; border: none; padding: 0; font-size: 0.6rem; font-weight: 800; cursor: pointer;
       background: #f8fafc; color: #cbd5e1; transition: all 0.2s;
     }
-    .btn-triple.ofc.active { background: #3b82f6; color: white; }
+    .btn-triple.ofc.active { background: #ea580c; color: white; }
     .btn-triple.rem.active { background: #64748b; color: white; }
     .btn-triple.lib.active { background: #cbd5e1; color: #475569; }
   `]

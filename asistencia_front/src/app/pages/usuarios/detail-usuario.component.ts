@@ -17,8 +17,8 @@ import { UsuarioResponse } from '../../models/usuario.interface';
            </button>
            
            <div class="profile-summary">
-              <div class="avatar-large">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+              <div class="avatar-large" style="overflow: hidden; padding: 2px;">
+                 <img src="logo.jpeg" alt="User" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
               </div>
               <div class="profile-info">
                 <h2 class="profile-name">{{ usuario?.username }}</h2>
@@ -101,7 +101,7 @@ import { UsuarioResponse } from '../../models/usuario.interface';
     .detail-header { position: relative; padding: 60px 40px 30px; }
     .banner-gradient {
       position: absolute; top: 0; left: 0; right: 0; height: 120px;
-      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      background: var(--grad-main);
     }
     .btn-close-glass {
       position: absolute; top: 20px; right: 20px; background: rgba(255, 255, 255, 0.1);
@@ -112,7 +112,7 @@ import { UsuarioResponse } from '../../models/usuario.interface';
     .profile-summary { position: relative; display: flex; align-items: flex-end; gap: 24px; }
     .avatar-large {
       width: 80px; height: 80px; background: #fff; border-radius: 20px;
-      display: flex; align-items: center; justify-content: center; color: #4f46e5;
+      display: flex; align-items: center; justify-content: center; color: #ea580c;
       box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border: 4px solid #fff;
     }
     .profile-name { font-size: 1.5rem; font-weight: 800; color: #1e293b; margin-bottom: 8px; }
@@ -124,10 +124,10 @@ import { UsuarioResponse } from '../../models/usuario.interface';
     .detail-grid { display: flex; flex-direction: column; gap: 15px; }
     .detail-card { background: #f8fafc; border-radius: 20px; padding: 20px; border: 1px solid #e2e8f0; }
     .card-header { font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase; display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
-    .username-display { font-family: 'JetBrains Mono', monospace; font-size: 1.2rem; font-weight: 700; color: #4f46e5; }
+    .username-display { font-family: 'JetBrains Mono', monospace; font-size: 1.2rem; font-weight: 700; color: #ea580c; }
 
     .worker-relation-box { display: flex; gap: 16px; align-items: center; background: #fff; padding: 15px; border-radius: 16px; border: 1px solid #e2e8f0; }
-    .worker-avatar { width: 50px; height: 50px; background: #eef2ff; color: #4f46e5; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.2rem; }
+    .worker-avatar { width: 50px; height: 50px; background: #fff7ed; color: #ea580c; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.2rem; }
     .worker-name { font-size: 1.1rem; font-weight: 700; color: #1e293b; margin: 0; }
     .worker-meta { font-size: 0.8rem; color: #64748b; }
     .worker-note { font-size: 0.75rem; color: #94a3b8; font-style: italic; }

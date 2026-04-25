@@ -12,10 +12,10 @@ import { AuthService } from '../../services/auth.service';
     <div class="login-container">
       <div class="login-card animate-fade">
         <div class="text-center mb-5">
-           <div class="logo-box mb-3">
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-white"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+           <div class="logo-container mb-4 mx-auto">
+              <img src="logo.jpeg" alt="Asistencia Logo" class="img-fluid shadow-sm" style="border-radius: 18px; width: 80px; height: 80px; object-fit: cover; border: 1px solid rgba(249, 115, 22, 0.1);">
            </div>
-           <h1 class="h3 fw-bold mb-1">Bienvenido de nuevo</h1>
+           <h1 class="h3 fw-bold mb-1" style="color: var(--accent-secondary);">Bienvenido de nuevo</h1>
            <p class="text-secondary small">Ingresa tus credenciales para acceder al sistema</p>
         </div>
 
@@ -59,10 +59,10 @@ import { AuthService } from '../../services/auth.service';
       border-radius: 24px; box-shadow: 0 20px 50px -12px rgba(0,0,0,0.1);
       border: 1px solid rgba(0,0,0,0.03);
     }
-    .logo-box {
-      width: 64px; height: 64px; background: var(--grad-main); border-radius: 18px;
+    .logo-container {
+      width: 80px; height: 80px; border-radius: 18px;
       display: flex; align-items: center; justify-content: center; margin: 0 auto;
-      box-shadow: 0 8px 16px rgba(37, 99, 235, 0.25);
+      box-shadow: 0 10px 25px rgba(249, 115, 22, 0.2);
     }
     .input-group-custom { position: relative; }
     .input-icon {
@@ -76,14 +76,14 @@ import { AuthService } from '../../services/auth.service';
     }
     .form-control-custom:focus {
       outline: none; border-color: var(--accent-primary); background: white;
-      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08);
+      box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.08);
     }
     .btn-login {
       width: 100%; padding: 14px; border-radius: 12px; background: var(--grad-main);
       color: white; font-weight: 700; border: none; cursor: pointer;
-      transition: all 0.3s ease; box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.2);
+      transition: all 0.3s ease; box-shadow: 0 10px 15px -3px rgba(249, 115, 22, 0.2);
     }
-    .btn-login:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 12px 20px -3px rgba(37, 99, 235, 0.3); }
+    .btn-login:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 12px 20px -3px rgba(249, 115, 22, 0.3); }
     .btn-login:disabled { opacity: 0.6; cursor: not-allowed; }
   `]
 })

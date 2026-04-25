@@ -15,10 +15,10 @@ import { Router } from '@angular/router';
       <div class="sidebar-header">
         <div class="logo-area">
           <div class="logo-box">
-             <img src="logo.png" alt="Logo" class="logo-img-fluid">
+             <img src="logo.jpeg" alt="Logo" class="logo-img-fluid" style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover;">
           </div>
           <div class="logo-text">
-            <span class="logo-title">ASYNC</span>
+            <span class="logo-title">Geocheck</span>
             <span class="logo-subtitle">Management v2</span>
           </div>
         </div>
@@ -67,8 +67,8 @@ import { Router } from '@angular/router';
 
       <div class="sidebar-footer">
         <div class="user-block">
-          <div class="user-avatar">
-             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          <div class="user-avatar" style="overflow: hidden;">
+             <img src="logo.jpeg" alt="User" style="width: 100%; height: 100%; object-fit: cover;">
           </div>
           <div class="user-meta">
             <span class="user-role">Administrator</span>
