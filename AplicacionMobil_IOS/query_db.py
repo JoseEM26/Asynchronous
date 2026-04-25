@@ -2,10 +2,10 @@ import pymysql
 
 # Connect to the database
 connection = pymysql.connect(
-    host='mainline.proxy.rlwy.net',
+    host='shuttle.proxy.rlwy.net',
     user='root',
-    password='OORlizKNtyvvJchInTmNzmwYWBgWnbpS',
-    port=56877
+    password='zYNTuBTpbBXIxahNutOzJTzvMdHBFTYx',
+    port=49382
 )
 
 try:

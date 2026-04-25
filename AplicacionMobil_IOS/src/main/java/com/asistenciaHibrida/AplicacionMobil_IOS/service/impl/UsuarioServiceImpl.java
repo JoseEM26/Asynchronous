@@ -147,6 +147,8 @@ public class UsuarioServiceImpl implements UsuarioService {
             throw new RuntimeException("El trabajador asociado está inactivo");
         }
 
-        return usuarioMapper.toResponseDTO(usuario);
+        UsuarioResponseDTO response = usuarioMapper.toResponseDTO(usuario);
+        response.setToken("normal-test-token-" + usuario.getId());
+        return response;
     }
 }

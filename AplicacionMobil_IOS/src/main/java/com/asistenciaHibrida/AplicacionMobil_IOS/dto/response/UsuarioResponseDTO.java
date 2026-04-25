@@ -9,4 +9,5 @@ public class UsuarioResponseDTO {
     private RolResponseDTO rol;
     private TrabajadorResponseDTO trabajador;
     private Boolean activo;
+    private String token;
 }
