@@ -26,9 +26,7 @@ public class UsuarioController {
 
     @GetMapping
     public List<UsuarioResponseDTO> listar() {
-        return usuarioService.listarTodos().stream()
-                .map(usuarioMapper::toResponseDTO)
-                .collect(Collectors.toList());
+        return usuarioService.listarTodos();
     }
 
     @PostMapping("/paged")

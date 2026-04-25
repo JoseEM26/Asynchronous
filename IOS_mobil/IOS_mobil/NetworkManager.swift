@@ -23,11 +23,14 @@ class NetworkManager {
             isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
             if let date = isoFormatter.date(from: dateString) { return date }
             
+            // Si tiene muchos decimales (ej: .26570915), cortamos a 3 o lo procesamos sin decimales
+            let cleanedDate = dateString.contains(".") ? String(dateString.split(separator: ".")[0]) : dateString
+            
             let fallbackFormatter = DateFormatter()
             fallbackFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
-            if let date = fallbackFormatter.date(from: String(dateString.prefix(19))) { return date }
+            if let date = fallbackFormatter.date(from: cleanedDate) { return date }
             
-            return Date() // Fallback a fecha actual si todo falla
+            return Date()
         }
         return decoder
     }

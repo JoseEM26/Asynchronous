@@ -244,6 +244,10 @@ export class ComunicadosManagementComponent implements OnInit {
   searchControl = new FormControl('');
   private searchSub?: Subscription;
 
+  get searchFilter(): string {
+    return this.searchControl.value || '';
+  }
+
   constructor(
     private comunicadoService: ComunicadoService,
     private notify: NotificationService

@@ -30,8 +30,11 @@ public class UsuarioServiceImpl implements UsuarioService {
     private UsuarioMapper usuarioMapper;
 
     @Override
-    public List<Usuario> listarTodos() {
-        return usuarioRepository.findAll();
+    @Transactional(readOnly = true)
+    public List<UsuarioResponseDTO> listarTodos() {
+        return usuarioRepository.findAll().stream()
+                .map(usuarioMapper::toResponseDTO)
+                .collect(Collectors.toList());
     }
 
     @Override

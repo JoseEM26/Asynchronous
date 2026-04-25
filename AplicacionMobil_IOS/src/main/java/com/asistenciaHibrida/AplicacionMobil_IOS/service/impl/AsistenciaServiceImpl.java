@@ -231,7 +231,7 @@ public class AsistenciaServiceImpl implements AsistenciaService {
     public List<Asistencia> listarPorTrabajador(Integer trabajadorId) {
         Trabajador trabajador = trabajadorRepository.findById(trabajadorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Trabajador no encontrado"));
-        return asistenciaRepository.findByTrabajador(trabajador);
+        return asistenciaRepository.findByTrabajadorOrderByFechaHoraDesc(trabajador);
     }
 
     @Override

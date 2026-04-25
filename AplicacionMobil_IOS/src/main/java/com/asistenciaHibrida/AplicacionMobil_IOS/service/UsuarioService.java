@@ -9,7 +9,7 @@ import java.util.List;
 import com.asistenciaHibrida.AplicacionMobil_IOS.dto.response.UsuarioResponseDTO;
 
 public interface UsuarioService {
-    List<Usuario> listarTodos();
+    List<UsuarioResponseDTO> listarTodos();
 
     PageResponseDTO<UsuarioResponseDTO> listarPaginado(PageRequestDTO pageRequest);
 
