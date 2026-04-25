@@ -279,8 +279,22 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
         let dayNames = ["DOMINGO", "LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES", "SABADO"]
         let currentDayName = dayNames[weekday - 1]
         
-        let isPresencialDay = t.diasPresencial?.uppercased().contains(currentDayName) ?? false
-        let isRemotoDay = t.diasRemotos?.uppercased().contains(currentDayName) ?? false
+        var isPresencialDay = t.diasPresencial?.uppercased().contains(currentDayName) ?? false
+        var isRemotoDay = t.diasRemotos?.uppercased().contains(currentDayName) ?? false
+        
+        // Fallback: Si el administrador aún no le ha configurado los días de la semana, guiarnos por su modalidad general
+        let hasNoDaysConfigured = (t.diasPresencial == nil || t.diasPresencial!.isEmpty) && (t.diasRemotos == nil || t.diasRemotos!.isEmpty)
+        
+        if hasNoDaysConfigured {
+            if t.modalidadId == 1 { // Presencial
+                isPresencialDay = true
+            } else if t.modalidadId == 2 { // Virtual
+                isRemotoDay = true
+            } else if t.modalidadId == 3 { // Híbrido (por defecto permitimos ambas hasta que se configure)
+                isPresencialDay = true
+                isRemotoDay = true
+            }
+        }
         
         print("Hoy es \(currentDayName). ¿Día Presencial?: \(isPresencialDay). ¿Día Remoto?: \(isRemotoDay)")
         
@@ -289,14 +303,18 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
             self.scannerButton.isHidden = true
             self.virtualAttendanceButton.isHidden = true
             self.greetingLabel.text = "¡Hola! Hoy es tu día de descanso."
-        } else if isRemotoDay {
-            // Es día remoto: ocultar escáner, mostrar virtual
+        } else if isRemotoDay && !isPresencialDay {
+            // Es SOLO día remoto: ocultar escáner, mostrar virtual
             self.scannerButton.isHidden = true
             self.virtualAttendanceButton.isHidden = false
-        } else {
-            // Es día presencial: mostrar escáner, ocultar virtual
+        } else if isPresencialDay && !isRemotoDay {
+            // Es SOLO día presencial: mostrar escáner, ocultar virtual
             self.scannerButton.isHidden = false
             self.virtualAttendanceButton.isHidden = true
+        } else {
+            // Si tiene ambas permitidas (ej. Híbrido sin configurar) mostramos el escáner y el virtual
+            self.scannerButton.isHidden = false
+            self.virtualAttendanceButton.isHidden = false
         }
         
         // Aplicar permisos de rol adicionales (Admin/Super Admin)

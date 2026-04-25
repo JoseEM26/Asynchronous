@@ -58,6 +58,16 @@ public class PersonalServiceImpl implements PersonalService {
         trabajador.setLongitudVirtual(dto.getLongitudVirtual());
         trabajador.setDiasPresencial(dto.getDiasPresencial());
         trabajador.setDiasRemotos(dto.getDiasRemotos());
+        if (dto.getHoraIngreso() != null && !dto.getHoraIngreso().isEmpty()) {
+            trabajador.setHoraIngreso(java.time.LocalTime.parse(dto.getHoraIngreso()));
+        } else {
+            trabajador.setHoraIngreso(null);
+        }
+        if (dto.getHoraSalida() != null && !dto.getHoraSalida().isEmpty()) {
+            trabajador.setHoraSalida(java.time.LocalTime.parse(dto.getHoraSalida()));
+        } else {
+            trabajador.setHoraSalida(null);
+        }
         trabajador.setPermitirCambioUbicacion(dto.getPermitirCambioUbicacion() != null ? dto.getPermitirCambioUbicacion() : false);
 
         if (dto.getModalidadId() != null) {
@@ -106,6 +116,17 @@ public class PersonalServiceImpl implements PersonalService {
             resp.setDireccion(t.getDireccion());
             resp.setFechaIngreso(t.getFechaIngreso());
             resp.setActivo(t.getActivo());
+            resp.setLatitudVirtual(t.getLatitudVirtual());
+            resp.setLongitudVirtual(t.getLongitudVirtual());
+            resp.setDiasPresencial(t.getDiasPresencial());
+            resp.setDiasRemotos(t.getDiasRemotos());
+            if (t.getHoraIngreso() != null) {
+                resp.setHoraIngreso(t.getHoraIngreso().toString());
+            }
+            if (t.getHoraSalida() != null) {
+                resp.setHoraSalida(t.getHoraSalida().toString());
+            }
+            resp.setPermitirCambioUbicacion(t.getPermitirCambioUbicacion());
             
             if (t.getModalidad() != null) {
                 resp.setModalidadNombre(t.getModalidad().getNombre());
