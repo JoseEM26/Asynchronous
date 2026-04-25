@@ -26,8 +26,9 @@ class DashboardViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
+        setupAdminButton() // Primero creamos el botón
+        configurePermissionsByRole() // Luego aplicamos los permisos del rol
         setupActions()
-        checkAdminRole()
     }
     
     private func setupUI() {
@@ -122,10 +123,29 @@ class DashboardViewController: UIViewController {
             adminButton.heightAnchor.constraint(equalToConstant: 60)
         ])
     }
-    
-    private func checkAdminRole() {
-        if userRole == "ADMIN" {
+
+    private func configurePermissionsByRole() {
+        guard let role = userRole else { return }
+        
+        print("Configurando permisos para el rol: \(role)")
+        
+        // 1. Lógica para SUPER_ADMIN (5)
+        if role == "SUPER_ADMIN" || role == "5" {
+            scannerButton.isHidden = true
+            adminButton.isHidden = false // El Super Admin suele querer ver la configuración
+            adminButton.setTitle("👁️ Ver Oficinas", for: .normal)
+        }
+        
+        // 2. Lógica para ADMIN (1)
+        else if role == "ADMIN" || role == "1" {
             adminButton.isHidden = false
+            scannerButton.isHidden = false 
+        }
+        
+        // 3. Roles de terreno o estándar
+        else {
+            adminButton.isHidden = true
+            scannerButton.isHidden = false
         }
     }
 
@@ -151,7 +171,10 @@ class DashboardViewController: UIViewController {
     }
 
     @objc private func scannerPressed() {
-        performSegue(withIdentifier: "toScanner", sender: trabajadorId)
+        let vc = ScannerViewController()
+        vc.usuarioId = trabajadorId
+        vc.modalPresentationStyle = .fullScreen
+        present(vc, animated: true)
     }
 
     @objc private func historyPressed() {
@@ -160,28 +183,26 @@ class DashboardViewController: UIViewController {
         let nav = UINavigationController(rootViewController: vc)
         nav.modalPresentationStyle = .pageSheet
         if let sheet = nav.sheetPresentationController {
-            sheet.detents = [.medium(), .large()]
+            sheet.detents = [.large()]
             sheet.prefersGrabberVisible = true
-            sheet.prefersScrollingExpandsWhenScrolledToEdge = true
         }
         present(nav, animated: true)
     }
     
     @objc private func adminPressed() {
-        performSegue(withIdentifier: "toAdminSettings", sender: nil)
+        let vc = AdminSettingsViewController()
+        let nav = UINavigationController(rootViewController: vc)
+        nav.modalPresentationStyle = .pageSheet
+        if let sheet = nav.sheetPresentationController {
+            sheet.detents = [.large()]
+            sheet.prefersGrabberVisible = true
+        }
+        present(nav, animated: true)
     }
 
     @IBAction func logoutPressed(_ sender: UIButton) {
         let generator = UIImpactFeedbackGenerator(style: .light)
         generator.impactOccurred()
         navigationController?.popViewController(animated: true)
-    }
-
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        let id = sender as? Int
-        if segue.identifier == "toScanner",
-           let scannerVC = segue.destination as? ScannerViewController {
-            scannerVC.usuarioId = id
-        }
     }
 }

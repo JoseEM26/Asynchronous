@@ -99,15 +99,28 @@ class NetworkManager {
                 DispatchQueue.main.async { completion(.failure(.noData)) }
                 return
             }
+            
+            // Verificar código HTTP
+            if let httpResponse = response as? HTTPURLResponse, !(200...299).contains(httpResponse.statusCode) {
+                let serverMessage = String(data: data, encoding: .utf8) ?? "Error del servidor (código \(httpResponse.statusCode))"
+                print("Server Error Response: \(serverMessage)")
+                DispatchQueue.main.async { completion(.failure(.serverError(serverMessage))) }
+                return
+            }
 
             DispatchQueue.main.async {
-                if let body = String(data: data, encoding: .utf8) { print("Server Response: \(body)") }
+                if let body = String(data: data, encoding: .utf8) { print("Respuesta Servidor QR: \(body)") }
                 do {
                     let asistencia = try self.getDecoder().decode(AsistenciaResponse.self, from: data)
                     completion(.success(asistencia))
                 } catch {
-                    print("QR decoding error: \(error)")
-                    completion(.failure(.decodingError))
+                    // Si no es JSON válido, puede ser un mensaje de texto del servidor
+                    if let textResponse = String(data: data, encoding: .utf8) {
+                        completion(.failure(.serverError(textResponse)))
+                    } else {
+                        print("QR decoding error: \(error)")
+                        completion(.failure(.decodingError))
+                    }
                 }
             }
         }.resume()
