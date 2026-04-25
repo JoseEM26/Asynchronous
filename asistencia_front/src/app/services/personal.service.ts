@@ -19,6 +19,8 @@ export interface PersonalUnificado {
   longitudVirtual?: number;
   diasPresencial?: string;
   diasRemotos?: string;
+  horaIngreso?: string;
+  horaSalida?: string;
   permitirCambioUbicacion?: boolean;
   username: string;
   password?: string;
@@ -43,5 +45,10 @@ export class PersonalService {
 
   guardar(personal: PersonalUnificado): Observable<void> {
     return this.http.post<void>(this.apiUrl, personal);
+  }
+
+  permitirCambioUbicacion(id: number, permitir: boolean): Observable<void> {
+    const url = `${environment.apiUrl}/trabajadores/${id}/permitir-cambio-ubicacion?permitir=${permitir}`;
+    return this.http.put<void>(url, {});
   }
 }

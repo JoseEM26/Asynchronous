@@ -3,14 +3,13 @@ import { CommonModule } from '@angular/common';
 import { PersonalService, PersonalUnificado } from '../../services/personal.service';
 import { NotificationService } from '../../services/notification.service';
 import { FormPersonalComponent } from './form-personal.component';
+import { PersonalDetailComponent } from './personal-detail.component';
 import { FormsModule } from '@angular/forms';
-import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'app-personal-list',
   standalone: true,
-  imports: [CommonModule, FormPersonalComponent, FormsModule],
+  imports: [CommonModule, FormPersonalComponent, PersonalDetailComponent, FormsModule],
   template: `
     <div class="container-fluid animate-fade px-4 py-4">
       <div class="row mb-5 align-items-end">
@@ -116,17 +115,12 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
                   </td>
                   <td class="text-end pe-4">
                     <div class="d-flex gap-2 justify-content-end">
+                      <button class="action-btn detail" (click)="onVerDetalle(p)" title="Ver Detalle">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                      </button>
                       <button class="action-btn edit" (click)="onEditar(p)" title="Editar Personal">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4L18.5 2.5z"></path></svg>
                       </button>
-                    </div>
-                  </td>
-                </tr>
-                <tr *ngIf="personalFiltrado.length === 0 && !isLoading">
-                  <td colspan="6" class="text-center py-5">
-                    <div class="empty-state py-5">
-                      <h5 class="fw-bold mb-1">Sin Registros</h5>
-                      <p class="text-secondary small">No hay personal registrado que coincida con la búsqueda.</p>
                     </div>
                   </td>
                 </tr>
@@ -136,6 +130,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
         </div>
       </div>
 
+      <!-- Modales -->
       <app-form-personal 
         *ngIf="showForm"
         [editData]="selectedPersonal"
@@ -143,28 +138,29 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
         (close)="onCloseForm()"
         (save)="onSave($event)"
       ></app-form-personal>
+
+      <app-personal-detail
+        *ngIf="showDetail"
+        [data]="selectedPersonal"
+        (close)="onCloseDetail()"
+      ></app-personal-detail>
     </div>
   `,
   styles: [`
     .ls-1 { letter-spacing: 0.05rem; }
-    .search-input-group .search-icon {
-      position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
-      color: var(--text-secondary); opacity: 0.5; z-index: 5;
-    }
-    .search-input-group .form-control { height: 45px; font-size: 0.9rem; border: 1px solid transparent !important; }
-    .search-input-group .form-control:focus { background: white !important; border-color: var(--accent-primary) !important; box-shadow: 0 4px 12px rgba(249, 115, 22, 0.1) !important; }
+    .search-input-group .search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); opacity: 0.5; z-index: 5; }
     .icon-box-primary { padding: 10px; background: var(--grad-main); color: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(249, 115, 22, 0.25); }
     .main-list-card { border-radius: 20px; border: 1px solid var(--glass-border); box-shadow: var(--shadow-xl); background: var(--bg-surface); }
     .table-custom thead th { background: var(--bg-deep); border-bottom: 2px solid var(--glass-border); color: var(--text-secondary); font-weight: 700; }
-    .list-row:hover { background: rgba(249,115,22,0.05); }
     .avatar-box { width: 42px; height: 42px; background: var(--bg-deep); border-radius: 12px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--glass-border); color: var(--accent-primary); font-weight: 800; }
-    .badge-code { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; font-weight: 600; background: var(--bg-deep); padding: 4px 10px; border-radius: 6px; }
+    .action-btn { width: 34px; height: 34px; border-radius: 10px; border: none; background: #f1f5f9; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
+    .action-btn:hover { transform: scale(1.1); }
+    .action-btn.detail:hover { background: #e0f2fe; color: #0369a1; }
+    .action-btn.edit:hover { background: #fef3c7; color: #b45309; }
     .status-pill { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 30px; font-size: 0.75rem; font-weight: 700; background: #f1f5f9; color: #475569; }
     .status-pill.active { background: #ecfdf5; color: #065f46; }
     .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #94a3b8; }
     .active .status-dot { background: #10b981; }
-    .action-btn { width: 34px; height: 34px; border-radius: 10px; border: none; background: #f1f5f9; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-    .action-btn.edit:hover { background: #fef3c7; color: #b45309; }
     .modality-badge { padding: 4px 10px; border-radius: 8px; font-size: 0.7rem; font-weight: 700; }
     .mod-presencial { background: #dcfce7; color: #166534; }
     .mod-virtual { background: #e0f2fe; color: #075985; }
@@ -178,6 +174,7 @@ export class PersonalListComponent implements OnInit {
   personalFiltrado: PersonalUnificado[] = [];
   isLoading = false;
   showForm = false;
+  showDetail = false;
   selectedPersonal: PersonalUnificado | null = null;
   searchTerm = '';
   filterModalidad = 0;
@@ -193,17 +190,14 @@ export class PersonalListComponent implements OnInit {
 
   cargarPersonal() {
     this.isLoading = true;
-    console.log('📡 Cargando personal desde:', this.personalService['apiUrl']);
     this.personalService.listar().subscribe({
       next: (data) => {
-        console.log('✅ Personal recibido:', data);
         this.personal = data;
         this.aplicarFiltros();
         this.isLoading = false;
       },
-      error: (err) => {
-        console.error('❌ Error al cargar la lista de personal:', err);
-        this.notify.error('Error al cargar la lista de personal. Verifica la consola.');
+      error: () => {
+        this.notify.error('Error al cargar la lista de personal');
         this.isLoading = false;
       }
     });
@@ -215,9 +209,7 @@ export class PersonalListComponent implements OnInit {
         `${p.nombres} ${p.apellidos}`.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
         p.dni.includes(this.searchTerm) ||
         p.username.toLowerCase().includes(this.searchTerm.toLowerCase());
-      
       const matchMod = this.filterModalidad == 0 || p.modalidadId == this.filterModalidad;
-      
       return matchSearch && matchMod;
     });
   }
@@ -243,8 +235,18 @@ export class PersonalListComponent implements OnInit {
     this.showForm = true;
   }
 
+  onVerDetalle(p: PersonalUnificado) {
+    this.selectedPersonal = p;
+    this.showDetail = true;
+  }
+
   onCloseForm() {
     this.showForm = false;
+    this.selectedPersonal = null;
+  }
+
+  onCloseDetail() {
+    this.showDetail = false;
     this.selectedPersonal = null;
   }
 

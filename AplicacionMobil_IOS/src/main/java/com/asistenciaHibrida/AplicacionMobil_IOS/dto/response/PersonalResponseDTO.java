@@ -17,6 +17,13 @@ public class PersonalResponseDTO {
     private Boolean activo;
     private String modalidadNombre;
     private Integer modalidadId;
+    private java.math.BigDecimal latitudVirtual;
+    private java.math.BigDecimal longitudVirtual;
+    private String diasPresencial;
+    private String diasRemotos;
+    private String horaIngreso;
+    private String horaSalida;
+    private Boolean permitirCambioUbicacion;
 
     // Datos del Usuario vinculado
     private Integer usuarioId;

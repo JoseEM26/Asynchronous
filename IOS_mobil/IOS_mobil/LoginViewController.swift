@@ -116,6 +116,7 @@ class LoginViewController: UIViewController {
         if segue.identifier == "toDashboard",
            let dashboardVC = segue.destination as? DashboardViewController,
            let response = sender as? UsuarioResponse {
+            dashboardVC.modalPresentationStyle = .fullScreen
             dashboardVC.trabajadorId = response.id
             dashboardVC.userRole = response.rol?.nombre
         }
