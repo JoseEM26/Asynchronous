@@ -15,17 +15,24 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="logo" translatesAutoresizingMaskIntoConstraints="NO" id="IMG1">
-                                <rect key="frame" x="96.666666666666686" y="326" width="200" height="200"/>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="LaunchBackground" translatesAutoresizingMaskIntoConstraints="NO" id="BG1">
+                                <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                            </imageView>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="LaunchLogo" translatesAutoresizingMaskIntoConstraints="NO" id="IMG1">
+                                <rect key="frame" x="71.666666666666686" y="301" width="250" height="250"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="200" id="w1"/>
-                                    <constraint firstAttribute="height" constant="200" id="h1"/>
+                                    <constraint firstAttribute="width" constant="250" id="w1"/>
+                                    <constraint firstAttribute="height" constant="250" id="h1"/>
                                 </constraints>
                             </imageView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
-                        <color key="backgroundColor" white="0.15" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
+                            <constraint firstItem="BG1" firstAttribute="top" secondItem="Ze5-6b-2t3" secondAttribute="top" id="b1"/>
+                            <constraint firstItem="BG1" firstAttribute="bottom" secondItem="Ze5-6b-2t3" secondAttribute="bottom" id="b2"/>
+                            <constraint firstItem="BG1" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" id="b3"/>
+                            <constraint firstItem="BG1" firstAttribute="trailing" secondItem="Ze5-6b-2t3" secondAttribute="trailing" id="b4"/>
                             <constraint firstItem="IMG1" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="c5"/>
                             <constraint firstItem="IMG1" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="c6"/>
                         </constraints>
@@ -37,6 +44,7 @@
         </scene>
     </scenes>
     <resources>
-        <image name="logo" width="1024" height="1024"/>
+        <image name="LaunchBackground" width="1024" height="2048"/>
+        <image name="LaunchLogo" width="1024" height="1024"/>
     </resources>
 </document>

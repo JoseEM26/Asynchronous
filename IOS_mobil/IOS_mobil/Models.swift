@@ -52,10 +52,11 @@ final class TrabajadorResponse: Codable, @unchecked Sendable {
     let horaSalida: String?
     let rolNombre: String?
     let modalidadNombre: String?
+    let jefeNombre: String?
     let jefe: TrabajadorResponse?
 
     enum CodingKeys: String, CodingKey {
-        case id, dni, nombres, apellidos, email, telefono, direccion, fechaIngreso, activo, modalidadId, esJefeTerreno, permitirCambioUbicacion, latitudVirtual, longitudVirtual, diasPresencial, diasRemotos, horaIngreso, horaSalida, rolNombre, modalidadNombre, jefe
+        case id, dni, nombres, apellidos, email, telefono, direccion, fechaIngreso, activo, modalidadId, esJefeTerreno, permitirCambioUbicacion, latitudVirtual, longitudVirtual, diasPresencial, diasRemotos, horaIngreso, horaSalida, rolNombre, modalidadNombre, jefeNombre, jefe
     }
 
     required nonisolated init(from decoder: Decoder) throws {
@@ -80,6 +81,7 @@ final class TrabajadorResponse: Codable, @unchecked Sendable {
         self.horaSalida = try container.decodeIfPresent(String.self, forKey: .horaSalida)
         self.rolNombre = try container.decodeIfPresent(String.self, forKey: .rolNombre)
         self.modalidadNombre = try container.decodeIfPresent(String.self, forKey: .modalidadNombre)
+        self.jefeNombre = try container.decodeIfPresent(String.self, forKey: .jefeNombre)
         self.jefe = try container.decodeIfPresent(TrabajadorResponse.self, forKey: .jefe)
     }
 }
