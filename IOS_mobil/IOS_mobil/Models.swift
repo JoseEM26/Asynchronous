@@ -4,6 +4,7 @@ import Foundation
 struct LoginRequest: Codable, Sendable {
     let username: String
     let password: String
+    let isMobile: Bool // Campo añadido para saltar el 2FA en el backend
 }
 
 // MARK: - Login Response
@@ -12,9 +13,10 @@ final class LoginResponse: Codable, @unchecked Sendable {
     let username: String
     let rol: RolResponse?
     let trabajador: TrabajadorResponse?
+    let token: String?
 
     enum CodingKeys: String, CodingKey {
-        case id, username, rol, trabajador
+        case id, username, rol, trabajador, token
     }
 
     required nonisolated init(from decoder: Decoder) throws {
@@ -23,6 +25,7 @@ final class LoginResponse: Codable, @unchecked Sendable {
         self.username = try container.decode(String.self, forKey: .username)
         self.rol = try container.decodeIfPresent(RolResponse.self, forKey: .rol)
         self.trabajador = try container.decodeIfPresent(TrabajadorResponse.self, forKey: .trabajador)
+        self.token = try container.decodeIfPresent(String.self, forKey: .token)
     }
 }
 
@@ -142,3 +145,17 @@ struct ConfiguracionResponse: Codable, Sendable {
     let officeLng: Double?
     let radius: Int?
 }
+
+// MARK: - Trabajador Simple (para lista de equipo del jefe)
+struct TrabajadorSimpleResponse: Codable, Sendable {
+    let id: Int?
+    let dni: String?
+    let nombres: String?
+    let apellidos: String?
+    let email: String?
+    let telefono: String?
+    let activo: Bool?
+    let modalidadNombre: String?
+    let esJefeTerreno: Bool?
+}
+

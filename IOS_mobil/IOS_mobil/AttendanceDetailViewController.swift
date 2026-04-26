@@ -13,11 +13,10 @@ class AttendanceDetailViewController: UIViewController {
         super.viewDidLoad()
         title = "Detalle de Asistencia"
         
-        view.backgroundColor = UIColor { trait in
-            trait.userInterfaceStyle == .dark
-                ? UIColor(red: 0.08, green: 0.08, blue: 0.10, alpha: 1.0)
-                : UIColor(red: 0.95, green: 0.95, blue: 0.97, alpha: 1.0)
-        }
+        view.backgroundColor = .systemGroupedBackground
+        view.layer.cornerRadius = 30
+        view.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        view.clipsToBounds = true
         
         // Botón cerrar
         navigationItem.rightBarButtonItem = UIBarButtonItem(
@@ -193,7 +192,7 @@ class AttendanceDetailViewController: UIViewController {
             mapCard.addSubview(mapTitle)
             
             mapView.translatesAutoresizingMaskIntoConstraints = false
-            mapView.layer.cornerRadius = 12
+            mapView.layer.cornerRadius = 20
             mapView.clipsToBounds = true
             mapView.isZoomEnabled = true
             mapView.isScrollEnabled = true

@@ -130,6 +130,7 @@ class LoginViewController: UIViewController {
         findAndStyleLogo(in: self.view)
     }
 
+    @available(iOS, deprecated: 17.0, message: "Use registerForTraitChanges instead")
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
         if #available(iOS 17.0, *) { return }
@@ -156,7 +157,10 @@ class LoginViewController: UIViewController {
         }
         activityIndicator.startAnimating()
         loginButton.isEnabled = false
-        let request = LoginRequest(username: username, password: password)
+        
+        // Enviamos isMobile: true para saltar el 2FA en el móvil
+        let request = LoginRequest(username: username, password: password, isMobile: true)
+        
         NetworkManager.shared.login(request: request) { [weak self] result in
             DispatchQueue.main.async {
                 self?.activityIndicator.stopAnimating()

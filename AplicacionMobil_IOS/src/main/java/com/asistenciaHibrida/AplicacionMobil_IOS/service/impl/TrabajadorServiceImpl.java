@@ -187,4 +187,12 @@ public class TrabajadorServiceImpl implements TrabajadorService {
         t.setPermitirCambioUbicacion(permitir);
         trabajadorRepository.save(t);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<TrabajadorResponseDTO> listarPorJefe(Integer jefeId) {
+        return trabajadorRepository.findByJefeIdAndActivoTrue(jefeId).stream()
+                .map(trabajadorMapper::toResponseDTO)
+                .collect(Collectors.toList());
+    }
 }

@@ -306,4 +306,34 @@ class NetworkManager {
             DispatchQueue.main.async { completion(.success(())) }
         }.resume()
     }
+
+    // Obtener trabajadores asignados a un jefe
+    func getTrabajadoresPorJefe(jefeId: Int, completion: @escaping (Result<[TrabajadorSimpleResponse], NetworkError>) -> Void) {
+        guard let url = URL(string: baseURL + "trabajadores/por-jefe/\(jefeId)") else {
+            completion(.failure(.invalidURL))
+            return
+        }
+
+        URLSession.shared.dataTask(with: url) { data, response, error in
+            if let error = error {
+                DispatchQueue.main.async { completion(.failure(.serverError(error.localizedDescription))) }
+                return
+            }
+
+            guard let data = data else {
+                DispatchQueue.main.async { completion(.failure(.noData)) }
+                return
+            }
+
+            DispatchQueue.main.async {
+                do {
+                    let trabajadores = try self.getDecoder().decode([TrabajadorSimpleResponse].self, from: data)
+                    completion(.success(trabajadores))
+                } catch {
+                    print("Decode error trabajadores: \(error)")
+                    completion(.failure(.decodingError))
+                }
+            }
+        }.resume()
+    }
 }

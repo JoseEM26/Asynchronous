@@ -32,7 +32,7 @@ class AdminSettingsViewController: UIViewController, CLLocationManagerDelegate, 
     
     private let mapView: MKMapView = {
         let mv = MKMapView()
-        mv.layer.cornerRadius = 15
+        mv.layer.cornerRadius = 20
         mv.clipsToBounds = true
         mv.translatesAutoresizingMaskIntoConstraints = false
         return mv
@@ -79,7 +79,10 @@ class AdminSettingsViewController: UIViewController, CLLocationManagerDelegate, 
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = .systemGroupedBackground
+        view.layer.cornerRadius = 30
+        view.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        view.clipsToBounds = true
         title = "Ajustes de Oficina"
         setupUI()
         setupLocation()

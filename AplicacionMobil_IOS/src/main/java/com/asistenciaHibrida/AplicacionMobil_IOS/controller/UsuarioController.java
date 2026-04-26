@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/usuarios")
@@ -38,10 +37,29 @@ public class UsuarioController {
     public ResponseEntity<?> login(
             @RequestBody com.asistenciaHibrida.AplicacionMobil_IOS.dto.request.LoginRequestDTO request) {
         try {
-            return ResponseEntity.ok(usuarioService.login(request.getUsername(), request.getPassword()));
+            // Pasamos el flag isMobile al servicio
+            Boolean isMobile = request.getIsMobile() != null && request.getIsMobile();
+            return ResponseEntity.ok(usuarioService.login(request.getUsername(), request.getPassword(), isMobile));
         } catch (RuntimeException e) {
             return ResponseEntity.status(401).body(e.getMessage());
         }
+    }
+
+    @PostMapping("/verify-2fa")
+    public ResponseEntity<?> verify2FA(@RequestBody java.util.Map<String, String> body) {
+        try {
+            String code = body.get("code");
+            String tempToken = body.get("tempToken");
+            return ResponseEntity.ok(usuarioService.verify2FA(code, tempToken));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(401).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/reset-2fa")
+    public ResponseEntity<Void> reset2FA(@RequestBody java.util.Map<String, String> body) {
+        usuarioService.reset2FA(body.get("username"));
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping

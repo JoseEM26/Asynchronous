@@ -9,6 +9,8 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, 
     private let headerView: UIView = {
         let v = UIView()
         v.backgroundColor = .systemOrange
+        v.layer.cornerRadius = 30
+        v.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
         v.translatesAutoresizingMaskIntoConstraints = false
         return v
     }()
@@ -99,7 +101,11 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, 
     }
     
     private func setupUI() {
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = .systemGroupedBackground
+        view.layer.cornerRadius = 30
+        view.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        view.clipsToBounds = true
+
         // Indicador visual de "pestaña" en la parte superior
         let grabber = UIView()
         grabber.backgroundColor = .systemGray4

@@ -10,4 +10,11 @@ public class UsuarioResponseDTO {
     private TrabajadorResponseDTO trabajador;
     private Boolean activo;
     private String token;
+    
+    // Campos para el soporte de 2FA en la Web
+    private Boolean setup2FA;
+    private Boolean require2FA;
+    private String qrCodeData;
+    private String tempToken;
+    private Boolean twoFactorEnabled;
 }
