@@ -2,7 +2,7 @@ import UIKit
 import CoreLocation
 import MapKit
 
-class PuntoTerrenoViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDelegate {
+class PuntoTerrenoViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDelegate, UIGestureRecognizerDelegate {
 
     var jefeId: Int?
     private let locationManager = CLLocationManager()
@@ -20,7 +20,7 @@ class PuntoTerrenoViewController: UIViewController, CLLocationManagerDelegate, M
     
     private let helpLabel: UILabel = {
         let l = UILabel()
-        l.text = "Mantén presionado en el mapa para elegir un punto diferente a tu ubicación actual."
+        l.text = "Toca cualquier punto en el mapa para establecerlo como lugar de asistencia para tu equipo."
         l.font = .systemFont(ofSize: 13)
         l.textColor = .secondaryLabel
         l.textAlignment = .center
@@ -33,6 +33,7 @@ class PuntoTerrenoViewController: UIViewController, CLLocationManagerDelegate, M
         let mv = MKMapView()
         mv.layer.cornerRadius = 20
         mv.clipsToBounds = true
+        mv.isUserInteractionEnabled = true
         mv.translatesAutoresizingMaskIntoConstraints = false
         return mv
     }()
@@ -67,7 +68,28 @@ class PuntoTerrenoViewController: UIViewController, CLLocationManagerDelegate, M
         setupLocation()
         
         let longPress = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress))
+        longPress.minimumPressDuration = 0.5 // Un poco más corto para que se sienta reactivo
+        longPress.delegate = self
         mapView.addGestureRecognizer(longPress)
+    }
+    
+    // Permitir que el gesto funcione junto con los gestos internos del mapa (pan, zoom)
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return true
+    }
+    
+    @objc private func handleLongPress(gesture: UILongPressGestureRecognizer) {
+        // Solo actuamos al inicio del gesto para evitar múltiples disparos
+        if gesture.state == .began {
+            let point = gesture.location(in: mapView)
+            let coord = mapView.convert(point, toCoordinateFrom: mapView)
+            selectedCoordinate = coord
+            updateMarker(at: coord)
+            
+            // Feedback táctico opcional (vibración suave)
+            let generator = UIImpactFeedbackGenerator(style: .medium)
+            generator.impactOccurred()
+        }
     }
     
     private func setupUI() {
@@ -112,15 +134,6 @@ class PuntoTerrenoViewController: UIViewController, CLLocationManagerDelegate, M
         locationManager.delegate = self
         locationManager.requestWhenInUseAuthorization()
         locationManager.startUpdatingLocation()
-    }
-    
-    @objc private func handleLongPress(gesture: UILongPressGestureRecognizer) {
-        if gesture.state == .began {
-            let point = gesture.location(in: mapView)
-            let coord = mapView.convert(point, toCoordinateFrom: mapView)
-            selectedCoordinate = coord
-            updateMarker(at: coord)
-        }
     }
     
     @objc private func capturePressed() {
