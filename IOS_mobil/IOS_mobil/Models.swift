@@ -145,3 +145,17 @@ struct ConfiguracionResponse: Codable, Sendable {
     let officeLng: Double?
     let radius: Int?
 }
+
+// MARK: - Trabajador Simple (para lista de equipo del jefe)
+struct TrabajadorSimpleResponse: Codable, Sendable {
+    let id: Int?
+    let dni: String?
+    let nombres: String?
+    let apellidos: String?
+    let email: String?
+    let telefono: String?
+    let activo: Bool?
+    let modalidadNombre: String?
+    let esJefeTerreno: Bool?
+}
+

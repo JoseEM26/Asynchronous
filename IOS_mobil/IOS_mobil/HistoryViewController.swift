@@ -34,11 +34,10 @@ class HistoryViewController: UIViewController, UITableViewDataSource, UITableVie
         super.viewDidLoad()
         title = "📅 Mi Historial"
         
-        view.backgroundColor = UIColor { trait in
-            trait.userInterfaceStyle == .dark
-                ? UIColor(red: 0.08, green: 0.08, blue: 0.10, alpha: 1.0)
-                : UIColor(red: 0.95, green: 0.95, blue: 0.97, alpha: 1.0)
-        }
+        view.backgroundColor = .systemGroupedBackground
+        view.layer.cornerRadius = 30
+        view.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        view.clipsToBounds = true
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(
             barButtonSystemItem: .close,
@@ -246,10 +245,13 @@ class HistoryViewController: UIViewController, UITableViewDataSource, UITableVie
         let detailVC = AttendanceDetailViewController()
         detailVC.asistencia = item
         let nav = UINavigationController(rootViewController: detailVC)
-        nav.modalPresentationStyle = .pageSheet
-        if let sheet = nav.sheetPresentationController {
-            sheet.detents = [.large()]
-            sheet.prefersGrabberVisible = true
+        if #available(iOS 15.0, *) {
+            nav.modalPresentationStyle = .pageSheet
+            if let sheet = nav.sheetPresentationController {
+                sheet.detents = [.large()]
+                sheet.prefersGrabberVisible = true
+                sheet.preferredCornerRadius = 30
+            }
         }
         present(nav, animated: true)
     }

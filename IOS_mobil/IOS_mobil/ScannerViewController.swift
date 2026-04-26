@@ -5,6 +5,8 @@ import CoreLocation
 class ScannerViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate, CLLocationManagerDelegate {
 
     var usuarioId: Int?
+    var jefeNombre: String?
+    var modalityId: Int?
     var captureSession: AVCaptureSession!
     var previewLayer: AVCaptureVideoPreviewLayer!
     var locationManager = CLLocationManager()
@@ -44,6 +46,17 @@ class ScannerViewController: UIViewController, AVCaptureMetadataOutputObjectsDel
         return lbl
     }()
     
+    private let bossInfoLabel: UILabel = {
+        let lbl = UILabel()
+        lbl.font = .systemFont(ofSize: 14, weight: .semibold)
+        lbl.textColor = .systemOrange
+        lbl.textAlignment = .center
+        lbl.numberOfLines = 0
+        lbl.isHidden = true
+        lbl.translatesAutoresizingMaskIntoConstraints = false
+        return lbl
+    }()
+    
     private let tipoSelector: UISegmentedControl = {
         let sc = UISegmentedControl(items: ["🟢 ENTRADA", "🔴 SALIDA"])
         sc.selectedSegmentIndex = 0
@@ -68,6 +81,7 @@ class ScannerViewController: UIViewController, AVCaptureMetadataOutputObjectsDel
         view.addSubview(backButton)
         view.addSubview(instructionLabel)
         view.addSubview(tipoSelector)
+        view.addSubview(bossInfoLabel)
         
         NSLayoutConstraint.activate([
             // Guía del scanner
@@ -93,7 +107,17 @@ class ScannerViewController: UIViewController, AVCaptureMetadataOutputObjectsDel
             instructionLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             instructionLabel.widthAnchor.constraint(equalToConstant: 260),
             instructionLabel.heightAnchor.constraint(equalToConstant: 40),
+
+            // Boss Info
+            bossInfoLabel.topAnchor.constraint(equalTo: instructionLabel.bottomAnchor, constant: 12),
+            bossInfoLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            bossInfoLabel.widthAnchor.constraint(equalToConstant: 300)
         ])
+        
+        if let jefe = jefeNombre, modalityId == 4 {
+            bossInfoLabel.text = "📍 Validando contra punto de:\n\(jefe)"
+            bossInfoLabel.isHidden = false
+        }
         
         backButton.addTarget(self, action: #selector(backPressed), for: .touchUpInside)
         tipoSelector.addTarget(self, action: #selector(tipoChanged), for: .valueChanged)

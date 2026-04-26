@@ -42,6 +42,10 @@ export class AuthService {
     );
   }
 
+  reset2FA(username: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/reset-2fa`, { username });
+  }
+
   private handleAuthSuccess(user: UsuarioResponse) {
     localStorage.setItem('asistencia_user', JSON.stringify(user));
     this.currentUserSubject.next(user);

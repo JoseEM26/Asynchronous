@@ -124,12 +124,54 @@ public class UsuarioServiceImpl implements UsuarioService {
             response.setRequire2FA(false);
             response.setSetup2FA(false);
         } else {
-            // WEB: Requiere configuración de 2FA (simulado para Angular)
-            response.setSetup2FA(true);
-            response.setQrCodeData("otpauth://totp/GeoCheck:" + username + "?secret=JBSWY3DPEHPK3PXP&issuer=GeoCheck");
+            // WEB: Discriminación de 1ra vez o recurrentes
+            if (Boolean.TRUE.equals(usuario.getTwoFactorEnabled())) {
+                // Ya lo configuró una vez, solo pedir el código
+                response.setRequire2FA(true);
+                response.setSetup2FA(false);
+            } else {
+                // Es la primera vez, mostrar el QR
+                response.setSetup2FA(true);
+                response.setRequire2FA(false);
+                response.setQrCodeData("otpauth://totp/GeoCheck:" + username + "?secret=JBSWY3DPEHPK3PXP&issuer=GeoCheck");
+            }
             response.setTempToken("temp-web-token-" + usuario.getId());
         }
         
         return response;
+    }
+
+    @Override
+    @Transactional
+    public UsuarioResponseDTO verify2FA(String code, String tempToken) {
+        // En un entorno real, validaríamos el TOTP contra una librería
+        // Para esta prueba, cualquier código de 6 dígitos que envíe el front es válido
+        if (code == null || code.length() != 6) {
+            throw new RuntimeException("Código 2FA inválido");
+        }
+
+        // Extraer ID del tempToken (ejemplo: "temp-web-token-1")
+        Integer userId = Integer.parseInt(tempToken.replace("temp-web-token-", ""));
+        Usuario usuario = usuarioRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        // Si es la primera vez (confirmando vinculación), activar el flag
+        if (!Boolean.TRUE.equals(usuario.getTwoFactorEnabled())) {
+            usuario.setTwoFactorEnabled(true);
+            usuarioRepository.save(usuario);
+        }
+
+        UsuarioResponseDTO response = usuarioMapper.toResponseDTO(usuario);
+        response.setToken("final-auth-token-" + usuario.getId());
+        return response;
+    }
+
+    @Override
+    @Transactional
+    public void reset2FA(String username) {
+        Usuario usuario = usuarioRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        usuario.setTwoFactorEnabled(false);
+        usuarioRepository.save(usuario);
     }
 }

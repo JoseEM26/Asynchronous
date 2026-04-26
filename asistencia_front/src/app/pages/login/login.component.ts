@@ -88,6 +88,12 @@ import * as qrcode from 'qrcode';
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
               {{ error }}
             </div>
+
+            <div class="mt-4 text-center">
+              <button type="button" class="btn-recovery-link" (click)="onRecover2FA()">
+                ¿Perdiste tu acceso 2FA? Recuperar aquí
+              </button>
+            </div>
           </form>
           <form *ngIf="step === 'setup-2fa'" [formGroup]="twoFactorForm" (ngSubmit)="onVerify2FA()" class="login-form animate-fade">
             <div class="qr-container mb-4 text-center">
@@ -255,6 +261,13 @@ import * as qrcode from 'qrcode';
     }
     .btn-back-premium:hover:not(:disabled) { background: rgba(249, 115, 22, 0.15); color: white; border-color: rgba(249, 115, 22, 0.4); }
     .btn-back-premium:disabled { opacity: 0.5; cursor: not-allowed; }
+    
+    .btn-recovery-link {
+      background: none; border: none; color: #a1a1aa; font-size: 0.85rem;
+      text-decoration: underline; cursor: pointer; transition: color 0.2s;
+    }
+    .btn-recovery-link:hover { color: #f97316; }
+
     .animate-fade { animation: fadeScale 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     @keyframes fadeScale { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
   `]
@@ -347,6 +360,22 @@ export class LoginComponent {
     }
   }
   
+  onRecover2FA() {
+    this.isLoading = true;
+    const username = this.loginForm.value.username;
+    this.authService.reset2FA(username).subscribe({
+      next: () => {
+        this.isLoading = false;
+        alert('📧 Estado 2FA reseteado. Por favor, vuelve a ingresar tus credenciales para ver el nuevo código QR.');
+        this.goBack();
+      },
+      error: () => {
+        this.isLoading = false;
+        this.error = 'No se pudo resetear el 2FA. Reintenta más tarde.';
+      }
+    });
+  }
+
   goBack() {
     this.step = 'credentials';
     this.error = null;

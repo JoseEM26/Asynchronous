@@ -10,8 +10,15 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
     @IBOutlet weak var profileButton: UIButton!
     @IBOutlet weak var scannerButton: UIButton!
 
-    // MARK: - Botón Admin (programático, solo visible para admins/jefes)
+    // MARK: - Botones programáticos (solo visible según rol)
     private let adminButton: UIButton = {
+        let b = UIButton(type: .system)
+        b.translatesAutoresizingMaskIntoConstraints = false
+        b.isHidden = true
+        return b
+    }()
+
+    private let teamButton: UIButton = {
         let b = UIButton(type: .system)
         b.translatesAutoresizingMaskIntoConstraints = false
         b.isHidden = true
@@ -73,6 +80,7 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
         mainStack.addArrangedSubview(scannerButton)
         mainStack.addArrangedSubview(historyButton)
         mainStack.addArrangedSubview(adminButton)
+        mainStack.addArrangedSubview(teamButton)
         
         // Spacer flexible para empujar el logout al fondo
         let spacer = UIView()
@@ -93,6 +101,7 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
             scannerButton.heightAnchor.constraint(equalToConstant: 80),
             historyButton.heightAnchor.constraint(equalToConstant: 80),
             adminButton.heightAnchor.constraint(equalToConstant: 80),
+            teamButton.heightAnchor.constraint(equalToConstant: 80),
             logoutButton.heightAnchor.constraint(equalToConstant: 50)
         ])
     }
@@ -111,6 +120,7 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
         styleCard(scannerButton, title: "📸  Escanear QR", color: .systemOrange)
         styleCard(historyButton, title: "📅  Historial", color: .systemGreen)
         styleCard(adminButton, title: "🏢  Configurar Oficina", color: .systemIndigo)
+        styleCard(teamButton, title: "👥  Mi Equipo", color: .systemTeal)
 
         // Logout button
         logoutButton.setTitle("Cerrar Sesión", for: .normal)
@@ -154,6 +164,7 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
         scannerButton.addTarget(self, action: #selector(scannerPressed), for: .touchUpInside)
         historyButton.addTarget(self, action: #selector(historyPressed), for: .touchUpInside)
         adminButton.addTarget(self, action: #selector(adminPressed), for: .touchUpInside)
+        teamButton.addTarget(self, action: #selector(teamPressed), for: .touchUpInside)
         logoutButton.addTarget(self, action: #selector(logoutActionTriggered), for: .touchUpInside)
     }
 
@@ -208,16 +219,29 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
     @objc private func profilePressed() {
         let vc = ProfileViewController()
         vc.trabajadorId = trabajadorId
-        vc.modalPresentationStyle = .pageSheet
+        if #available(iOS 15.0, *) {
+            vc.modalPresentationStyle = .pageSheet
+            if let sheet = vc.sheetPresentationController {
+                sheet.detents = [.large()]
+                sheet.prefersGrabberVisible = true
+                sheet.preferredCornerRadius = 30
+            }
+        }
         present(vc, animated: true)
     }
 
     @objc private func scannerPressed() {
         let vc = ScannerViewController()
         vc.usuarioId = trabajadorId
+        vc.jefeNombre = trabajadorData?.jefeNombre
+        vc.modalityId = trabajadorData?.modalidadId
         if #available(iOS 15.0, *) {
-            vc.sheetPresentationController?.detents = [.large()]
-            vc.sheetPresentationController?.prefersGrabberVisible = true
+            vc.modalPresentationStyle = .pageSheet
+            if let sheet = vc.sheetPresentationController {
+                sheet.detents = [.large()]
+                sheet.prefersGrabberVisible = true
+                sheet.preferredCornerRadius = 30
+            }
         }
         present(vc, animated: true)
     }
@@ -226,14 +250,28 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
         let vc = HistoryViewController()
         vc.usuarioId = trabajadorId
         let nav = UINavigationController(rootViewController: vc)
-        nav.modalPresentationStyle = .pageSheet
+        if #available(iOS 15.0, *) {
+            nav.modalPresentationStyle = .pageSheet
+            if let sheet = nav.sheetPresentationController {
+                sheet.detents = [.large()]
+                sheet.prefersGrabberVisible = true
+                sheet.preferredCornerRadius = 30
+            }
+        }
         present(nav, animated: true)
     }
 
     @objc private func adminPressed() {
         let vc = AdminSettingsViewController()
         let nav = UINavigationController(rootViewController: vc)
-        nav.modalPresentationStyle = .pageSheet
+        if #available(iOS 15.0, *) {
+            nav.modalPresentationStyle = .pageSheet
+            if let sheet = nav.sheetPresentationController {
+                sheet.detents = [.large()]
+                sheet.prefersGrabberVisible = true
+                sheet.preferredCornerRadius = 30
+            }
+        }
         present(nav, animated: true)
     }
 
@@ -243,6 +281,25 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
         let canConfigureOffice = role == "SUPER_ADMIN" || role == "ADMIN" || role == "JEFE_TERRENO"
             || role == "1" || role == "5" || role == "3"
         adminButton.isHidden = !canConfigureOffice
+        
+        // Solo JEFE_TERRENO puede ver "Mi Equipo"
+        let isJefe = role == "JEFE_TERRENO" || role == "3"
+        teamButton.isHidden = !isJefe
+    }
+
+    @objc private func teamPressed() {
+        let vc = TeamListViewController()
+        vc.jefeId = trabajadorId
+        let nav = UINavigationController(rootViewController: vc)
+        if #available(iOS 15.0, *) {
+            nav.modalPresentationStyle = .pageSheet
+            if let sheet = nav.sheetPresentationController {
+                sheet.detents = [.large()]
+                sheet.prefersGrabberVisible = true
+                sheet.preferredCornerRadius = 30
+            }
+        }
+        present(nav, animated: true)
     }
 
     @objc private func logoutActionTriggered() {

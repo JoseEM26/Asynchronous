@@ -45,6 +45,23 @@ public class UsuarioController {
         }
     }
 
+    @PostMapping("/verify-2fa")
+    public ResponseEntity<?> verify2FA(@RequestBody java.util.Map<String, String> body) {
+        try {
+            String code = body.get("code");
+            String tempToken = body.get("tempToken");
+            return ResponseEntity.ok(usuarioService.verify2FA(code, tempToken));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(401).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/reset-2fa")
+    public ResponseEntity<Void> reset2FA(@RequestBody java.util.Map<String, String> body) {
+        usuarioService.reset2FA(body.get("username"));
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping
     public UsuarioResponseDTO crear(@RequestBody UsuarioRequestDTO request) {
         Usuario usuario = usuarioMapper.toEntity(request);

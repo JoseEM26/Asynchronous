@@ -16,4 +16,5 @@ public class UsuarioResponseDTO {
     private Boolean require2FA;
     private String qrCodeData;
     private String tempToken;
+    private Boolean twoFactorEnabled;
 }
