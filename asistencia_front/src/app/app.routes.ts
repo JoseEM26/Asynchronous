@@ -9,6 +9,7 @@ import { QrAsistenciaComponent } from './pages/asistencias/qr-asistencia.compone
 
 import { LoginComponent } from './pages/login/login.component';
 import { AuthGuard } from './services/auth.guard';
+import { RoleGuard } from './services/role.guard';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -19,11 +20,37 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
     children: [
       { path: 'dashboard', component: DashboardComponent },
-      { path: 'personal', loadComponent: () => import('./pages/personal/personal-list.component').then(m => m.PersonalListComponent) },
-      { path: 'asistencias', component: AsistenciasListComponent },
-      { path: 'qr-generator', component: QrAsistenciaComponent },
-      { path: 'comunicados', loadComponent: () => import('./pages/comunicados/comunicados-management.component').then(m => m.ComunicadosManagementComponent) },
-      { path: 'configuracion', component: ConfiguracionComponent },
+      { path: 'perfil', loadComponent: () => import('./pages/perfil/perfil.component').then(m => m.PerfilComponent) },
+      { 
+        path: 'personal', 
+        loadComponent: () => import('./pages/personal/personal-list.component').then(m => m.PersonalListComponent),
+        canActivate: [RoleGuard],
+        data: { roles: ['ADMIN', 'SUPER_ADMIN'] }
+      },
+      { 
+        path: 'asistencias', 
+        component: AsistenciasListComponent,
+        canActivate: [RoleGuard],
+        data: { roles: ['ADMIN', 'SUPER_ADMIN', 'JEFE_TERRENO', 'TRABAJADOR_TERRENO', 'TRABAJADOR'] }
+      },
+      { 
+        path: 'qr-generator', 
+        component: QrAsistenciaComponent,
+        canActivate: [RoleGuard],
+        data: { roles: ['ADMIN', 'SUPER_ADMIN'] }
+      },
+      { 
+        path: 'comunicados', 
+        loadComponent: () => import('./pages/comunicados/comunicados-management.component').then(m => m.ComunicadosManagementComponent),
+        canActivate: [RoleGuard],
+        data: { roles: ['ADMIN', 'SUPER_ADMIN'] }
+      },
+      { 
+        path: 'configuracion', 
+        component: ConfiguracionComponent,
+        canActivate: [RoleGuard],
+        data: { roles: ['ADMIN', 'SUPER_ADMIN'] }
+      },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ]
   },

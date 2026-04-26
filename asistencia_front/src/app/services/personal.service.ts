@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { PageRequest, PaginatedResponse } from '../models/pagination.interface';
 
 export interface PersonalUnificado {
   id?: number;
@@ -29,7 +30,11 @@ export interface PersonalUnificado {
   modalidadNombre?: string;
   rolNombre?: string;
   usuarioId?: number;
+  jefeId?: number;
+  jefeNombre?: string;
 }
+
+
 
 @Injectable({
   providedIn: 'root'
@@ -43,6 +48,14 @@ export class PersonalService {
     return this.http.get<PersonalUnificado[]>(this.apiUrl);
   }
 
+  listarPaginado(request: PageRequest): Observable<PaginatedResponse<PersonalUnificado>> {
+    return this.http.post<PaginatedResponse<PersonalUnificado>>(`${this.apiUrl}/paged`, request);
+  }
+
+  getMiEquipo(jefeId: number): Observable<PersonalUnificado[]> {
+    return this.http.get<PersonalUnificado[]>(`${this.apiUrl}/mi-equipo/${jefeId}`);
+  }
+
   guardar(personal: PersonalUnificado): Observable<void> {
     return this.http.post<void>(this.apiUrl, personal);
   }
@@ -50,5 +63,9 @@ export class PersonalService {
   permitirCambioUbicacion(id: number, permitir: boolean): Observable<void> {
     const url = `${environment.apiUrl}/trabajadores/${id}/permitir-cambio-ubicacion?permitir=${permitir}`;
     return this.http.put<void>(url, {});
+  }
+
+  toggleEstado(id: number, activo: boolean): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/${id}/toggle-activo?activo=${activo}`, {});
   }
 }

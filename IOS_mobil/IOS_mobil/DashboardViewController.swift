@@ -11,6 +11,13 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
     @IBOutlet weak var scannerButton: UIButton!
 
     // MARK: - Botones programáticos (solo visible según rol)
+    private let remoteMarkButton: UIButton = {
+        let b = UIButton(type: .system)
+        b.translatesAutoresizingMaskIntoConstraints = false
+        b.isHidden = true
+        return b
+    }()
+
     private let adminButton: UIButton = {
         let b = UIButton(type: .system)
         b.translatesAutoresizingMaskIntoConstraints = false
@@ -78,6 +85,7 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
         // Configurar el StackView
         mainStack.addArrangedSubview(profileButton)
         mainStack.addArrangedSubview(scannerButton)
+        mainStack.addArrangedSubview(remoteMarkButton)
         mainStack.addArrangedSubview(historyButton)
         mainStack.addArrangedSubview(adminButton)
         mainStack.addArrangedSubview(teamButton)
@@ -99,6 +107,7 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
 
             profileButton.heightAnchor.constraint(equalToConstant: 80),
             scannerButton.heightAnchor.constraint(equalToConstant: 80),
+            remoteMarkButton.heightAnchor.constraint(equalToConstant: 80),
             historyButton.heightAnchor.constraint(equalToConstant: 80),
             adminButton.heightAnchor.constraint(equalToConstant: 80),
             teamButton.heightAnchor.constraint(equalToConstant: 80),
@@ -118,6 +127,7 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
         // Estilizar cada botón como tarjeta premium
         styleCard(profileButton, title: "👤  Mi Perfil", color: .systemBlue)
         styleCard(scannerButton, title: "📸  Escanear QR", color: .systemOrange)
+        styleCard(remoteMarkButton, title: "📍  Marcar Asistencia", color: .systemIndigo)
         styleCard(historyButton, title: "📅  Historial", color: .systemGreen)
         styleCard(adminButton, title: "🏢  Configurar Oficina", color: .systemIndigo)
         styleCard(teamButton, title: "👥  Mi Equipo", color: .systemTeal)
@@ -162,6 +172,7 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
     private func setupActions() {
         profileButton.addTarget(self, action: #selector(profilePressed), for: .touchUpInside)
         scannerButton.addTarget(self, action: #selector(scannerPressed), for: .touchUpInside)
+        remoteMarkButton.addTarget(self, action: #selector(remoteMarkPressed), for: .touchUpInside)
         historyButton.addTarget(self, action: #selector(historyPressed), for: .touchUpInside)
         adminButton.addTarget(self, action: #selector(adminPressed), for: .touchUpInside)
         teamButton.addTarget(self, action: #selector(teamPressed), for: .touchUpInside)
@@ -187,8 +198,66 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
 
     private func updateVisibility() {
         guard let t = trabajadorData else { return }
-        // Si no es presencial ni híbrido, ocultar escáner (el StackView cierra el espacio automáticamente)
-        scannerButton.isHidden = !(t.modalidadId == 1 || t.modalidadId == 3)
+        
+        // El escáner solo para presencial (Oficina)
+        scannerButton.isHidden = !(t.modalidadId == 1)
+        
+        // Marcación remota para Virtual, Híbrido y TERRENO (como pidió el usuario)
+        remoteMarkButton.isHidden = !(t.modalidadId == 2 || t.modalidadId == 3 || t.modalidadId == 4)
+        
+        // Cambiar título si es terreno
+        if t.modalidadId == 4 {
+            styleCard(remoteMarkButton, title: "📍 Marcar en Terreno", color: .systemIndigo)
+        } else {
+            styleCard(remoteMarkButton, title: "🏠 Marcación Remota", color: .systemIndigo)
+        }
+    }
+
+    @objc private func remoteMarkPressed() {
+        // Obtenemos ubicación actual para marcar
+        locationManager.requestLocation()
+        
+        let alert = UIAlertController(title: "Confirmar Asistencia", message: "¿Deseas registrar tu asistencia en tu ubicación actual?", preferredStyle: .actionSheet)
+        
+        alert.addAction(UIAlertAction(title: "Registrar ENTRADA", style: .default) { [weak self] _ in
+            self?.sendRemoteAttendance(tipo: "ENTRADA")
+        })
+        
+        alert.addAction(UIAlertAction(title: "Registrar SALIDA", style: .default) { [weak self] _ in
+            self?.sendRemoteAttendance(tipo: "SALIDA")
+        })
+        
+        alert.addAction(UIAlertAction(title: "Cancelar", style: .cancel))
+        present(alert, animated: true)
+    }
+
+    private func sendRemoteAttendance(tipo: String) {
+        guard let id = trabajadorId, let loc = locationManager.location else {
+            let errorAlert = UIAlertController(title: "Error GPS", message: "No se pudo obtener tu ubicación actual.", preferredStyle: .alert)
+            errorAlert.addAction(UIAlertAction(title: "OK", style: .default))
+            present(errorAlert, animated: true)
+            return
+        }
+        
+        activityIndicator.startAnimating()
+        // Usamos VIRTUAL_TOKEN para indicar que es marcación remota permitida por modalidad
+        let req = AsistenciaQrRequest(trabajadorId: id, qrToken: "VIRTUAL_TOKEN", tipo: tipo, latitud: loc.coordinate.latitude, longitud: loc.coordinate.longitude)
+        
+        NetworkManager.shared.registrarAsistenciaQR(request: req) { [weak self] (result: Result<AsistenciaResponse, NetworkError>) in
+            DispatchQueue.main.async {
+                self?.activityIndicator.stopAnimating()
+                switch result {
+                case .success:
+                    let successAlert = UIAlertController(title: "¡Logrado!", message: "Tu \(tipo) ha sido registrada con éxito.", preferredStyle: .alert)
+                    successAlert.addAction(UIAlertAction(title: "OK", style: .default))
+                    self?.present(successAlert, animated: true)
+                case .failure(let error):
+                    let failAlert = UIAlertController(title: "Error", message: "No se pudo registrar: \(error.localizedDescription)", preferredStyle: .alert)
+                    failAlert.addAction(UIAlertAction(title: "OK", style: .default))
+                    self?.present(failAlert, animated: true)
+                }
+            }
+        }
     }
 
     // MARK: - Auto Refresh & Location
@@ -262,17 +331,19 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
     }
 
     @objc private func adminPressed() {
-        let vc = AdminSettingsViewController()
-        let nav = UINavigationController(rootViewController: vc)
-        if #available(iOS 15.0, *) {
-            nav.modalPresentationStyle = .pageSheet
-            if let sheet = nav.sheetPresentationController {
-                sheet.detents = [.large()]
-                sheet.prefersGrabberVisible = true
-                sheet.preferredCornerRadius = 30
-            }
+        let role = userRole ?? ""
+        // Si es Jefe Terreno, abrir el selector de punto terreno
+        if role == "JEFE_TERRENO" || role == "3" {
+            let vc = PuntoTerrenoViewController()
+            vc.jefeId = trabajadorId
+            let nav = UINavigationController(rootViewController: vc)
+            present(nav, animated: true)
+        } else {
+            // Admin normal
+            let vc = AdminSettingsViewController()
+            let nav = UINavigationController(rootViewController: vc)
+            present(nav, animated: true)
         }
-        present(nav, animated: true)
     }
 
     private func configurePermissionsByRole() {

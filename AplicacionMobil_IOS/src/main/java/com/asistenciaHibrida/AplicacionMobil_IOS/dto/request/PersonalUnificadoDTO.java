@@ -24,6 +24,7 @@ public class PersonalUnificadoDTO {
     private String horaIngreso;
     private String horaSalida;
     private Boolean permitirCambioUbicacion;
+    private Integer jefeId;
 
     // Datos del Usuario
     private String username;

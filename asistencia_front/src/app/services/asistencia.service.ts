@@ -22,8 +22,12 @@ export class AsistenciaService {
     return this.http.get<AsistenciaResponse[]>(this.apiUrl);
   }
 
-  listarPaginado(pageRequest: PageRequest): Observable<PaginatedResponse<AsistenciaResponse>> {
-    return this.http.post<PaginatedResponse<AsistenciaResponse>>(`${this.apiUrl}/paged`, pageRequest);
+  listarPaginado(request: PageRequest): Observable<PaginatedResponse<AsistenciaResponse>> {
+    return this.http.post<PaginatedResponse<AsistenciaResponse>>(`${this.apiUrl}/paged`, request);
+  }
+
+  listarPaginadoPorTrabajador(trabajadorId: number, request: PageRequest): Observable<PaginatedResponse<AsistenciaResponse>> {
+    return this.http.post<PaginatedResponse<AsistenciaResponse>>(`${this.apiUrl}/trabajador/${trabajadorId}/paged`, request);
   }
 
   listarPorTrabajador(id: number): Observable<AsistenciaResponse[]> {

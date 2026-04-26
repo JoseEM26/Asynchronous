@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { PersonalUnificado } from '../../services/personal.service';
+import { PersonalUnificado, PersonalService } from '../../services/personal.service';
 import { ModalidadService } from '../../services/modalidad.service';
 import { RolService } from '../../services/rol.service';
 
@@ -113,8 +113,20 @@ import { RolService } from '../../services/rol.service';
                     <div class="col-md-6">
                       <label class="form-label-base">Rol en el Sistema</label>
                       <select formControlName="rolId" class="form-input-base">
-                        <option *ngFor="let r of roles" [value]="r.id">{{ r.nombre }}</option>
+                        <option *ngFor="let r of filteredRoles" [value]="r.id">{{ r.nombre }}</option>
                       </select>
+                    </div>
+
+                    <!-- SELECCIÓN DE JEFE (Solo para Trabajador Terreno) -->
+                    <div class="col-md-12 animate-fade" *ngIf="showJefeSelection">
+                      <label class="form-label-base text-warning fw-bold">Jefe de Terreno Asignado</label>
+                      <select formControlName="jefeId" class="form-input-base border-warning border-opacity-50">
+                        <option [value]="null">-- Seleccionar Jefe --</option>
+                        <option *ngFor="let j of jefesDisponibles" [value]="j.id">{{ j.nombres }} {{ j.apellidos }}</option>
+                      </select>
+                      <div class="text-danger small mt-1" *ngIf="form.hasError('jefeMissing') && form.get('jefeId')?.touched">
+                        Debes asignar un jefe para el personal de terreno.
+                      </div>
                     </div>
                     <div class="col-md-12" *ngIf="!editData">
                       <label class="form-label-base">Contraseña Inicial</label>
@@ -199,54 +211,126 @@ export class FormPersonalComponent implements OnInit {
   form: FormGroup;
   modalidades: any[] = [];
   roles: any[] = [];
+  filteredRoles: any[] = [];
+  jefesDisponibles: PersonalUnificado[] = [];
 
   constructor(
     private fb: FormBuilder,
     private modalidadService: ModalidadService,
-    private rolService: RolService
+    private rolService: RolService,
+    private personalService: PersonalService
   ) {
     this.form = this.fb.group({
       id: [null],
-      nombres: ['', Validators.required],
-      apellidos: ['', Validators.required],
+      nombres: ['', [Validators.required, Validators.minLength(2)]],
+      apellidos: ['', [Validators.required, Validators.minLength(2)]],
       dni: ['', [Validators.required, Validators.pattern('^[0-9]{8}$')]],
       email: ['', [Validators.required, Validators.email]],
-      telefono: [''],
+      telefono: ['', [Validators.pattern('^[0-9+ ]{7,15}$')]],
       direccion: [''],
       modalidadId: [1, Validators.required],
       activo: [true],
       esJefeTerreno: [false],
+      jefeId: [null],
       diasPresencial: [''],
       diasRemotos: [''],
       horaIngreso: ['09:00'],
       horaSalida: ['18:00'],
-      username: ['', Validators.required],
+      username: ['', [Validators.required, Validators.minLength(4)]],
       rolId: [2, Validators.required],
       password: [''],
       confirmPassword: [''],
       usuarioActivo: [true],
       permitirCambioUbicacion: [false]
-    }, { validators: this.passwordMatchValidator });
+    }, { validators: [this.passwordMatchValidator, this.jefeRequiredValidator] });
+  }
+
+  ngOnInit() {
+    this.modalidadService.listar().subscribe(data => this.modalidades = data);
+    
+    this.rolService.listar().subscribe(data => {
+      this.roles = data;
+      this.actualizarRolesFiltrados();
+    });
+
+    this.personalService.listar().subscribe((data: PersonalUnificado[]) => {
+      // Filtrar trabajadores que son Jefes de Terreno (Rol 3)
+      this.jefesDisponibles = data.filter((p: PersonalUnificado) => p.rolId === 3);
+    });
+
+    if (this.editData) {
+      this.form.patchValue(this.editData);
+      this.form.get('password')?.clearValidators();
+      this.form.get('confirmPassword')?.clearValidators();
+    } else {
+      this.form.get('password')?.setValidators([Validators.required, Validators.minLength(6)]);
+    }
+
+    // Listen to modality changes
+    this.form.get('modalidadId')?.valueChanges.subscribe(() => {
+      this.actualizarRolesFiltrados();
+    });
+
+    // Listen to role changes
+    this.form.get('rolId')?.valueChanges.subscribe(rolId => {
+      const isJefe = rolId == 3;
+      this.form.patchValue({ esJefeTerreno: isJefe });
+      this.form.get('jefeId')?.updateValueAndValidity();
+    });
+  }
+
+  actualizarRolesFiltrados() {
+    const modId = this.form.get('modalidadId')?.value;
+    if (modId == 4) { // Terreno
+      this.filteredRoles = this.roles.filter(r => r.id === 3 || r.id === 4);
+      // Si el rol actual no es de terreno, cambiarlo a Trabajador Terreno
+      const currentRol = this.form.get('rolId')?.value;
+      if (currentRol != 3 && currentRol != 4) {
+        this.form.patchValue({ rolId: 4 });
+      }
+    } else {
+      // Para otras modalidades, ocultar roles de terreno
+      this.filteredRoles = this.roles.filter(r => r.id !== 3 && r.id !== 4);
+      const currentRol = this.form.get('rolId')?.value;
+      if (currentRol == 3 || currentRol == 4) {
+        this.form.patchValue({ rolId: 2, jefeId: null });
+      } else {
+        this.form.patchValue({ jefeId: null });
+      }
+    }
   }
 
   passwordMatchValidator(g: FormGroup) {
     const password = g.get('password')?.value;
     const confirmPassword = g.get('confirmPassword')?.value;
-    
     if (!password && !confirmPassword) return null;
     return password === confirmPassword ? null : { mismatch: true };
+  }
+
+  jefeRequiredValidator(g: FormGroup) {
+    const rolId = g.get('rolId')?.value;
+    const jefeId = g.get('jefeId')?.value;
+    // Si es Trabajador Terreno (4), el jefe es obligatorio
+    if (rolId == 4 && !jefeId) {
+      return { jefeMissing: true };
+    }
+    return null;
   }
 
   diasSemana = ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO', 'DOMINGO'];
 
   get showDiasPresencial(): boolean {
     const modId = this.form.get('modalidadId')?.value;
-    return modId == 1 || modId == 3; // 1: Presencial, 3: Híbrido
+    return modId == 1 || modId == 3;
   }
 
   get showDiasRemotos(): boolean {
     const modId = this.form.get('modalidadId')?.value;
-    return modId == 2 || modId == 3; // 2: Virtual, 3: Híbrido
+    return modId == 2 || modId == 3;
+  }
+
+  get showJefeSelection(): boolean {
+    return this.form.get('rolId')?.value == 4; // Solo para Trabajador Terreno
   }
 
   toggleDia(dia: string, tipo: 'presencial'|'remoto') {
@@ -256,17 +340,14 @@ export class FormPersonalComponent implements OnInit {
     const control = this.form.get(controlName);
     const otherControl = this.form.get(otherControlName);
     
-    // --- Lógica de exclusión mutua para Híbrido ---
     if (this.form.get('modalidadId')?.value == 3) {
       let otherStr = otherControl?.value || '';
       let otherArray = otherStr ? otherStr.split(',').map((d:string) => d.trim()) : [];
       if (otherArray.includes(dia)) {
-        // Si estaba en el otro, lo quitamos automáticamente
         otherArray = otherArray.filter((d: string) => d !== dia);
         otherControl?.setValue(otherArray.join(','));
       }
     }
-    // ----------------------------------------------
 
     let diasStr = control?.value || '';
     let diasArray = diasStr ? diasStr.split(',').map((d:string)=>d.trim()) : [];
@@ -287,22 +368,6 @@ export class FormPersonalComponent implements OnInit {
     return diasStr.includes(dia);
   }
 
-  ngOnInit() {
-    this.modalidadService.listar().subscribe(data => this.modalidades = data);
-    this.rolService.listar().subscribe(data => this.roles = data);
-
-    if (this.editData) {
-      this.form.patchValue(this.editData);
-      this.form.get('password')?.clearValidators();
-      this.form.get('password')?.updateValueAndValidity();
-      this.form.get('confirmPassword')?.clearValidators();
-      this.form.get('confirmPassword')?.updateValueAndValidity();
-    } else {
-      this.form.get('password')?.setValidators([Validators.required, Validators.minLength(6)]);
-      this.form.get('password')?.updateValueAndValidity();
-    }
-  }
-
   onSubmit() {
     if (this.form.valid) {
       this.save.emit(this.form.value);
@@ -315,3 +380,4 @@ export class FormPersonalComponent implements OnInit {
     this.close.emit();
   }
 }
+

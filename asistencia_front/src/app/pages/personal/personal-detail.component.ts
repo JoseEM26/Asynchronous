@@ -41,6 +41,10 @@ import { NotificationService } from '../../services/notification.service';
               <label class="detail-label">Teléfono / WhatsApp</label>
               <div class="detail-value">{{ data?.telefono || 'No registrado' }}</div>
             </div>
+            <div class="col-md-6" *ngIf="data?.jefeNombre">
+              <label class="detail-label">Jefe Directo / Líder</label>
+              <div class="detail-value text-warning fw-bold">{{ data?.jefeNombre }}</div>
+            </div>
             <div class="col-md-6">
               <label class="detail-label">Modalidad de Trabajo</label>
               <div class="mt-1">

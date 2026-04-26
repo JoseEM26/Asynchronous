@@ -13,6 +13,10 @@ export class AuthService {
   private currentUserSubject = new BehaviorSubject<UsuarioResponse | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
+  public get currentUserValue(): UsuarioResponse | null {
+    return this.currentUserSubject.value;
+  }
+
   constructor(private http: HttpClient, private router: Router) {
     const savedUser = localStorage.getItem('asistencia_user');
     if (savedUser) {

@@ -42,6 +42,17 @@ public class ConfiguracionController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/terreno/all")
+    public ResponseEntity<List<com.asistenciaHibrida.AplicacionMobil_IOS.model.PuntoTerreno>> getAllPuntosTerreno() {
+        return ResponseEntity.ok(puntoTerrenoRepository.findAll());
+    }
+
+    @PostMapping("/terreno")
+    public ResponseEntity<?> crearPuntoTerreno(@RequestBody com.asistenciaHibrida.AplicacionMobil_IOS.model.PuntoTerreno punto) {
+        punto.setFechaActualizacion(java.time.LocalDateTime.now());
+        return ResponseEntity.ok(puntoTerrenoRepository.save(punto));
+    }
+
     @GetMapping("/remoto/trabajadores")
     public ResponseEntity<List<Trabajador>> getTrabajadoresRemotos() {
         // Buscamos trabajadores que tengan latitud_virtual != null

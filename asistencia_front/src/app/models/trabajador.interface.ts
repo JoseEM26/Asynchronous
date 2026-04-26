@@ -33,6 +33,9 @@ export interface TrabajadorResponse {
   longitudVirtual?: number;
   diasPresencial?: string;
   diasRemotos?: string;
+  horaIngreso?: string;
+  horaSalida?: string;
+  permitirCambioUbicacion?: boolean;
   rolId?: number;
   jefeId?: number;
   rolNombre?: string;

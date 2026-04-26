@@ -15,4 +15,12 @@ export class PuntoTerrenoService {
   registrar(request: PuntoTerrenoRequest): Observable<any> {
     return this.http.post(this.apiUrl, request);
   }
+
+  listarPuntos(): Observable<any[]> {
+    return this.http.get<any[]>(`${environment.apiUrl}/configuracion/terreno/all`);
+  }
+
+  crearPunto(request: PuntoTerrenoRequest): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/configuracion/terreno`, request);
+  }
 }

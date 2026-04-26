@@ -86,8 +86,8 @@ INSERT INTO puntos_terreno (id, latitud, longitud, nombre_ubicacion, fecha_actua
 (3, -12.145000, -77.015000, 'Almacén Principal Chorrillos', '2024-03-01 09:00:00', 8); -- Jefe C
 
 -- 7. Comunicados
-INSERT INTO comunicados (id, titulo, contenido, fecha_publicacion, activo, autor_id) VALUES
-(1, 'Nuevos Puntos de Terreno', 'Se han habilitado 3 nuevas zonas de trabajo en campo.', '2024-04-01 09:00:00', 1, 1),
-(2, 'Protocolo de Seguridad', 'Es obligatorio el uso de EPP en todas las zonas de terreno.', '2024-04-02 10:00:00', 1, 1);
+INSERT INTO comunicados (id, titulo, contenido, fecha_publicacion, activo) VALUES
+(1, 'Nuevos Puntos de Terreno', 'Se han habilitado 3 nuevas zonas de trabajo en campo.', '2024-04-01 09:00:00', 1),
+(2, 'Protocolo de Seguridad', 'Es obligatorio el uso de EPP en todas las zonas de terreno.', '2024-04-02 10:00:00', 1);
 
 SET FOREIGN_KEY_CHECKS = 1;

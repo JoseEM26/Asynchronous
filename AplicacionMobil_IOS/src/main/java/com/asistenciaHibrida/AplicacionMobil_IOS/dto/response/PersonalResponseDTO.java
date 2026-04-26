@@ -24,6 +24,8 @@ public class PersonalResponseDTO {
     private String horaIngreso;
     private String horaSalida;
     private Boolean permitirCambioUbicacion;
+    private Integer jefeId;
+    private String jefeNombre;
 
     // Datos del Usuario vinculado
     private Integer usuarioId;

@@ -5,11 +5,15 @@ import { NotificationService } from '../../services/notification.service';
 import { FormPersonalComponent } from './form-personal.component';
 import { PersonalDetailComponent } from './personal-detail.component';
 import { FormsModule } from '@angular/forms';
+import { PaginationComponent } from '../../component/pagination.component/pagination.component';
+import { PageRequest, PaginatedResponse } from '../../models/pagination.interface';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'app-personal-list',
   standalone: true,
-  imports: [CommonModule, FormPersonalComponent, PersonalDetailComponent, FormsModule],
+  imports: [CommonModule, FormPersonalComponent, PersonalDetailComponent, FormsModule, PaginationComponent],
   template: `
     <div class="container-fluid animate-fade px-4 py-4">
       <div class="row mb-5 align-items-end">
@@ -31,7 +35,7 @@ import { FormsModule } from '@angular/forms';
       </div>
 
       <!-- Filter Bar -->
-      <div class="glass-card mb-4 p-3 shadow-sm rounded-4">
+      <div class="glass-card mb-4 p-3 shadow-sm rounded-4" style="background: var(--bg-surface) !important; border: 1px solid var(--glass-border) !important;">
         <div class="row g-3 align-items-center">
           <div class="col-lg-6">
             <div class="search-input-group position-relative">
@@ -40,13 +44,13 @@ import { FormsModule } from '@angular/forms';
                 type="text" 
                 class="form-control ps-5 rounded-pill border-0 shadow-none custom-input-theme" 
                 placeholder="Buscar por Nombre, DNI o Usuario..."
-                [(ngModel)]="searchTerm"
+                [(ngModel)]="searchQuery"
                 (ngModelChange)="onSearchChange($event)"
               >
             </div>
           </div>
           <div class="col-md-3">
-            <select class="form-select rounded-pill border-0 shadow-none custom-input-theme" [(ngModel)]="filterModalidad" (change)="aplicarFiltros()">
+            <select class="form-select rounded-pill border-0 shadow-none custom-input-theme" [(ngModel)]="filterModalidad" (change)="cargarPersonal()">
               <option [value]="0">Todas las Modalidades</option>
               <option value="1">Presencial</option>
               <option value="2">Virtual</option>
@@ -55,7 +59,7 @@ import { FormsModule } from '@angular/forms';
               <option value="5">Exento / Admin</option>
             </select>
           </div>
-          <div class="col-md-3">
+          <div class="col-md-3 text-end">
              <button class="btn btn-link text-decoration-none text-secondary small p-0" (click)="limpiarFiltros()">
                 <u>Limpiar Filtros</u>
              </button>
@@ -82,7 +86,7 @@ import { FormsModule } from '@angular/forms';
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let p of personalFiltrado" class="list-row animate-slide-up" style="background: var(--bg-surface) !important;">
+                <tr *ngFor="let p of personal" class="list-row animate-slide-up" style="background: var(--bg-surface) !important;">
                   <td class="ps-4">
                     <div class="d-flex align-items-center gap-3 py-1">
                       <div class="avatar-box">
@@ -121,12 +125,37 @@ import { FormsModule } from '@angular/forms';
                       <button class="action-btn edit" (click)="onEditar(p)" title="Editar Personal">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4L18.5 2.5z"></path></svg>
                       </button>
+                      <button class="action-btn toggle" 
+                              [class.disable]="p.activo"
+                              [class.enable]="!p.activo"
+                              (click)="onToggleActivo(p)" 
+                              [title]="p.activo ? 'Inhabilitar Acceso' : 'Habilitar Acceso'">
+                        <svg *ngIf="p.activo" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line></svg>
+                        <svg *ngIf="!p.activo" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4"></path><path d="M12 18v4"></path><path d="M4.93 4.93l2.83 2.83"></path><path d="M16.24 16.24l2.83 2.83"></path><path d="M2 12h4"></path><path d="M18 12h4"></path><path d="M4.93 19.07l2.83-2.83"></path><path d="M16.24 7.76l2.83-2.83"></path></svg>
+                      </button>
                     </div>
                   </td>
+                </tr>
+                <tr *ngIf="personal.length === 0 && !isLoading">
+                  <td colspan="6" class="text-center py-5 opacity-75">No se encontró personal registrado.</td>
                 </tr>
               </tbody>
             </table>
           </div>
+        </div>
+
+        <!-- Pagination Footer -->
+        <div class="pagination-footer px-4 py-3 border-top" style="border-color: var(--glass-border) !important;">
+          <app-pagination
+            [currentPage]="currentPage"
+            [pageSize]="pageSize"
+            [totalItems]="totalItems"
+            [totalPages]="totalPages"
+            [isLoading]="isLoading"
+            (pageChange)="onPageChange($event)"
+            (pageSizeChange)="onPageSizeChange($event)"
+            (refresh)="cargarPersonal()"
+          ></app-pagination>
         </div>
       </div>
 
@@ -161,6 +190,8 @@ import { FormsModule } from '@angular/forms';
     .action-btn:hover { transform: scale(1.1); }
     .action-btn.detail:hover { background: rgba(3, 105, 161, 0.1); color: #0ea5e9; }
     .action-btn.edit:hover { background: rgba(180, 83, 9, 0.1); color: #f59e0b; }
+    .action-btn.toggle.disable:hover { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+    .action-btn.toggle.enable:hover { background: rgba(16, 185, 129, 0.1); color: #10b981; }
     .btn-primary-grad { background: var(--text-main) !important; color: var(--bg-main) !important; }
     .status-pill { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 30px; font-size: 0.75rem; font-weight: 700; background: var(--bg-deep); color: var(--text-primary); border: 1px solid var(--glass-border); }
     .status-pill.active { background: rgba(16, 185, 129, 0.1); color: #10b981; border-color: rgba(16, 185, 129, 0.2); }
@@ -176,18 +207,35 @@ import { FormsModule } from '@angular/forms';
 })
 export class PersonalListComponent implements OnInit {
   personal: PersonalUnificado[] = [];
-  personalFiltrado: PersonalUnificado[] = [];
   isLoading = false;
   showForm = false;
   showDetail = false;
   selectedPersonal: PersonalUnificado | null = null;
-  searchTerm = '';
+  
+  // Pagination State
+  currentPage = 0;
+  pageSize = 10;
+  totalItems = 0;
+  totalPages = 0;
+
+  // Filters
+  searchQuery = '';
   filterModalidad = 0;
+  private searchSubject = new Subject<string>();
 
   constructor(
     private personalService: PersonalService,
     private notify: NotificationService
-  ) {}
+  ) {
+    this.searchSubject.pipe(
+      debounceTime(400),
+      distinctUntilChanged()
+    ).subscribe(value => {
+      this.searchQuery = value;
+      this.currentPage = 0;
+      this.cargarPersonal();
+    });
+  }
 
   ngOnInit() {
     this.cargarPersonal();
@@ -195,10 +243,19 @@ export class PersonalListComponent implements OnInit {
 
   cargarPersonal() {
     this.isLoading = true;
-    this.personalService.listar().subscribe({
-      next: (data) => {
-        this.personal = data;
-        this.aplicarFiltros();
+    const request: PageRequest = {
+      pageIndex: this.currentPage,
+      pageSize: this.pageSize,
+      sortBy: 'id',
+      sortDir: 'DESC',
+      filters: this.cleanupFilters()
+    };
+
+    this.personalService.listarPaginado(request).subscribe({
+      next: (response: PaginatedResponse<PersonalUnificado>) => {
+        this.personal = response.content || [];
+        this.totalItems = response.totalItems || 0;
+        this.totalPages = response.totalPages || 0;
         this.isLoading = false;
       },
       error: () => {
@@ -208,26 +265,33 @@ export class PersonalListComponent implements OnInit {
     });
   }
 
-  aplicarFiltros() {
-    this.personalFiltrado = this.personal.filter(p => {
-      const matchSearch = !this.searchTerm || 
-        `${p.nombres} ${p.apellidos}`.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        p.dni.includes(this.searchTerm) ||
-        p.username.toLowerCase().includes(this.searchTerm.toLowerCase());
-      const matchMod = this.filterModalidad == 0 || p.modalidadId == this.filterModalidad;
-      return matchSearch && matchMod;
-    });
+  private cleanupFilters(): any {
+    const filters: any = {};
+    if (this.searchQuery) filters['searchTerm'] = this.searchQuery;
+    if (this.filterModalidad > 0) filters['modalidadId'] = this.filterModalidad;
+    return filters;
+  }
+
+  onPageChange(page: number) {
+    this.currentPage = page;
+    this.cargarPersonal();
+  }
+
+  onPageSizeChange(size: number) {
+    this.pageSize = size;
+    this.currentPage = 0;
+    this.cargarPersonal();
   }
 
   onSearchChange(val: string) {
-    this.searchTerm = val;
-    this.aplicarFiltros();
+    this.searchSubject.next(val);
   }
 
   limpiarFiltros() {
-    this.searchTerm = '';
+    this.searchQuery = '';
     this.filterModalidad = 0;
-    this.aplicarFiltros();
+    this.currentPage = 0;
+    this.cargarPersonal();
   }
 
   onNuevo() {
@@ -270,6 +334,29 @@ export class PersonalListComponent implements OnInit {
     });
   }
 
+  onToggleActivo(p: PersonalUnificado) {
+    if (!p.id) return;
+    
+    const nuevoEstado = !p.activo;
+    const msg = nuevoEstado 
+      ? `¿Estás seguro de habilitar a ${p.nombres}? Volverá a tener acceso al sistema.` 
+      : `¿Estás seguro de inhabilitar a ${p.nombres}? Perderá acceso inmediato a la Web y App Móvil.`;
+
+    if (confirm(msg)) {
+      this.isLoading = true;
+      this.personalService.toggleEstado(p.id, nuevoEstado).subscribe({
+        next: () => {
+          this.notify.success(`Estado de ${p.nombres} actualizado.`);
+          this.cargarPersonal();
+        },
+        error: () => {
+          this.notify.error('Error al actualizar el estado del usuario');
+          this.isLoading = false;
+        }
+      });
+    }
+  }
+
   getModalidadClass(id?: number): string {
     switch (id) {
       case 1: return 'mod-presencial';
@@ -280,3 +367,4 @@ export class PersonalListComponent implements OnInit {
     }
   }
 }
+

@@ -6,6 +6,7 @@ import { AsistenciaRequest, AsistenciaResponse } from '../../models/asistencia.i
 import { PaginationComponent } from '../../component/pagination.component/pagination.component';
 import { PageRequest } from '../../models/pagination.interface';
 import { FormAsistenciaComponent } from './form-asistencia.component';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-asistencias-list',
@@ -19,16 +20,20 @@ import { FormAsistenciaComponent } from './form-asistencia.component';
             <div class="icon-box-primary">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
             </div>
-            <h1 class="h2 fw-bold mb-0">Registro de Asistencias</h1>
+            <h1 class="h2 fw-bold mb-0">
+              {{ isWorker ? 'Mis Asistencias' : 'Registro de Asistencias' }}
+            </h1>
           </div>
-          <p class="text-secondary fs-6 opacity-75">Historial cronológico de registros de entrada y salida del personal.</p>
+          <p class="text-secondary fs-6 opacity-75">
+            {{ isWorker ? 'Consulta tu historial personal de ingresos y salidas.' : 'Historial cronológico de registros de entrada y salida del personal.' }}
+          </p>
         </div>
         <div class="col-md-5 text-md-end d-flex gap-3 justify-content-md-end">
           <button class="btn btn-light shadow-sm d-inline-flex align-items-center gap-2" (click)="cargarAsistencias()">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
             Actualizar
           </button>
-          <button class="btn btn-primary-grad shadow-sm d-inline-flex align-items-center gap-2" (click)="onNuevo()">
+          <button *ngIf="!isWorker" class="btn btn-primary-grad shadow-sm d-inline-flex align-items-center gap-2" (click)="onNuevo()">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             Nuevo Registro
           </button>
@@ -202,10 +207,20 @@ export class AsistenciasListComponent implements OnInit {
   // Form State
   showForm: boolean = false;
 
+  isWorker: boolean = false;
+  trabajadorId?: number;
+
   constructor(
     private asistenciaService: AsistenciaService,
-    private notify: NotificationService
-  ) { }
+    private notify: NotificationService,
+    private authService: AuthService
+  ) { 
+    const user = this.authService.currentUserValue;
+    const roleId = user?.rol?.id;
+    // Roles 4 y 5 son trabajadores
+    this.isWorker = roleId === 4 || roleId === 5;
+    this.trabajadorId = user?.trabajador?.id;
+  }
 
   ngOnInit(): void {
     this.cargarAsistencias();
@@ -240,7 +255,11 @@ export class AsistenciasListComponent implements OnInit {
       sortDir: 'DESC'
     };
 
-    this.asistenciaService.listarPaginado(request).subscribe({
+    const observable = (this.isWorker && this.trabajadorId)
+      ? this.asistenciaService.listarPaginadoPorTrabajador(this.trabajadorId, request)
+      : this.asistenciaService.listarPaginado(request);
+
+    observable.subscribe({
       next: (response) => {
         this.asistencias = response.content || [];
         this.totalItems = response.totalItems || 0;

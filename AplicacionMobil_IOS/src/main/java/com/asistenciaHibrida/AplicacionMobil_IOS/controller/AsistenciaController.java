@@ -62,6 +62,12 @@ public class AsistenciaController {
         return mapToPageResponseDTO(asistenciaService.listarTodasPaginado(pageRequest));
     }
 
+    @PostMapping("/trabajador/{id}/paged")
+    public PageResponseDTO<AsistenciaResponseDTO> listarPorTrabajadorPaginado(@PathVariable Integer id, @RequestBody PageRequestDTO pageRequest) {
+        Integer trabajadorId = resolverTrabajadorId(id);
+        return mapToPageResponseDTO(asistenciaService.listarPorTrabajadorPaginado(trabajadorId, pageRequest));
+    }
+
     @GetMapping("/trabajador/{id}")
     public List<AsistenciaResponseDTO> listarPorTrabajador(@PathVariable Integer id) {
         Integer trabajadorId = resolverTrabajadorId(id);
