@@ -119,7 +119,7 @@ import { TrabajadorResponse } from '../../models/trabajador.interface';
                           <span class="text-muted extra-small">Optimiza el contraste para ambientes de baja luz</span>
                         </div>
                         <div class="form-check form-switch custom-switch">
-                          <input class="form-check-input" type="checkbox" id="darkModeSwitch" [(ngModel)]="customColors.isDark">
+                          <input class="form-check-input" type="checkbox" id="darkModeSwitch" [(ngModel)]="customColors.isDark" (ngModelChange)="onDarkModeToggle($event)">
                         </div>
                       </div>
                     </div>
@@ -526,8 +526,8 @@ export class ConfiguracionComponent implements OnInit {
     modern_light: { primary: '#6366f1', secondary: '#06b6d4', background: '#f8fafc', text: '#0f172a', isDark: false },
     minimal: { primary: '#8b5e3c', secondary: '#d2b48c', background: '#fdfbf7', text: '#2d241e', isDark: false },
     royal: { primary: '#1e3a8a', secondary: '#b45309', background: '#ffffff', text: '#1e293b', isDark: false },
-    deep_ocean: { primary: '#38bdf8', secondary: '#818cf8', background: '#0a101f', text: '#ffffff', isDark: true },
-    forest_night: { primary: '#4ade80', secondary: '#2dd4bf', background: '#060d0a', text: '#ffffff', isDark: true }
+    deep_ocean: { primary: '#0284c7', secondary: '#0ea5e9', background: '#f8fafc', text: '#0f172a', isDark: false },
+    forest_night: { primary: '#166534', secondary: '#22c55e', background: '#f8fafc', text: '#0f172a', isDark: false }
   };
 
   activeTab: string = 'apariencia';
@@ -571,6 +571,18 @@ export class ConfiguracionComponent implements OnInit {
   applyCustom(): void {
     this.themeService.setCustomColors(this.customColors);
     this.notify.success('Configuración personalizada de Layout guardada');
+  }
+
+  onDarkModeToggle(isDark: boolean): void {
+    if (isDark) {
+      this.customColors.background = '#0a101f';
+      this.customColors.text = '#ffffff';
+    } else {
+      this.customColors.background = '#f8fafc';
+      this.customColors.text = '#0f172a';
+    }
+    // Apply immediately to see the effect
+    this.themeService.setCustomColors(this.customColors);
   }
 
   // --- LOGIC FOR TABS ---

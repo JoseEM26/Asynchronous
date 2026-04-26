@@ -183,3 +183,11 @@ body {
   border: 1px solid var(--glass-border);
   border-radius: 20px;
 }
+
+/* Bootstrap Overrides for Theme Support */
+.text-primary { color: var(--accent-primary) !important; }
+.text-secondary { color: var(--text-secondary) !important; }
+.text-muted { color: var(--text-muted) !important; }
+.text-dark { color: var(--text-primary) !important; }
+.bg-deep { background-color: var(--bg-deep) !important; }
+.bg-surface { background-color: var(--bg-surface) !important; }

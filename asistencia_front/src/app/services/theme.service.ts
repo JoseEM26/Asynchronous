@@ -37,18 +37,18 @@ export class ThemeService {
       isDark: false
     },
     deep_ocean: {
-      primary: '#38bdf8',
-      secondary: '#818cf8',
-      background: '#0a101f',
-      text: '#ffffff',
-      isDark: true
+      primary: '#0284c7', // Deep ocean blue
+      secondary: '#0ea5e9',
+      background: '#f8fafc',
+      text: '#0f172a',
+      isDark: false
     },
     forest_night: {
-      primary: '#4ade80',
-      secondary: '#2dd4bf',
-      background: '#060d0a',
-      text: '#ffffff',
-      isDark: true
+      primary: '#166534', // Deep forest green
+      secondary: '#22c55e',
+      background: '#f8fafc',
+      text: '#0f172a',
+      isDark: false
     }
   };
 

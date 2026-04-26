@@ -15,4 +15,8 @@ export interface UsuarioResponse {
   activo: boolean;
   rol: RolResponse;
   trabajador: TrabajadorResponse;
+  require2FA?: boolean;
+  setup2FA?: boolean;
+  qrCodeData?: string;
+  tempToken?: string;
 }
