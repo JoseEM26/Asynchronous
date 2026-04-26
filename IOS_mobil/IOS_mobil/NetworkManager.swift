@@ -19,8 +19,6 @@ class NetworkManager {
             let container = try decoder.singleValueContainer()
             let dateString = try container.decode(String.self)
             
-            // Limpieza robusta: tomamos solo los primeros 19 caracteres (yyyy-MM-ddTHH:mm:ss)
-            // Esto ignora cualquier cantidad de decimales o zonas horarias que confundan al formateador
             let baseDate = String(dateString.prefix(19))
             
             let fallbackFormatter = DateFormatter()
@@ -51,6 +49,7 @@ class NetworkManager {
 
         URLSession.shared.dataTask(with: urlRequest) { data, response, error in
             if let error = error {
+                SupabaseService.shared.logError(error.localizedDescription, contexto: "Login")
                 DispatchQueue.main.async { completion(.failure(.serverError(error.localizedDescription))) }
                 return
             }
@@ -91,6 +90,7 @@ class NetworkManager {
 
         URLSession.shared.dataTask(with: urlRequest) { data, response, error in
             if let error = error {
+                SupabaseService.shared.logError(error.localizedDescription, contexto: "RegistrarAsistenciaQR")
                 DispatchQueue.main.async { completion(.failure(.serverError(error.localizedDescription))) }
                 return
             }
@@ -100,25 +100,21 @@ class NetworkManager {
                 return
             }
             
-            // Verificar código HTTP
             if let httpResponse = response as? HTTPURLResponse, !(200...299).contains(httpResponse.statusCode) {
                 let serverMessage = String(data: data, encoding: .utf8) ?? "Error del servidor (código \(httpResponse.statusCode))"
-                print("Server Error Response: \(serverMessage)")
+                SupabaseService.shared.logError(serverMessage, contexto: "RegistrarAsistenciaQR Server")
                 DispatchQueue.main.async { completion(.failure(.serverError(serverMessage))) }
                 return
             }
 
             DispatchQueue.main.async {
-                if let body = String(data: data, encoding: .utf8) { print("Respuesta Servidor QR: \(body)") }
                 do {
                     let asistencia = try self.getDecoder().decode(AsistenciaResponse.self, from: data)
                     completion(.success(asistencia))
                 } catch {
-                    // Si no es JSON válido, puede ser un mensaje de texto del servidor
                     if let textResponse = String(data: data, encoding: .utf8) {
                         completion(.failure(.serverError(textResponse)))
                     } else {
-                        print("QR decoding error: \(error)")
                         completion(.failure(.decodingError))
                     }
                 }
@@ -134,6 +130,7 @@ class NetworkManager {
 
         URLSession.shared.dataTask(with: url) { data, response, error in
             if let error = error {
+                SupabaseService.shared.logError(error.localizedDescription, contexto: "GetUsuario")
                 DispatchQueue.main.async { completion(.failure(.serverError(error.localizedDescription))) }
                 return
             }
@@ -162,6 +159,7 @@ class NetworkManager {
 
         URLSession.shared.dataTask(with: url) { data, response, error in
             if let error = error {
+                SupabaseService.shared.logError(error.localizedDescription, contexto: "GetAsistencias")
                 DispatchQueue.main.async { completion(.failure(.serverError(error.localizedDescription))) }
                 return
             }
@@ -172,7 +170,6 @@ class NetworkManager {
             }
 
             DispatchQueue.main.async {
-                if let body = String(data: data, encoding: .utf8) { print("📦 Historial Recibido: \(body)") }
                 do {
                     let asistencias = try self.getDecoder().decode([AsistenciaResponse].self, from: data)
                     completion(.success(asistencias))
@@ -191,6 +188,7 @@ class NetworkManager {
 
         URLSession.shared.dataTask(with: url) { data, response, error in
             if let error = error {
+                SupabaseService.shared.logError(error.localizedDescription, contexto: "GetComunicados")
                 DispatchQueue.main.async { completion(.failure(.serverError(error.localizedDescription))) }
                 return
             }
@@ -228,17 +226,48 @@ class NetworkManager {
 
         URLSession.shared.dataTask(with: urlRequest) { data, response, error in
             if let error = error {
+                SupabaseService.shared.logError(error.localizedDescription, contexto: "ActualizarUbicacionVirtual")
                 DispatchQueue.main.async { completion(.failure(.serverError(error.localizedDescription))) }
                 return
             }
 
             if let httpResponse = response as? HTTPURLResponse, !(200...299).contains(httpResponse.statusCode) {
                 let errorMessage = String(data: data ?? Data(), encoding: .utf8) ?? "Error \(httpResponse.statusCode)"
+                SupabaseService.shared.logError(errorMessage, contexto: "ActualizarUbicacionVirtual Server")
                 DispatchQueue.main.async { completion(.failure(.serverError(errorMessage))) }
                 return
             }
 
             DispatchQueue.main.async { completion(.success(())) }
+        }.resume()
+    }
+
+    func getConfiguracion(completion: @escaping (Result<ConfiguracionResponse, NetworkError>) -> Void) {
+        guard let url = URL(string: baseURL + "configuracion") else {
+            completion(.failure(.invalidURL))
+            return
+        }
+
+        URLSession.shared.dataTask(with: url) { data, response, error in
+            if let error = error {
+                SupabaseService.shared.logError(error.localizedDescription, contexto: "GetConfiguracion")
+                DispatchQueue.main.async { completion(.failure(.serverError(error.localizedDescription))) }
+                return
+            }
+
+            guard let data = data else {
+                DispatchQueue.main.async { completion(.failure(.noData)) }
+                return
+            }
+
+            DispatchQueue.main.async {
+                do {
+                    let config = try self.getDecoder().decode(ConfiguracionResponse.self, from: data)
+                    completion(.success(config))
+                } catch {
+                    completion(.failure(.decodingError))
+                }
+            }
         }.resume()
     }
 
@@ -260,13 +289,16 @@ class NetworkManager {
 
         urlRequest.httpBody = try? JSONSerialization.data(withJSONObject: body)
 
-        URLSession.shared.dataTask(with: urlRequest) { _, response, error in
+        URLSession.shared.dataTask(with: urlRequest) { data, response, error in
             if let error = error {
+                SupabaseService.shared.logError(error.localizedDescription, contexto: "UpdateConfiguracion")
                 DispatchQueue.main.async { completion(.failure(.serverError(error.localizedDescription))) }
                 return
             }
 
             if let httpResponse = response as? HTTPURLResponse, !(200...299).contains(httpResponse.statusCode) {
+                let msg = String(data: data ?? Data(), encoding: .utf8) ?? "Error \(httpResponse.statusCode)"
+                SupabaseService.shared.logError(msg, contexto: "UpdateConfiguracion Server")
                 DispatchQueue.main.async { completion(.failure(.serverError("Error \(httpResponse.statusCode)")))}
                 return
             }

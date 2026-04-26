@@ -133,3 +133,10 @@ struct RolResponseDTO: Codable, Sendable {
     let id: Int
     let nombre: String
 }
+
+struct ConfiguracionResponse: Codable, Sendable {
+    let id: Int?
+    let officeLat: Double?
+    let officeLng: Double?
+    let radius: Int?
+}

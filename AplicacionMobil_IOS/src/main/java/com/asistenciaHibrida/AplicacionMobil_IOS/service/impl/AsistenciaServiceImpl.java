@@ -63,8 +63,6 @@ public class AsistenciaServiceImpl implements AsistenciaService {
             }
         }
 
-        // Solo validamos la geocerca para marcaciones en tiempo real (móvil).
-        // Los registros manuales administrativos saltan esta validación.
         if (fechaHoraManual == null) {
             validateGeofence(trabajador, modalidad, latitud, longitud);
         }
@@ -80,44 +78,37 @@ public class AsistenciaServiceImpl implements AsistenciaService {
         asistencia.setLatitud(latitud);
         asistencia.setLongitud(longitud);
 
-        // Determinar y guardar punto de referencia según modalidad
         if (modalidad != null) {
-            if (modalidad.getId() == 1) { // PRESENCIAL -> Oficina
+            if (modalidad.getId() == 1) { // PRESENCIAL
                 Configuracion config = configuracionRepository.findCurrent().orElseGet(this::createDefaultConfig);
                 asistencia.setLatitudReferencia(config.getOfficeLat());
                 asistencia.setLongitudReferencia(config.getOfficeLng());
-            } else if (modalidad.getId() == 2 || modalidad.getId() == 3) { // VIRTUAL o HIBRIDO -> Casa
+            } else if (modalidad.getId() == 2 || modalidad.getId() == 3) { // VIRTUAL o HIBRIDO
                 asistencia.setLatitudReferencia(trabajador.getLatitudVirtual());
                 asistencia.setLongitudReferencia(trabajador.getLongitudVirtual());
             }
         }
 
         asistencia.setNotas(notas);
-
         Asistencia guardada = asistenciaRepository.save(asistencia);
-
-        // Mapeamos a DTO dentro de la transacción para evitar
-        // LazyInitializationException
         return asistenciaMapper.toResponseDTO(guardada);
     }
 
     private void validateGeofence(Trabajador t, Modalidad m, BigDecimal currentLatB, BigDecimal currentLngB) {
-        if (currentLatB == null || currentLngB == null)
-            return;
+        if (currentLatB == null || currentLngB == null) return;
 
         double currentLat = currentLatB.doubleValue();
         double currentLng = currentLngB.doubleValue();
         int modalityId = m.getId();
 
-        Configuracion config = configuracionRepository.findCurrent()
-                .orElseGet(this::createDefaultConfig);
+        Configuracion config = configuracionRepository.findCurrent().orElseGet(this::createDefaultConfig);
 
         switch (modalityId) {
             case 1: // PRESENCIAL
                 validateDistance(currentLat, currentLng,
                         config.getOfficeLat().doubleValue(),
                         config.getOfficeLng().doubleValue(),
-                        10, "Oficina (Presencial)");
+                        config.getRadius(), "Oficina");
                 break;
 
             case 2: // VIRTUAL
@@ -145,35 +136,26 @@ public class AsistenciaServiceImpl implements AsistenciaService {
                 }
 
                 if (!inOffice && !inHome) {
-                    throw new RuntimeException(
-                            "Fuera de rango. Debe marcar en la Oficina o en su Domicilio registrado.");
+                    throw new RuntimeException("Fuera de rango. Debe marcar en la Oficina o en su Domicilio registrado.");
                 }
                 break;
 
             case 4: // TERRENO
-                PuntoTerreno terrainPoint = puntoTerrenoRepository.findLatestByJefeId(t.getId())
-                        .orElse(null);
-
+                PuntoTerreno terrainPoint = puntoTerrenoRepository.findLatestByJefeId(t.getId()).orElse(null);
                 if (terrainPoint == null && t.getJefe() != null) {
-                    terrainPoint = puntoTerrenoRepository.findLatestByJefeId(t.getJefe().getId())
-                            .orElse(null);
+                    terrainPoint = puntoTerrenoRepository.findLatestByJefeId(t.getJefe().getId()).orElse(null);
                 }
 
                 if (Boolean.TRUE.equals(t.getEsJefeTerreno())) {
                     savePuntoTerreno(t, currentLatB, currentLngB);
                 } else {
                     if (terrainPoint == null) {
-                        String errorMsg = (t.getJefe() == null)
-                                ? "No se ha definido un punto de asistencia para usted."
-                                : "Su jefe (" + t.getJefe().getNombres()
-                                        + ") no ha definido un punto de asistencia.";
-                        throw new RuntimeException(errorMsg);
+                        throw new RuntimeException("No se ha definido un punto de asistencia.");
                     }
                     validateDistance(currentLat, currentLng,
                             terrainPoint.getLatitud().doubleValue(),
                             terrainPoint.getLongitud().doubleValue(),
-                            config.getRadius(),
-                            "Punto de Terreno (" + terrainPoint.getNombreUbicacion() + ")");
+                            config.getRadius(), "Punto de Terreno");
                 }
                 break;
         }
@@ -201,8 +183,7 @@ public class AsistenciaServiceImpl implements AsistenciaService {
     private void validateDistance(double lat1, double lon1, double lat2, double lon2, int radius, String area) {
         double distance = calculateDistance(lat1, lon1, lat2, lon2);
         if (distance > radius) {
-            throw new RuntimeException("Fuera de rango en " + area + ". Distancia: " + (int) distance
-                    + "m, Permitido: " + radius + "m");
+            throw new RuntimeException("Fuera de rango en " + area + ". Distancia: " + (int) distance + "m, Permitido: " + radius + "m");
         }
     }
 
@@ -211,14 +192,8 @@ public class AsistenciaServiceImpl implements AsistenciaService {
         double dLon = Math.toRadians(lon2 - lon1);
         double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
                 Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
-                        Math.sin(dLon / 2) * dLon / 2; // Fixed missing Math.sin
-        // Re-implementing correctly below
-        double sinDLat = Math.sin(dLat / 2);
-        double sinDLon = Math.sin(dLon / 2);
-        double aCorrect = sinDLat * sinDLat +
-                Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
-                        sinDLon * sinDLon;
-        double c = 2 * Math.atan2(Math.sqrt(aCorrect), Math.sqrt(1 - aCorrect));
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return EARTH_RADIUS * c;
     }
 
@@ -242,41 +217,18 @@ public class AsistenciaServiceImpl implements AsistenciaService {
 
     @Override
     public List<Asistencia> listarPorTrabajador(Integer trabajadorId) {
-        Trabajador trabajador = trabajadorRepository.findById(trabajadorId)
-                .orElseThrow(() -> new ResourceNotFoundException("Trabajador no encontrado"));
+        Trabajador trabajador = trabajadorRepository.findById(trabajadorId).orElseThrow(() -> new ResourceNotFoundException("Trabajador no encontrado"));
         return asistenciaRepository.findByTrabajadorOrderByFechaHoraDesc(trabajador);
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public PageResponseDTO<Asistencia> listarPorTrabajadorPaginado(Integer trabajadorId,
-            PageRequestDTO pageRequest) {
-        Trabajador trabajador = trabajadorRepository.findById(trabajadorId)
-                .orElseThrow(() -> new ResourceNotFoundException("Trabajador no encontrado"));
-
-        if (pageRequest == null)
-            pageRequest = new PageRequestDTO();
-        String sortBy = (pageRequest.getSortBy() == null || pageRequest.getSortBy().isEmpty()) ? "id"
-                : pageRequest.getSortBy();
-        String sortDir = (pageRequest.getSortDir() == null || pageRequest.getSortDir().isEmpty()) ? "asc"
-                : pageRequest.getSortDir();
-
-        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name())
-                ? Sort.by(sortBy).ascending()
-                : Sort.by(sortBy).descending();
-
+    public PageResponseDTO<Asistencia> listarPorTrabajadorPaginado(Integer trabajadorId, PageRequestDTO pageRequest) {
+        Trabajador trabajador = trabajadorRepository.findById(trabajadorId).orElseThrow(() -> new ResourceNotFoundException("Trabajador no encontrado"));
+        if (pageRequest == null) pageRequest = new PageRequestDTO();
+        Sort sort = (pageRequest.getSortDir() != null && pageRequest.getSortDir().equalsIgnoreCase("desc")) ? Sort.by(pageRequest.getSortBy() != null ? pageRequest.getSortBy() : "id").descending() : Sort.by(pageRequest.getSortBy() != null ? pageRequest.getSortBy() : "id").ascending();
         Pageable pageable = PageRequest.of(pageRequest.getPageIndex(), pageRequest.getPageSize(), sort);
-
         Page<Asistencia> page = asistenciaRepository.findByTrabajador(trabajador, pageable);
-
-        return new PageResponseDTO<>(
-                page.getContent(),
-                page.getNumber(),
-                page.getTotalElements(),
-                page.getTotalPages(),
-                page.isFirst(),
-                page.isLast(),
-                page.getSize());
+        return new PageResponseDTO<>(page.getContent(), page.getNumber(), page.getTotalElements(), page.getTotalPages(), page.isFirst(), page.isLast(), page.getSize());
     }
 
     @Override
@@ -285,53 +237,20 @@ public class AsistenciaServiceImpl implements AsistenciaService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public PageResponseDTO<Asistencia> listarTodasPaginado(PageRequestDTO pageRequest) {
-        if (pageRequest == null)
-            pageRequest = new PageRequestDTO();
-        String sortBy = (pageRequest.getSortBy() == null || pageRequest.getSortBy().isEmpty()) ? "id"
-                : pageRequest.getSortBy();
-        String sortDir = (pageRequest.getSortDir() == null || pageRequest.getSortDir().isEmpty()) ? "asc"
-                : pageRequest.getSortDir();
-
-        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name())
-                ? Sort.by(sortBy).ascending()
-                : Sort.by(sortBy).descending();
-
+        if (pageRequest == null) pageRequest = new PageRequestDTO();
+        Sort sort = (pageRequest.getSortDir() != null && pageRequest.getSortDir().equalsIgnoreCase("desc")) ? Sort.by(pageRequest.getSortBy() != null ? pageRequest.getSortBy() : "id").descending() : Sort.by(pageRequest.getSortBy() != null ? pageRequest.getSortBy() : "id").ascending();
         Pageable pageable = PageRequest.of(pageRequest.getPageIndex(), pageRequest.getPageSize(), sort);
-
         Page<Asistencia> page = asistenciaRepository.findAll(pageable);
-
-        return new PageResponseDTO<>(
-                page.getContent(),
-                page.getNumber(),
-                page.getTotalElements(),
-                page.getTotalPages(),
-                page.isFirst(),
-                page.isLast(),
-                page.getSize());
+        return new PageResponseDTO<>(page.getContent(), page.getNumber(), page.getTotalElements(), page.getTotalPages(), page.isFirst(), page.isLast(), page.getSize());
     }
 
     @Override
-    @Transactional(readOnly = true)
     public AsistenciaResponseDTO obtenerEstadoHoy(Integer trabajadorId) {
-        Trabajador trabajador = trabajadorRepository.findById(trabajadorId)
-                .orElseThrow(() -> new ResourceNotFoundException("Trabajador no encontrado"));
-
-        java.time.ZoneId peruZone = java.time.ZoneId.of("America/Lima");
-        LocalDateTime ahoraPeru = java.time.ZonedDateTime.now(peruZone).toLocalDateTime();
-        LocalDateTime inicioDia = ahoraPeru.withHour(0).withMinute(0).withSecond(0).withNano(0);
-        LocalDateTime finDia = ahoraPeru.withHour(23).withMinute(59).withSecond(59).withNano(999999999);
-
-        List<Asistencia> asistenciasHoy = asistenciaRepository
-                .findByTrabajadorAndFechaHoraBetweenOrderByFechaHoraDesc(trabajador, inicioDia, finDia);
-
-        if (asistenciasHoy.isEmpty()) {
-            return null; // No ha marcado nada hoy
-        }
-
-        // Devolvemos la última marcación para que el front sepa qué fue lo último
-        // (ENTRADA o SALIDA)
-        return asistenciaMapper.toResponseDTO(asistenciasHoy.get(0));
+        Trabajador trabajador = trabajadorRepository.findById(trabajadorId).orElseThrow(() -> new ResourceNotFoundException("Trabajador no encontrado"));
+        LocalDateTime inicioDia = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime finDia = LocalDateTime.now().withHour(23).withMinute(59).withSecond(59).withNano(999999999);
+        List<Asistencia> asistenciasHoy = asistenciaRepository.findByTrabajadorAndFechaHoraBetweenOrderByFechaHoraDesc(trabajador, inicioDia, finDia);
+        return asistenciasHoy.isEmpty() ? null : asistenciaMapper.toResponseDTO(asistenciasHoy.get(0));
     }
 }
