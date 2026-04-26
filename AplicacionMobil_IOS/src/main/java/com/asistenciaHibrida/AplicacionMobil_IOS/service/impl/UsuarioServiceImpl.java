@@ -39,14 +39,30 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Override
     @Transactional(readOnly = true)
     public PageResponseDTO<UsuarioResponseDTO> listarPaginado(PageRequestDTO pageRequest) {
-        // ... (lógica existente mantenida)
         if (pageRequest == null) pageRequest = new PageRequestDTO();
+
         final String sortBy = (pageRequest.getSortBy() == null || pageRequest.getSortBy().isEmpty()) ? "id" : pageRequest.getSortBy();
         final String sortDir = (pageRequest.getSortDir() == null || pageRequest.getSortDir().isEmpty()) ? "asc" : pageRequest.getSortDir();
+
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(pageRequest.getPageIndex(), pageRequest.getPageSize(), sort);
-        Page<Usuario> page = usuarioRepository.findAll(pageable);
+
+        org.springframework.data.jpa.domain.Specification<Usuario> spec = null;
+        if (pageRequest.getFilters() != null) {
+            String q = (String) pageRequest.getFilters().get("q");
+            if (q != null && !q.isEmpty()) {
+                String searchPattern = "%" + q.toLowerCase() + "%";
+                spec = org.springframework.data.jpa.domain.Specification.where((root, query, cb) -> cb.or(
+                    cb.like(cb.lower(root.get("username")), searchPattern),
+                    cb.like(cb.lower(root.join("trabajador").get("nombres")), searchPattern),
+                    cb.like(cb.lower(root.join("trabajador").get("apellidos")), searchPattern)
+                ));
+            }
+        }
+
+        Page<Usuario> page = (spec != null) ? usuarioRepository.findAll(spec, pageable) : usuarioRepository.findAll(pageable);
         List<UsuarioResponseDTO> dtoList = page.getContent().stream().map(usuarioMapper::toResponseDTO).collect(Collectors.toList());
+
         return new PageResponseDTO<>(dtoList, page.getNumber(), page.getTotalElements(), page.getTotalPages(), page.isFirst(), page.isLast(), page.getSize(), pageRequest.getFilters());
     }
 
@@ -102,16 +118,14 @@ public class UsuarioServiceImpl implements UsuarioService {
 
         UsuarioResponseDTO response = usuarioMapper.toResponseDTO(usuario);
         
-        // Lógica de discriminación de 2FA por plataforma
-        if (isMobile) {
-            // MÓVIL: No requiere 2FA, entregamos token directamente
-            response.setToken("mobile-auth-token-" + usuario.getId());
+        // Lógica corregida para asegurar que el iPhone siempre entre directo
+        if (Boolean.TRUE.equals(isMobile)) {
+            response.setToken("normal-test-token-" + usuario.getId());
             response.setRequire2FA(false);
             response.setSetup2FA(false);
         } else {
-            // WEB: Simulamos la necesidad de 2FA para que Angular muestre el QR
-            // En una implementación real, aquí verificarías si el usuario ya tiene 2FA configurado
-            response.setSetup2FA(true); 
+            // WEB: Requiere configuración de 2FA (simulado para Angular)
+            response.setSetup2FA(true);
             response.setQrCodeData("otpauth://totp/GeoCheck:" + username + "?secret=JBSWY3DPEHPK3PXP&issuer=GeoCheck");
             response.setTempToken("temp-web-token-" + usuario.getId());
         }

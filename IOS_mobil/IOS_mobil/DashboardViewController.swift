@@ -3,14 +3,15 @@ import CoreLocation
 
 class DashboardViewController: UIViewController, CLLocationManagerDelegate {
 
-    // MARK: - Outlets (Mantener para compatibilidad total con Storyboard y evitar crashes)
-    @IBOutlet var greetingLabel: UILabel!
-    @IBOutlet var historyButton: UIButton!
-    @IBOutlet var profileButton: UIButton!
-    @IBOutlet var scanButton: UIButton!
-    @IBOutlet var adminButton: UIButton!
-    @IBOutlet var virtualButton: UIButton!
-    @IBOutlet var mainStackView: UIStackView!
+    // MARK: - Outlets Ultra-Seguros (Tipo Any? para evitar NSUnknownKeyException con el Storyboard)
+    @objc @IBOutlet var greetingLabel: Any?
+    @objc @IBOutlet var historyButton: Any?
+    @objc @IBOutlet var profileButton: Any?
+    @objc @IBOutlet var scanButton: Any?
+    @objc @IBOutlet var adminButton: Any?
+    @objc @IBOutlet var virtualButton: Any?
+    @objc @IBOutlet var mainStackView: Any?
+    @objc @IBOutlet var logoutButton: Any? // Añadido para evitar el crash reportado
     
     // MARK: - UI Components Programáticos
     private let scrollView = UIScrollView()
@@ -69,7 +70,7 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
         return s
     }()
 
-    private let logoutButton: UIButton = {
+    private let customLogoutButton: UIButton = {
         let b = UIButton(type: .system)
         b.setTitle("Cerrar Sesión", for: .normal)
         b.setTitleColor(.systemRed, for: .normal)
@@ -114,19 +115,25 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
     private func setupUI() {
         view.backgroundColor = .systemGroupedBackground
         
-        // Inicialización segura de outlets por si no vienen del storyboard
-        if greetingLabel == nil { greetingLabel = UILabel() }
-        greetingLabel.translatesAutoresizingMaskIntoConstraints = false
-        greetingLabel.font = .systemFont(ofSize: 24, weight: .bold)
-        greetingLabel.textColor = .white
+        // Ocultamos de forma segura cualquier cosa que venga del Storyboard
+        (mainStackView as? UIView)?.isHidden = true
+        (historyButton as? UIView)?.isHidden = true
+        (profileButton as? UIView)?.isHidden = true
+        (scanButton as? UIView)?.isHidden = true
+        (adminButton as? UIView)?.isHidden = true
+        (virtualButton as? UIView)?.isHidden = true
+        (logoutButton as? UIView)?.isHidden = true // Ocultamos el viejo logout del storyboard
         
-        // Ocultamos los outlets originales del storyboard para usar el nuevo diseño programático
-        mainStackView?.isHidden = true
-        historyButton?.isHidden = true
-        profileButton?.isHidden = true
-        scanButton?.isHidden = true
-        adminButton?.isHidden = true
-        virtualButton?.isHidden = true
+        // El greetingLabel lo tratamos con especial cuidado
+        let realGreetingLabel: UILabel
+        if let existing = greetingLabel as? UILabel {
+            realGreetingLabel = existing
+        } else {
+            realGreetingLabel = UILabel()
+        }
+        realGreetingLabel.translatesAutoresizingMaskIntoConstraints = false
+        realGreetingLabel.font = .systemFont(ofSize: 24, weight: .bold)
+        realGreetingLabel.textColor = .white
         
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
@@ -134,7 +141,7 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
         contentView.translatesAutoresizingMaskIntoConstraints = false
         
         contentView.addSubview(headerView)
-        headerView.addSubview(greetingLabel)
+        headerView.addSubview(realGreetingLabel)
         headerView.addSubview(subtitleLabel)
         
         contentView.addSubview(statusCard)
@@ -142,7 +149,7 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
         statusCard.addSubview(statusText)
         
         contentView.addSubview(gridStack)
-        contentView.addSubview(logoutButton)
+        contentView.addSubview(customLogoutButton)
         view.addSubview(activityIndicator)
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
         
@@ -163,11 +170,11 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
             headerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             headerView.heightAnchor.constraint(equalToConstant: 180),
             
-            greetingLabel.topAnchor.constraint(equalTo: headerView.topAnchor, constant: 60),
-            greetingLabel.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: 24),
+            realGreetingLabel.topAnchor.constraint(equalTo: headerView.topAnchor, constant: 60),
+            realGreetingLabel.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: 24),
             
-            subtitleLabel.topAnchor.constraint(equalTo: greetingLabel.bottomAnchor, constant: 4),
-            subtitleLabel.leadingAnchor.constraint(equalTo: greetingLabel.leadingAnchor),
+            subtitleLabel.topAnchor.constraint(equalTo: realGreetingLabel.bottomAnchor, constant: 4),
+            subtitleLabel.leadingAnchor.constraint(equalTo: realGreetingLabel.leadingAnchor),
             
             statusCard.topAnchor.constraint(equalTo: headerView.bottomAnchor, constant: -30),
             statusCard.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
@@ -186,11 +193,11 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
             gridStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
             gridStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
             
-            logoutButton.topAnchor.constraint(equalTo: gridStack.bottomAnchor, constant: 30),
-            logoutButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
-            logoutButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
-            logoutButton.heightAnchor.constraint(equalToConstant: 55),
-            logoutButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -40),
+            customLogoutButton.topAnchor.constraint(equalTo: gridStack.bottomAnchor, constant: 30),
+            customLogoutButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
+            customLogoutButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
+            customLogoutButton.heightAnchor.constraint(equalToConstant: 55),
+            customLogoutButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -40),
             
             activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
@@ -276,7 +283,7 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
 
     private func stopAutoRefresh() { refreshTimer?.invalidate(); locationTimer?.invalidate() }
     
-    private func setupActions() { logoutButton.addTarget(self, action: #selector(logoutActionTriggered), for: .touchUpInside) }
+    private func setupActions() { customLogoutButton.addTarget(self, action: #selector(logoutActionTriggered), for: .touchUpInside) }
 
     private func fetchTrabajadorData(silently: Bool = false) {
         guard let id = trabajadorId else { return }
@@ -287,7 +294,15 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
                 if case .success(let data) = result {
                     self?.trabajadorData = data.trabajador
                     let nombre = data.trabajador?.nombres?.split(separator: " ").first.map(String.init) ?? "Usuario"
-                    self?.greetingLabel?.text = "¡Hola, \(nombre)! 👋"
+                    
+                    // Actualizamos el label real de forma segura
+                    if let label = self?.view.findViewWithId("greeting") as? UILabel {
+                        label.text = "¡Hola, \(nombre)! 👋"
+                    } else {
+                        // Si no lo encuentra por ID, buscamos cualquier UILabel en el header
+                        self?.headerView.subviews.compactMap { $0 as? UILabel }.first?.text = "¡Hola, \(nombre)! 👋"
+                    }
+                    
                     self?.updateVisibility()
                 }
             }
