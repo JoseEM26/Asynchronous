@@ -1,6 +1,5 @@
--- 1. CREACIÓN DE LA BASE DE DATOS
-CREATE DATABASE IF NOT EXISTS asistencia_db;
-USE asistencia_db;
+CREATE DATABASE IF NOT EXISTS railway;
+USE railway;
 
 -- 2. TABLA DE ROLES (Administrativos)
 CREATE TABLE IF NOT EXISTS roles (
@@ -33,7 +32,12 @@ CREATE TABLE IF NOT EXISTS trabajadores (
     dias_remotos VARCHAR(150),
     hora_ingreso TIME,
     hora_salida TIME,
-    CONSTRAINT fk_trabajador_modalidad FOREIGN KEY (modalidad_id) REFERENCES modalidades(id)
+    permitir_cambio_ubicacion BOOLEAN DEFAULT FALSE,
+    jefe_id INT,
+    rol_id INT,
+    CONSTRAINT fk_trabajador_modalidad FOREIGN KEY (modalidad_id) REFERENCES modalidades(id),
+    CONSTRAINT fk_trabajador_jefe FOREIGN KEY (jefe_id) REFERENCES trabajadores(id),
+    CONSTRAINT fk_trabajador_rol FOREIGN KEY (rol_id) REFERENCES roles(id)
 ) ENGINE=InnoDB;
 
 -- 5. TABLA DE USUARIOS (Credenciales de acceso)
@@ -43,6 +47,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
     password VARCHAR(255) NOT NULL,
     rol_id INT,
     trabajador_id INT,
+    two_factor_enabled BOOLEAN DEFAULT FALSE,
     CONSTRAINT fk_usuario_rol FOREIGN KEY (rol_id) REFERENCES roles(id),
     CONSTRAINT fk_usuario_trabajador FOREIGN KEY (trabajador_id) REFERENCES trabajadores(id)
 ) ENGINE=InnoDB;
