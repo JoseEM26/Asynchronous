@@ -3,83 +3,12 @@ import CoreLocation
 
 class DashboardViewController: UIViewController, CLLocationManagerDelegate {
 
-    // MARK: - Outlets Ultra-Seguros (Tipo Any? para evitar NSUnknownKeyException con el Storyboard)
-    @objc @IBOutlet var greetingLabel: Any?
-    @objc @IBOutlet var historyButton: Any?
-    @objc @IBOutlet var profileButton: Any?
-    @objc @IBOutlet var scanButton: Any?
-    @objc @IBOutlet var adminButton: Any?
-    @objc @IBOutlet var virtualButton: Any?
-    @objc @IBOutlet var mainStackView: Any?
-    @objc @IBOutlet var logoutButton: Any? // Añadido para evitar el crash reportado
-    
-    // MARK: - UI Components Programáticos
-    private let scrollView = UIScrollView()
-    private let contentView = UIView()
-    
-    private let headerView: UIView = {
-        let v = UIView()
-        v.backgroundColor = .systemOrange
-        v.translatesAutoresizingMaskIntoConstraints = false
-        return v
-    }()
-    
-    private let subtitleLabel: UILabel = {
-        let l = UILabel()
-        l.text = "Panel de Control Administrativo"
-        l.font = .systemFont(ofSize: 14, weight: .medium)
-        l.textColor = UIColor.white.withAlphaComponent(0.8)
-        l.translatesAutoresizingMaskIntoConstraints = false
-        return l
-    }()
-    
-    private let statusCard: UIView = {
-        let v = UIView()
-        v.backgroundColor = .secondarySystemGroupedBackground
-        v.layer.cornerRadius = 20
-        v.layer.shadowColor = UIColor.black.cgColor
-        v.layer.shadowOpacity = 0.05
-        v.layer.shadowRadius = 10
-        v.layer.shadowOffset = CGSize(width: 0, height: 4)
-        v.translatesAutoresizingMaskIntoConstraints = false
-        return v
-    }()
-    
-    private let statusIndicator: UIView = {
-        let v = UIView()
-        v.backgroundColor = .systemGreen
-        v.layer.cornerRadius = 6
-        v.translatesAutoresizingMaskIntoConstraints = false
-        return v
-    }()
-    
-    private let statusText: UILabel = {
-        let l = UILabel()
-        l.text = "Sistema Activo"
-        l.font = .systemFont(ofSize: 13, weight: .semibold)
-        l.textColor = .label
-        l.translatesAutoresizingMaskIntoConstraints = false
-        return l
-    }()
-    
-    private let gridStack: UIStackView = {
-        let s = UIStackView()
-        s.axis = .vertical
-        s.spacing = 16
-        s.translatesAutoresizingMaskIntoConstraints = false
-        return s
-    }()
-
-    private let customLogoutButton: UIButton = {
-        let b = UIButton(type: .system)
-        b.setTitle("Cerrar Sesión", for: .normal)
-        b.setTitleColor(.systemRed, for: .normal)
-        b.titleLabel?.font = .systemFont(ofSize: 16, weight: .bold)
-        b.backgroundColor = .secondarySystemGroupedBackground
-        b.layer.cornerRadius = 15
-        b.translatesAutoresizingMaskIntoConstraints = false
-        return b
-    }()
+    // MARK: - Storyboard Outlets (Los 5 exactos del Main.storyboard)
+    @IBOutlet weak var greetingLabel: UILabel!
+    @IBOutlet weak var historyButton: UIButton!
+    @IBOutlet weak var logoutButton: UIButton!
+    @IBOutlet weak var profileButton: UIButton!
+    @IBOutlet weak var scannerButton: UIButton!
 
     // MARK: - Properties
     var trabajadorId: Int?
@@ -89,202 +18,85 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
     private var refreshTimer: Timer?
     private var locationTimer: Timer?
     private let activityIndicator = UIActivityIndicatorView(style: .large)
-    
+
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupUI()
+        styleUI()
         setupActions()
         configurePermissionsByRole()
-        
+
         locationManager.delegate = self
         locationManager.requestWhenInUseAuthorization()
     }
-    
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         fetchTrabajadorData()
         startAutoRefresh()
     }
-    
+
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         stopAutoRefresh()
     }
-    
-    private func setupUI() {
+
+    // MARK: - Estilizar los elementos del Storyboard para darles look premium
+    private func styleUI() {
         view.backgroundColor = .systemGroupedBackground
-        
-        // Ocultamos de forma segura cualquier cosa que venga del Storyboard
-        (mainStackView as? UIView)?.isHidden = true
-        (historyButton as? UIView)?.isHidden = true
-        (profileButton as? UIView)?.isHidden = true
-        (scanButton as? UIView)?.isHidden = true
-        (adminButton as? UIView)?.isHidden = true
-        (virtualButton as? UIView)?.isHidden = true
-        (logoutButton as? UIView)?.isHidden = true // Ocultamos el viejo logout del storyboard
-        
-        // El greetingLabel lo tratamos con especial cuidado
-        let realGreetingLabel: UILabel
-        if let existing = greetingLabel as? UILabel {
-            realGreetingLabel = existing
-        } else {
-            realGreetingLabel = UILabel()
-        }
-        realGreetingLabel.translatesAutoresizingMaskIntoConstraints = false
-        realGreetingLabel.font = .systemFont(ofSize: 24, weight: .bold)
-        realGreetingLabel.textColor = .white
-        
-        view.addSubview(scrollView)
-        scrollView.addSubview(contentView)
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        contentView.translatesAutoresizingMaskIntoConstraints = false
-        
-        contentView.addSubview(headerView)
-        headerView.addSubview(realGreetingLabel)
-        headerView.addSubview(subtitleLabel)
-        
-        contentView.addSubview(statusCard)
-        statusCard.addSubview(statusIndicator)
-        statusCard.addSubview(statusText)
-        
-        contentView.addSubview(gridStack)
-        contentView.addSubview(customLogoutButton)
+
+        // Greeting Label - estilo premium
+        greetingLabel.font = .systemFont(ofSize: 28, weight: .bold)
+        greetingLabel.textColor = .label
+        greetingLabel.text = "¡Hola! 👋"
+
+        // Estilizar cada botón como tarjeta premium
+        styleCard(profileButton, title: "👤  Mi Perfil", color: .systemBlue)
+        styleCard(scannerButton, title: "📸  Escanear QR", color: .systemOrange)
+        styleCard(historyButton, title: "📅  Historial", color: .systemGreen)
+
+        // Logout button
+        logoutButton.setTitle("Cerrar Sesión", for: .normal)
+        logoutButton.setTitleColor(.systemRed, for: .normal)
+        logoutButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .bold)
+        logoutButton.backgroundColor = .secondarySystemGroupedBackground
+        logoutButton.layer.cornerRadius = 15
+        logoutButton.clipsToBounds = true
+
+        // Activity indicator
         view.addSubview(activityIndicator)
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
-        
         NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
-            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            
-            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
-            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
-            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
-            
-            headerView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            headerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            headerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            headerView.heightAnchor.constraint(equalToConstant: 180),
-            
-            realGreetingLabel.topAnchor.constraint(equalTo: headerView.topAnchor, constant: 60),
-            realGreetingLabel.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: 24),
-            
-            subtitleLabel.topAnchor.constraint(equalTo: realGreetingLabel.bottomAnchor, constant: 4),
-            subtitleLabel.leadingAnchor.constraint(equalTo: realGreetingLabel.leadingAnchor),
-            
-            statusCard.topAnchor.constraint(equalTo: headerView.bottomAnchor, constant: -30),
-            statusCard.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
-            statusCard.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
-            statusCard.heightAnchor.constraint(equalToConstant: 60),
-            
-            statusIndicator.leadingAnchor.constraint(equalTo: statusCard.leadingAnchor, constant: 20),
-            statusIndicator.centerYAnchor.constraint(equalTo: statusCard.centerYAnchor),
-            statusIndicator.widthAnchor.constraint(equalToConstant: 12),
-            statusIndicator.heightAnchor.constraint(equalToConstant: 12),
-            
-            statusText.leadingAnchor.constraint(equalTo: statusIndicator.trailingAnchor, constant: 12),
-            statusText.centerYAnchor.constraint(equalTo: statusCard.centerYAnchor),
-            
-            gridStack.topAnchor.constraint(equalTo: statusCard.bottomAnchor, constant: 24),
-            gridStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
-            gridStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
-            
-            customLogoutButton.topAnchor.constraint(equalTo: gridStack.bottomAnchor, constant: 30),
-            customLogoutButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
-            customLogoutButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
-            customLogoutButton.heightAnchor.constraint(equalToConstant: 55),
-            customLogoutButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -40),
-            
             activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
-        
-        setupMenuGrid()
-    }
-    
-    private func setupMenuGrid() {
-        let row1 = createRowStack()
-        row1.addArrangedSubview(createMenuCard(id: "profile", title: "Mi Perfil", icon: "person.circle.fill", color: .systemBlue))
-        row1.addArrangedSubview(createMenuCard(id: "history", title: "Historial", icon: "calendar", color: .systemGreen))
-        gridStack.addArrangedSubview(row1)
-        
-        let row2 = createRowStack()
-        row2.addArrangedSubview(createMenuCard(id: "scanner", title: "Escanear QR", icon: "qrcode.viewfinder", color: .systemOrange))
-        row2.addArrangedSubview(createMenuCard(id: "virtual", title: "Remoto", icon: "house.fill", color: .systemPurple))
-        gridStack.addArrangedSubview(row2)
-        
-        let row3 = createRowStack()
-        row3.addArrangedSubview(createMenuCard(id: "admin", title: "Oficina", icon: "building.2.fill", color: .systemIndigo))
-        row3.addArrangedSubview(UIView()) // Placeholder
-        gridStack.addArrangedSubview(row3)
-    }
-    
-    private func createRowStack() -> UIStackView {
-        let s = UIStackView()
-        s.axis = .horizontal
-        s.spacing = 16
-        s.distribution = .fillEqually
-        return s
-    }
-    
-    private func createMenuCard(id: String, title: String, icon: String, color: UIColor) -> UIView {
-        let card = UIButton(type: .system)
-        card.backgroundColor = .secondarySystemGroupedBackground
-        card.layer.cornerRadius = 20
-        card.accessibilityIdentifier = id
-        
-        let iconImg = UIImageView(image: UIImage(systemName: icon))
-        iconImg.tintColor = color
-        iconImg.contentMode = .scaleAspectFit
-        iconImg.translatesAutoresizingMaskIntoConstraints = false
-        
-        let label = UILabel()
-        label.text = title
-        label.font = .systemFont(ofSize: 15, weight: .bold)
-        label.textColor = .label
-        label.translatesAutoresizingMaskIntoConstraints = false
-        
-        card.addSubview(iconImg)
-        card.addSubview(label)
-        
-        NSLayoutConstraint.activate([
-            card.heightAnchor.constraint(equalToConstant: 130),
-            iconImg.topAnchor.constraint(equalTo: card.topAnchor, constant: 20),
-            iconImg.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 20),
-            iconImg.widthAnchor.constraint(equalToConstant: 35),
-            iconImg.heightAnchor.constraint(equalToConstant: 35),
-            label.bottomAnchor.constraint(equalTo: card.bottomAnchor, constant: -20),
-            label.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 20)
-        ])
-        
-        card.addTarget(self, action: #selector(menuItemPressed(_:)), for: .touchUpInside)
-        return card
-    }
-    
-    @objc private func menuItemPressed(_ sender: UIButton) {
-        switch sender.accessibilityIdentifier {
-        case "profile": profilePressed()
-        case "history": historyPressed()
-        case "scanner": scannerPressed()
-        case "virtual": virtualAttendancePressed()
-        case "admin": adminPressed()
-        default: break
-        }
     }
 
-    private func startAutoRefresh() {
-        refreshTimer = Timer.scheduledTimer(withTimeInterval: 30, repeats: true) { [weak self] _ in self?.fetchTrabajadorData(silently: true) }
-        locationTimer = Timer.scheduledTimer(withTimeInterval: 300, repeats: true) { [weak self] _ in self?.trackLocationInHistory() }
+    private func styleCard(_ button: UIButton, title: String, color: UIColor) {
+        button.setTitle(title, for: .normal)
+        button.setTitleColor(.label, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
+        button.contentHorizontalAlignment = .left
+        button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 24, bottom: 0, right: 24)
+        button.backgroundColor = .secondarySystemGroupedBackground
+        button.layer.cornerRadius = 20
+        button.clipsToBounds = true
+        button.layer.shadowColor = UIColor.black.cgColor
+        button.layer.shadowOpacity = 0.05
+        button.layer.shadowRadius = 8
+        button.layer.shadowOffset = CGSize(width: 0, height: 4)
+        button.layer.masksToBounds = false
     }
 
-    private func stopAutoRefresh() { refreshTimer?.invalidate(); locationTimer?.invalidate() }
-    
-    private func setupActions() { customLogoutButton.addTarget(self, action: #selector(logoutActionTriggered), for: .touchUpInside) }
+    // MARK: - Actions
+    private func setupActions() {
+        profileButton.addTarget(self, action: #selector(profilePressed), for: .touchUpInside)
+        scannerButton.addTarget(self, action: #selector(scannerPressed), for: .touchUpInside)
+        historyButton.addTarget(self, action: #selector(historyPressed), for: .touchUpInside)
+        logoutButton.addTarget(self, action: #selector(logoutActionTriggered), for: .touchUpInside)
+    }
 
+    // MARK: - Data
     private func fetchTrabajadorData(silently: Bool = false) {
         guard let id = trabajadorId else { return }
         if !silently { activityIndicator.startAnimating() }
@@ -294,25 +106,31 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
                 if case .success(let data) = result {
                     self?.trabajadorData = data.trabajador
                     let nombre = data.trabajador?.nombres?.split(separator: " ").first.map(String.init) ?? "Usuario"
-                    
-                    // Actualizamos el label real de forma segura
-                    if let label = self?.view.findViewWithId("greeting") as? UILabel {
-                        label.text = "¡Hola, \(nombre)! 👋"
-                    } else {
-                        // Si no lo encuentra por ID, buscamos cualquier UILabel en el header
-                        self?.headerView.subviews.compactMap { $0 as? UILabel }.first?.text = "¡Hola, \(nombre)! 👋"
-                    }
-                    
+                    self?.greetingLabel.text = "¡Hola, \(nombre)! 👋"
                     self?.updateVisibility()
                 }
             }
         }
     }
-    
+
     private func updateVisibility() {
         guard let t = trabajadorData else { return }
-        if let scannerCard = gridStack.findViewWithId("scanner") { scannerCard.isHidden = !(t.modalidadId == 1 || t.modalidadId == 3) }
-        if let virtualCard = gridStack.findViewWithId("virtual") { virtualCard.isHidden = !(t.modalidadId == 2 || t.modalidadId == 3) }
+        scannerButton.isHidden = !(t.modalidadId == 1 || t.modalidadId == 3)
+    }
+
+    // MARK: - Auto Refresh & Location
+    private func startAutoRefresh() {
+        refreshTimer = Timer.scheduledTimer(withTimeInterval: 30, repeats: true) { [weak self] _ in
+            self?.fetchTrabajadorData(silently: true)
+        }
+        locationTimer = Timer.scheduledTimer(withTimeInterval: 300, repeats: true) { [weak self] _ in
+            self?.trackLocationInHistory()
+        }
+    }
+
+    private func stopAutoRefresh() {
+        refreshTimer?.invalidate()
+        locationTimer?.invalidate()
     }
 
     private func trackLocationInHistory() { locationManager.requestLocation() }
@@ -321,45 +139,42 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
         guard let loc = locations.last, let id = trabajadorId else { return }
         SupabaseService.shared.saveLocation(usuarioId: id, lat: loc.coordinate.latitude, lng: loc.coordinate.longitude)
     }
-    
+
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {}
 
-    // MARK: - Navigation Actions
-    private func profilePressed() {
-        let vc = ProfileViewController(); vc.trabajadorId = trabajadorId; vc.modalPresentationStyle = .pageSheet; present(vc, animated: true)
+    // MARK: - Navigation
+    @objc private func profilePressed() {
+        let vc = ProfileViewController()
+        vc.trabajadorId = trabajadorId
+        vc.modalPresentationStyle = .pageSheet
+        present(vc, animated: true)
     }
-    private func scannerPressed() {
-        let vc = ScannerViewController(); vc.usuarioId = trabajadorId; if #available(iOS 15.0, *) { vc.sheetPresentationController?.detents = [.large()]; vc.sheetPresentationController?.prefersGrabberVisible = true }; present(vc, animated: true)
+
+    @objc private func scannerPressed() {
+        let vc = ScannerViewController()
+        vc.usuarioId = trabajadorId
+        if #available(iOS 15.0, *) {
+            vc.sheetPresentationController?.detents = [.large()]
+            vc.sheetPresentationController?.prefersGrabberVisible = true
+        }
+        present(vc, animated: true)
     }
-    private func historyPressed() {
-        let vc = HistoryViewController(); vc.usuarioId = trabajadorId; let nav = UINavigationController(rootViewController: vc); nav.modalPresentationStyle = .pageSheet; present(nav, animated: true)
-    }
-    private func adminPressed() {
-        let vc = AdminSettingsViewController(); let nav = UINavigationController(rootViewController: vc); nav.modalPresentationStyle = .pageSheet; present(nav, animated: true)
-    }
-    
-    @objc private func virtualAttendancePressed() {
-        let alert = UIAlertController(title: "🏠 Asistencia Remota", message: "¿Qué desea marcar?", preferredStyle: .actionSheet)
-        alert.addAction(UIAlertAction(title: "ENTRADA", style: .default))
-        alert.addAction(UIAlertAction(title: "SALIDA", style: .default))
-        alert.addAction(UIAlertAction(title: "Cancelar", style: .cancel))
-        present(alert, animated: true)
+
+    @objc private func historyPressed() {
+        let vc = HistoryViewController()
+        vc.usuarioId = trabajadorId
+        let nav = UINavigationController(rootViewController: vc)
+        nav.modalPresentationStyle = .pageSheet
+        present(nav, animated: true)
     }
 
     private func configurePermissionsByRole() {
-        if let adminCard = gridStack.findViewWithId("admin") {
-            let role = userRole ?? ""
-            adminCard.isHidden = !(role == "SUPER_ADMIN" || role == "ADMIN" || role == "1" || role == "5")
-        }
+        let role = userRole ?? ""
+        // Solo ADMIN y SUPER_ADMIN pueden ver ciertos elementos
+        // Los botones base del storyboard están siempre visibles para todos
     }
 
-    @objc private func logoutActionTriggered() { dismiss(animated: true) }
-}
-
-extension UIView {
-    func findViewWithId(_ id: String) -> UIView? {
-        if self.accessibilityIdentifier == id { return self }
-        for subview in subviews { if let found = subview.findViewWithId(id) { return found } }
-        return nil
+    @objc private func logoutActionTriggered() {
+        dismiss(animated: true)
     }
 }
