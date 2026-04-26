@@ -1,0 +1,100 @@
+<div class="row g-5 animate-fade">
+  <!-- SECCION IZQUIERDA: CONFIGURACION -->
+  <div class="col-lg-7">
+    
+    <!-- TITULO TEMAS -->
+    <header class="mb-5 d-flex align-items-center justify-content-between">
+      <h2 class="h3 fw-bold mb-0">Temas del Sistema</h2>
+      <span class="text-primary fw-bold small">UI/UX</span>
+    </header>
+
+    <!-- GRID DE TEMAS -->
+    <div class="theme-selection-grid mb-5">
+      <div *ngFor="let t of themeList" 
+           class="theme-card" 
+           [class.selected]="customColors.primary === t.colors.primary"
+           (click)="selectTheme(t.id)">
+        <div class="theme-circle-wrapper">
+          <div class="theme-circle" [style.background]="t.colors.primary"></div>
+        </div>
+        <span class="theme-name">{{ t.name }}</span>
+      </div>
+    </div>
+
+    <!-- PALETA PERSONALIZADA -->
+    <section class="mb-5">
+      <h6 class="text-uppercase small fw-bold text-muted letter-spacing-1 mb-4">Paleta Personalizada</h6>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <div class="color-control-box">
+            <span class="label">Primario</span>
+            <div class="input-container">
+               <div class="color-square" [style.background]="customColors.primary"></div>
+               <input type="text" [(ngModel)]="customColors.primary" (ngModelChange)="onColorChange()" class="hex-text">
+               <input type="color" [(ngModel)]="customColors.primary" (ngModelChange)="onColorChange()" class="native-picker">
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="color-control-box">
+            <span class="label">Secundario</span>
+            <div class="input-container">
+               <div class="color-square" [style.background]="customColors.secondary"></div>
+               <input type="text" [(ngModel)]="customColors.secondary" (ngModelChange)="onColorChange()" class="hex-text">
+               <input type="color" [(ngModel)]="customColors.secondary" (ngModelChange)="onColorChange()" class="native-picker">
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="color-control-box">
+            <span class="label">Fondo de Interfaz</span>
+            <div class="input-container">
+               <div class="color-square" [style.background]="customColors.background"></div>
+               <input type="text" [(ngModel)]="customColors.background" (ngModelChange)="onColorChange()" class="hex-text">
+               <input type="color" [(ngModel)]="customColors.background" (ngModelChange)="onColorChange()" class="native-picker">
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MODO OSCURO -->
+    <div class="dark-mode-card mb-5 d-flex align-items-center justify-content-between p-4">
+      <div>
+        <h5 class="fw-bold mb-1">Modo Oscuro Forzado</h5>
+        <p class="text-muted small mb-0">Optimiza el contraste para ambientes de baja luz</p>
+      </div>
+      <div class="form-check form-switch custom-switch">
+        <input class="form-check-input" type="checkbox" [(ngModel)]="customColors.isDark" (ngModelChange)="onColorChange()">
+      </div>
+    </div>
+
+    <!-- BOTON GUARDAR -->
+    <button (click)="applyCustom()" class="btn-save-dark">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+      Guardar Configuración Visual
+    </button>
+  </div>
+
+  <!-- SECCION DERECHA: PREVISUALIZACION -->
+  <div class="col-lg-5">
+    <h3 class="h4 fw-bold mb-4">Previsualización Real-Time</h3>
+    <div class="preview-mockup">
+      <div class="mockup-header">
+        <div class="circles"><span></span><span></span><span></span></div>
+      </div>
+      <div class="mockup-content p-5" [style.background]="customColors.background">
+        <div class="sample-card">
+          <div class="sample-avatar mb-4" [style.background]="customColors.primary">A</div>
+          <h4 class="fw-bold mb-2">Muestra de Interfaz</h4>
+          <p class="text-muted small mb-4 px-3">Así se verán tus componentes en el sistema.</p>
+          <button class="btn-sample" [style.background]="'#1a1d2d'">TEST BUTTON</button>
+        </div>
+      </div>
+      <div class="mockup-footer p-3">
+         <div class="skeleton"></div>
+         <div class="skeleton short"></div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,84 @@
+<div class="animate-fade">
+  <div class="settings-card p-5 mb-5">
+    <h3 class="h4 fw-bold mb-4">Gestión de Puntos en Campo</h3>
+    
+    <div class="row g-4 mb-4">
+       <div class="col-md-6">
+          <div class="color-control-box">
+            <span class="label">Ubicación / Proyecto</span>
+            <div class="input-container">
+               <input type="text" [(ngModel)]="newPuntoTerreno.nombreUbicacion" class="hex-text" placeholder="Nombre del punto...">
+            </div>
+          </div>
+       </div>
+       <div class="col-md-6">
+          <div class="color-control-box">
+            <span class="label">Responsable asignado</span>
+            <div class="input-container">
+               <select [(ngModel)]="newPuntoTerreno.trabajadorId" class="hex-text border-0 w-100 bg-transparent">
+                  <option [ngValue]="null">Seleccione Jefe...</option>
+                  <option *ngFor="let j of jefes" [ngValue]="j.id">{{ j.nombres }} {{ j.apellidos }}</option>
+               </select>
+            </div>
+          </div>
+       </div>
+       <div class="col-md-4">
+          <div class="color-control-box">
+            <span class="label">Latitud</span>
+            <div class="input-container">
+               <input type="number" [(ngModel)]="newPuntoTerreno.latitud" class="hex-text" step="any">
+            </div>
+          </div>
+       </div>
+       <div class="col-md-4">
+          <div class="color-control-box">
+            <span class="label">Longitud</span>
+            <div class="input-container">
+               <input type="number" [(ngModel)]="newPuntoTerreno.longitud" class="hex-text" step="any">
+            </div>
+          </div>
+       </div>
+       <div class="col-md-4 d-flex align-items-end">
+          <button (click)="saveTerreno()" class="btn-save-dark w-100 py-3 shadow">Registrar Punto</button>
+       </div>
+    </div>
+  </div>
+
+  <div class="table-card p-0 overflow-hidden shadow-sm">
+     <table class="table table-hover mb-0 align-middle">
+        <thead class="bg-light">
+           <tr>
+              <th class="ps-4 py-3 text-muted small text-uppercase fw-bold">Proyecto</th>
+              <th class="py-3 text-muted small text-uppercase fw-bold">Responsable</th>
+              <th class="py-3 text-muted small text-uppercase fw-bold">Coordenadas</th>
+              <th class="py-3 text-muted small text-uppercase fw-bold">Fecha</th>
+              <th class="pe-4 py-3 text-end text-muted small text-uppercase fw-bold">Acción</th>
+           </tr>
+        </thead>
+        <tbody>
+           <tr *ngFor="let p of trabajadoresTerreno">
+              <td class="ps-4 fw-bold text-dark">{{ p.nombreUbicacion }}</td>
+              <td class="small">
+                 <div class="fw-bold text-primary" *ngIf="p.actualizadoPor">
+                    {{ p.actualizadoPor.nombres }} {{ p.actualizadoPor.apellidos }}
+                 </div>
+                 <div class="extra-small text-muted" *ngIf="p.actualizadoPor?.rol">
+                    {{ p.actualizadoPor.rol.nombre }}
+                 </div>
+                 <span class="text-muted opacity-50 italic" *ngIf="!p.actualizadoPor">Sin responsable</span>
+              </td>
+              <td><span class="badge-coord">{{ p.latitud | number:'1.2-4' }}, {{ p.longitud | number:'1.2-4' }}</span></td>
+              <td class="text-muted small">{{ p.fechaRegistro | date:'short' }}</td>
+              <td class="pe-4 text-end">
+                 <button class="btn-icon-danger">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path></svg>
+                 </button>
+              </td>
+           </tr>
+           <tr *ngIf="trabajadoresTerreno.length === 0">
+              <td colspan="4" class="text-center py-5 text-muted small">No hay puntos de terreno registrados.</td>
+           </tr>
+        </tbody>
+     </table>
+  </div>
+</div>

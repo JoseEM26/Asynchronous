@@ -1,0 +1,87 @@
+<div class="animate-fade">
+  <div class="row g-4">
+    <!-- PANEL DE CONTROL QR -->
+    <div class="col-lg-6">
+      <div class="settings-card p-5 h-100 shadow-lg border-0">
+        <div class="d-flex align-items-center gap-4 mb-5">
+           <div class="icon-circle shadow-sm">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+           </div>
+           <div>
+              <h3 class="h4 fw-800 mb-1">Seguridad Dinámica</h3>
+              <p class="text-muted small mb-0">Control de rotación de tokens QR</p>
+           </div>
+        </div>
+
+        <div class="qr-control-panel bg-light p-4 rounded-4 mb-4">
+           <div class="text-center mb-4">
+              <div class="small text-muted text-uppercase fw-bold letter-spacing-1 mb-2">Tiempo de Refresco</div>
+              <div class="display-5 fw-900 text-primary">{{ geoConfig.qrRefreshTime }}<small class="fs-4 ms-1">min</small></div>
+           </div>
+
+           <div class="range-container px-3">
+              <div class="d-flex justify-content-between mb-3">
+                 <button class="btn-step" (click)="geoConfig.qrRefreshTime = geoConfig.qrRefreshTime > 1 ? geoConfig.qrRefreshTime - 1 : 1">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                 </button>
+                 <input type="range" class="form-range custom-range mx-4" 
+                        [(ngModel)]="geoConfig.qrRefreshTime" min="1" max="60" step="1">
+                 <button class="btn-step" (click)="geoConfig.qrRefreshTime = geoConfig.qrRefreshTime < 60 ? geoConfig.qrRefreshTime + 1 : 60">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                 </button>
+              </div>
+              <div class="d-flex justify-content-between text-muted extra-small fw-bold">
+                 <span>1 MINUTO</span>
+                 <span>1 HORA</span>
+              </div>
+           </div>
+        </div>
+
+        <div class="alert alert-info border-0 rounded-4 p-3 mb-4 bg-blue-soft d-flex gap-3 align-items-center">
+           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+           <div class="small text-blue fw-600">Un tiempo menor aumenta la seguridad pero requiere mayor conexión a internet.</div>
+        </div>
+
+        <button (click)="saveSecurity()" class="btn-save-dark w-100 shadow-lg py-3 rounded-4 mt-2">
+           <span class="d-flex align-items-center justify-content-center gap-2">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+              Guardar Configuración
+           </span>
+        </button>
+      </div>
+    </div>
+
+    <!-- PANEL DE ESTADO / INFO -->
+    <div class="col-lg-6">
+       <div class="info-card p-5 h-100 bg-white border-0 shadow-sm rounded-5">
+          <h4 class="fw-bold mb-4">Estado del Sistema</h4>
+          
+          <div class="status-item d-flex align-items-center gap-3 mb-4 p-3 rounded-4 bg-light">
+             <div class="status-dot online"></div>
+             <div class="flex-grow-1">
+                <div class="small fw-bold">Generador de Tokens</div>
+                <div class="extra-small text-muted">Funcionando correctamente</div>
+             </div>
+             <div class="badge bg-white text-success border-success-soft">ACTIVO</div>
+          </div>
+
+          <div class="info-grid mt-5">
+             <div class="row g-3">
+                <div class="col-6">
+                   <div class="stat-box p-3 rounded-4 border">
+                      <div class="text-muted extra-small fw-bold mb-1">ÚLTIMO CAMBIO</div>
+                      <div class="fw-bold small">{{ lastChangeDate | date:'shortTime' }}</div>
+                   </div>
+                </div>
+                <div class="col-6">
+                   <div class="stat-box p-3 rounded-4 border">
+                      <div class="text-muted extra-small fw-bold mb-1">IP SERVIDOR</div>
+                      <div class="fw-bold small">192.168.1.105</div>
+                   </div>
+                </div>
+             </div>
+          </div>
+       </div>
+    </div>
+  </div>
+</div>

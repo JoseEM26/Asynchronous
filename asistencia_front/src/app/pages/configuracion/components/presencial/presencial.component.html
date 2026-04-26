@@ -1,0 +1,55 @@
+<div class="row g-5 animate-fade">
+  <div class="col-lg-5">
+    <div class="settings-card p-4">
+      <h3 class="h4 fw-bold mb-4">Ubicación de Oficina</h3>
+      
+      <div class="color-control-box mb-4">
+        <span class="label">Latitud</span>
+        <div class="input-container">
+           <input type="number" [(ngModel)]="geoConfig.officeLat" (ngModelChange)="updateMap()" class="hex-text" step="any">
+        </div>
+      </div>
+
+      <div class="color-control-box mb-4">
+        <span class="label">Longitud</span>
+        <div class="input-container">
+           <input type="number" [(ngModel)]="geoConfig.officeLng" (ngModelChange)="updateMap()" class="hex-text" step="any">
+        </div>
+      </div>
+
+      <div class="color-control-box mb-5">
+        <span class="label d-flex justify-content-between">
+           <span>Radio Permitido</span>
+           <span class="text-primary">{{ geoConfig.radius }}m</span>
+        </span>
+        <div class="p-2">
+           <input type="range" [(ngModel)]="geoConfig.radius" (ngModelChange)="updateMap()" min="5" max="500" class="form-range custom-range">
+        </div>
+      </div>
+
+      <button (click)="detectLocation()" class="btn-outline-premium mb-3">
+        Detectar mi posición real ahora
+      </button>
+      
+      <button (click)="saveGeo()" class="btn-save-dark">
+        Guardar Parámetros GPS
+      </button>
+    </div>
+  </div>
+
+  <div class="col-lg-7">
+    <div class="map-mockup overflow-hidden shadow-lg border">
+      <div *ngIf="!showMapArea" class="h-100 d-flex flex-column align-items-center justify-content-center text-center p-5 bg-light">
+        <div class="icon-circle mb-3 bg-white shadow-sm">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.5">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+            <circle cx="12" cy="10" r="3"></circle>
+          </svg>
+        </div>
+        <h5 class="fw-bold">Mapa Desactivado</h5>
+        <p class="text-muted small">Configure las coordenadas para visualizar el área.</p>
+      </div>
+      <div id="office-map" class="w-100 h-100" [class.d-none]="!showMapArea"></div>
+    </div>
+  </div>
+</div>
