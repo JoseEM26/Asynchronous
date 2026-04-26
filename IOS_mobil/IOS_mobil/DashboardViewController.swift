@@ -3,7 +3,16 @@ import CoreLocation
 
 class DashboardViewController: UIViewController, CLLocationManagerDelegate {
 
-    // MARK: - UI Components
+    // MARK: - Outlets (Mantener para compatibilidad total con Storyboard y evitar crashes)
+    @IBOutlet var greetingLabel: UILabel!
+    @IBOutlet var historyButton: UIButton!
+    @IBOutlet var profileButton: UIButton!
+    @IBOutlet var scanButton: UIButton!
+    @IBOutlet var adminButton: UIButton!
+    @IBOutlet var virtualButton: UIButton!
+    @IBOutlet var mainStackView: UIStackView!
+    
+    // MARK: - UI Components Programáticos
     private let scrollView = UIScrollView()
     private let contentView = UIView()
     
@@ -12,14 +21,6 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
         v.backgroundColor = .systemOrange
         v.translatesAutoresizingMaskIntoConstraints = false
         return v
-    }()
-    
-    private let greetingLabel: UILabel = {
-        let l = UILabel()
-        l.font = .systemFont(ofSize: 24, weight: .bold)
-        l.textColor = .white
-        l.translatesAutoresizingMaskIntoConstraints = false
-        return l
     }()
     
     private let subtitleLabel: UILabel = {
@@ -112,6 +113,20 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
     
     private func setupUI() {
         view.backgroundColor = .systemGroupedBackground
+        
+        // Inicialización segura de outlets por si no vienen del storyboard
+        if greetingLabel == nil { greetingLabel = UILabel() }
+        greetingLabel.translatesAutoresizingMaskIntoConstraints = false
+        greetingLabel.font = .systemFont(ofSize: 24, weight: .bold)
+        greetingLabel.textColor = .white
+        
+        // Ocultamos los outlets originales del storyboard para usar el nuevo diseño programático
+        mainStackView?.isHidden = true
+        historyButton?.isHidden = true
+        profileButton?.isHidden = true
+        scanButton?.isHidden = true
+        adminButton?.isHidden = true
+        virtualButton?.isHidden = true
         
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
@@ -272,7 +287,7 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
                 if case .success(let data) = result {
                     self?.trabajadorData = data.trabajador
                     let nombre = data.trabajador?.nombres?.split(separator: " ").first.map(String.init) ?? "Usuario"
-                    self?.greetingLabel.text = "¡Hola, \(nombre)! 👋"
+                    self?.greetingLabel?.text = "¡Hola, \(nombre)! 👋"
                     self?.updateVisibility()
                 }
             }
@@ -281,7 +296,6 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
     
     private func updateVisibility() {
         guard let t = trabajadorData else { return }
-        // Lógica de visibilidad simplificada para el nuevo grid
         if let scannerCard = gridStack.findViewWithId("scanner") { scannerCard.isHidden = !(t.modalidadId == 1 || t.modalidadId == 3) }
         if let virtualCard = gridStack.findViewWithId("virtual") { virtualCard.isHidden = !(t.modalidadId == 2 || t.modalidadId == 3) }
     }
@@ -310,7 +324,6 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
     }
     
     @objc private func virtualAttendancePressed() {
-        // Implementar lógica de marcado virtual ya existente...
         let alert = UIAlertController(title: "🏠 Asistencia Remota", message: "¿Qué desea marcar?", preferredStyle: .actionSheet)
         alert.addAction(UIAlertAction(title: "ENTRADA", style: .default))
         alert.addAction(UIAlertAction(title: "SALIDA", style: .default))
