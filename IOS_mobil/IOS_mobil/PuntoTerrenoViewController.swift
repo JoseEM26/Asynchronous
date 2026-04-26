@@ -67,10 +67,26 @@ class PuntoTerrenoViewController: UIViewController, CLLocationManagerDelegate, M
         setupUI()
         setupLocation()
         
+        let tap = UITapGestureRecognizer(target: self, action: #selector(handleTap))
+        tap.delegate = self
+        tap.cancelsTouchesInView = false // IMPORTANTE para no bloquear el scroll del mapa
+        mapView.addGestureRecognizer(tap)
+        
         let longPress = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress))
-        longPress.minimumPressDuration = 0.5 // Un poco más corto para que se sienta reactivo
+        longPress.minimumPressDuration = 0.5
         longPress.delegate = self
         mapView.addGestureRecognizer(longPress)
+    }
+    
+    @objc private func handleTap(gesture: UITapGestureRecognizer) {
+        let point = gesture.location(in: mapView)
+        let coord = mapView.convert(point, toCoordinateFrom: mapView)
+        selectedCoordinate = coord
+        updateMarker(at: coord)
+        
+        // Vibración corta de confirmación
+        let generator = UISelectionFeedbackGenerator()
+        generator.selectionChanged()
     }
     
     // Permitir que el gesto funcione junto con los gestos internos del mapa (pan, zoom)
@@ -86,7 +102,6 @@ class PuntoTerrenoViewController: UIViewController, CLLocationManagerDelegate, M
             selectedCoordinate = coord
             updateMarker(at: coord)
             
-            // Feedback táctico opcional (vibración suave)
             let generator = UIImpactFeedbackGenerator(style: .medium)
             generator.impactOccurred()
         }
@@ -100,6 +115,9 @@ class PuntoTerrenoViewController: UIViewController, CLLocationManagerDelegate, M
         view.addSubview(saveButton)
         
         mapView.delegate = self
+        mapView.isZoomEnabled = true
+        mapView.isScrollEnabled = true
+        view.bringSubviewToFront(mapView)
         
         NSLayoutConstraint.activate([
             statusLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
