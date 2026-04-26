@@ -35,14 +35,14 @@ import { FormAsistenciaComponent } from './form-asistencia.component';
         </div>
       </div>
 
-      <div class="glass-card main-list-card">
+      <div class="glass-card main-list-card" style="background: var(--bg-surface) !important;">
         <div class="position-relative">
           <div *ngIf="isLoading" class="loading-overlay rounded-4">
             <div class="spinner-border text-primary" role="status"></div>
           </div>
           
           <div class="table-responsive">
-            <table class="table table-custom mb-0">
+            <table class="table table-custom mb-0" style="--bs-table-bg: transparent;">
               <thead>
                 <tr>
                   <th class="ps-4 py-3 text-uppercase small ls-1">Trabajador</th>
@@ -52,15 +52,15 @@ import { FormAsistenciaComponent } from './form-asistencia.component';
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let a of (asistencias || [])" class="list-row animate-slide-up">
+                <tr *ngFor="let a of (asistencias || [])" class="list-row animate-slide-up" style="background: var(--bg-surface) !important;">
                   <td class="ps-4">
                     <div class="d-flex align-items-center gap-3 py-1" *ngIf="a.trabajador">
                       <div class="avatar-box">
                         <span class="avatar-text">{{ a.trabajador.nombres ? a.trabajador.nombres[0] : '?' }}</span>
                       </div>
                       <div class="user-info">
-                        <div class="fw-bold text-primary-hover lh-1 mb-1">{{ a.trabajador.nombres }} {{ a.trabajador.apellidos }}</div>
-                        <div class="small text-secondary fw-medium opacity-75">{{ a.trabajador.dni }}</div>
+                        <div class="fw-bold text-primary-hover lh-1 mb-1" style="color: var(--text-main) !important;">{{ a.trabajador.nombres }} {{ a.trabajador.apellidos }}</div>
+                        <div class="small fw-medium opacity-75" style="color: var(--text-secondary) !important;">{{ a.trabajador.dni }}</div>
                       </div>
                     </div>
                   </td>
@@ -123,27 +123,17 @@ import { FormAsistenciaComponent } from './form-asistencia.component';
   `,
   styles: [`
     .ls-1 { letter-spacing: 0.05rem; }
-    .ls-1 { letter-spacing: 0.05rem; }
 
     .icon-box-primary {
-      padding: 10px; background: var(--grad-main); color: white;
+      padding: 10px; background: var(--grad-main); color: var(--bg-main);
       border-radius: 12px; display: flex; align-items: center; justify-content: center;
       box-shadow: 0 4px 12px rgba(249, 115, 22, 0.25);
     }
 
-    .main-list-card {
-      border-radius: 20px; border: 1px solid var(--glass-border);
-      box-shadow: var(--shadow-xl); background: var(--bg-surface);
-    }
-
-    .table-custom { border-collapse: separate; border-spacing: 0; }
-    .table-custom thead th {
-      background: var(--bg-deep); border-bottom: 2px solid var(--glass-border);
-      color: var(--text-secondary); font-weight: 700;
-      text-transform: uppercase;
-    }
-
-    .list-row { transition: background 0.2s ease; border-bottom: 1px solid var(--glass-border); }
+    .glass-card { background: var(--glass-bg, var(--bg-surface)); }
+    .table-custom { border-collapse: separate; border-spacing: 0; width: 100%; }
+    .table-custom tr.list-row { background: var(--bg-surface); transition: background 0.2s ease; border-bottom: 1px solid var(--glass-border); }
+    .table-custom td { color: var(--text-main); }
     .list-row:hover { background: rgba(249,115,22,0.05); }
 
     .avatar-box {
@@ -156,20 +146,20 @@ import { FormAsistenciaComponent } from './form-asistencia.component';
     .badge-code {
       font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; font-weight: 600;
       background: var(--bg-deep); padding: 2px 8px; border-radius: 4px;
-      color: var(--accent-primary); width: fit-content;
+      color: var(--accent-primary); width: fit-content; border: 1px solid var(--glass-border);
     }
 
     .status-pill {
       display: inline-flex; align-items: center; gap: 8px;
       padding: 6px 14px; border-radius: 30px; font-size: 0.75rem; font-weight: 700;
-      background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0;
+      background: var(--bg-deep); color: var(--text-primary); border: 1px solid var(--glass-border);
     }
-    .status-pill.entrada { background: #ecfdf5; color: #065f46; border-color: #a7f3d0; }
-    .status-pill.salida { background: #fff1f2; color: #be123c; border-color: #fecdd3; }
+    .status-pill.entrada { background: rgba(16, 185, 129, 0.1); color: #10b981; border-color: rgba(16, 185, 129, 0.2); }
+    .status-pill.salida { background: rgba(239, 68, 68, 0.1); color: #ef4444; border-color: rgba(239, 68, 68, 0.2); }
     
-    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #94a3b8; }
-    .entrada .status-dot { background: #10b981; box-shadow: 0 0 8px #10b981; }
-    .salida .status-dot { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-muted); }
+    .entrada .status-dot { background: #10b981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.5); }
+    .salida .status-dot { background: #ef4444; box-shadow: 0 0 8px rgba(239, 68, 68, 0.5); }
 
     .modality-badge {
       display: inline-flex; align-items: center; gap: 6px;

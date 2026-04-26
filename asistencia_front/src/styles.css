@@ -153,7 +153,7 @@ body {
 /* Button Utilities */
 .btn-primary-grad {
   background: var(--text-main);
-  color: white;
+  color: var(--bg-main);
   border: none;
   padding: 0.75rem 1.5rem;
   border-radius: 10px;
@@ -178,11 +178,19 @@ body {
 }
 
 .glass-card {
-  background: rgba(255, 255, 255, 0.7);
+  background: var(--glass-bg, rgba(255, 255, 255, 0.7));
   backdrop-filter: blur(10px);
   border: 1px solid var(--glass-border);
   border-radius: 20px;
 }
+
+/* Global Table Styles for consistency across all components */
+.table-custom { border-collapse: separate; border-spacing: 0 8px; width: 100%; }
+.table-custom tr { background: var(--bg-surface); transition: all 0.2s; }
+.table-custom td { border: none; padding: 15px; border-top: 1px solid var(--glass-border); border-bottom: 1px solid var(--glass-border); color: var(--text-main); }
+.table-custom td:first-child { border-left: 1px solid var(--glass-border); border-radius: 12px 0 0 12px; }
+.table-custom td:last-child { border-right: 1px solid var(--glass-border); border-radius: 0 12px 12px 0; }
+.table-custom thead th { background: transparent; border: none; color: var(--text-muted); font-weight: 700; letter-spacing: 0.5px; padding-bottom: 10px; }
 
 /* Bootstrap Overrides for Theme Support */
 .text-primary { color: var(--accent-primary) !important; }

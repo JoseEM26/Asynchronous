@@ -38,14 +38,14 @@ import { AsistenciaService } from '../../services/asistencia.service';
             </div>
 
             <div class="d-flex justify-content-center gap-4 mt-2">
-              <p class="small text-muted mb-0 d-inline-flex align-items-center bg-light px-4 py-2 rounded-pill border shadow-sm">
+              <p class="small text-muted mb-0 d-inline-flex align-items-center px-4 py-2 rounded-pill border shadow-sm" style="background: var(--bg-deep);">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2 text-primary">
                   <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                   <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                 </svg>
                 Válido por 5 minutos
               </p>
-              <p class="small text-muted mb-0 d-inline-flex align-items-center bg-white px-4 py-2 rounded-pill border shadow-sm">
+              <p class="small text-muted mb-0 d-inline-flex align-items-center px-4 py-2 rounded-pill border shadow-sm" style="background: var(--bg-deep);">
                 <span class="text-primary fw-bold me-2">{{ totalScansToday }}</span> Escaneos hoy
               </p>
             </div>
@@ -56,8 +56,8 @@ import { AsistenciaService } from '../../services/asistencia.service';
   `,
   styles: [`
     .qr-card {
-      border: 1px solid rgba(249, 115, 22, 0.1);
-      background: white;
+      border: 1px solid var(--glass-border);
+      background: var(--bg-surface);
       box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
       border-radius: 32px;
     }
@@ -71,10 +71,10 @@ import { AsistenciaService } from '../../services/asistencia.service';
       position: relative;
       display: inline-block;
       padding: 30px;
-      background: white;
+      background: white; /* QR codes usually need white background to be scannable */
       border-radius: 32px;
       box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
-      border: 1px solid #f1f5f9;
+      border: 1px solid var(--glass-border);
     }
     .qr-image { width: 250px; height: 250px; display: block; border-radius: 12px; }
     .qr-placeholder { display: flex; align-items: center; justify-content: center; height: 250px; width: 250px; }
@@ -84,8 +84,8 @@ import { AsistenciaService } from '../../services/asistencia.service';
       backdrop-filter: blur(4px);
     }
     .timer-container {
-      background: #fcfcfd;
-      border: 1px solid #f1f5f9;
+      background: var(--bg-deep);
+      border: 1px solid var(--glass-border);
       border-radius: 20px;
       max-width: 320px;
     }

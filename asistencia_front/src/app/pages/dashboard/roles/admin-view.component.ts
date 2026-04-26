@@ -53,12 +53,12 @@ interface WorkerLocation {
             
             <!-- Map Overlay: Worker Filter & Route Info -->
             <div class="map-overlay-panel animate-in" *ngIf="showFilter">
-              <div class="p-3 border-bottom d-flex justify-content-between align-items-center bg-white sticky-top">
+              <div class="p-3 border-bottom d-flex justify-content-between align-items-center sticky-top" style="background: var(--bg-surface) !important;">
                 <span class="text-label-bold">{{ selectedWorkerId ? 'Hoja de Ruta' : 'Personal en Línea' }}</span>
                 <button class="btn-close-sm" (click)="showFilter = false">×</button>
               </div>
               
-              <div class="p-3">
+              <div class="p-3" style="overflow-y: auto; flex: 1;">
                 <ng-container *ngIf="!selectedWorkerId; else workerDetails">
                   <div class="search-box mb-3">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="search-icon"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
@@ -196,40 +196,39 @@ interface WorkerLocation {
     .truncate-text { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.6rem; opacity: 0.7; }
     .text-label-bold { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-main); }
     
-    /* Map Overlay Redesign */
     .map-overlay-panel {
       position: absolute; top: 20px; right: 20px; width: 350px; z-index: 1000;
-      background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(12px);
-      border-radius: 20px; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15);
-      max-height: 610px; display: flex; flex-direction: column;
+      background: var(--bg-surface) !important; backdrop-filter: blur(12px);
+      border-radius: 20px; border: 1px solid var(--glass-border); box-shadow: var(--shadow-lg);
+      max-height: 610px; display: flex; flex-direction: column; overflow: hidden;
     }
     
     .search-box { position: relative; }
     .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; }
-    .form-control-minimal { width: 100%; padding: 10px 10px 10px 38px; border-radius: 12px; border: 1.5px solid #f1f5f9; background: #f8fafc; font-size: 0.85rem; outline: none; transition: 0.2s; }
-    .form-control-minimal:focus { border-color: var(--text-main); background: white; }
+    .form-control-minimal { width: 100%; padding: 10px 10px 10px 38px; border-radius: 12px; border: 1.5px solid var(--glass-border); background: var(--bg-deep); color: var(--text-main); font-size: 0.85rem; outline: none; transition: 0.2s; }
+    .form-control-minimal:focus { border-color: var(--text-main); background: var(--bg-surface); }
 
     .worker-list { max-height: 400px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
     .worker-card-mini { 
       display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 14px; 
-      background: white; border: 1.5px solid #f1f5f9; cursor: pointer; transition: 0.2s;
+      background: var(--bg-deep) !important; border: 1.5px solid var(--glass-border); cursor: pointer; transition: 0.2s;
     }
-    .worker-card-mini:hover { border-color: var(--text-main); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-    .worker-avatar-mini { width: 38px; height: 38px; background: #f1f5f9; color: var(--text-main); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 800; }
+    .worker-card-mini:hover { border-color: var(--text-main); transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+    .worker-avatar-mini { width: 38px; height: 38px; background: var(--bg-surface); color: var(--text-main); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 800; border: 1px solid var(--glass-border); }
     
     .status-indicator { width: 8px; height: 8px; border-radius: 50%; }
     .status-indicator.puntual { background: #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,0.1); }
     .status-indicator.tardanza { background: #f59e0b; }
 
     .summary-card-v2 { padding: 14px; border-radius: 16px; border: 1px solid transparent; }
-    .summary-card-v2.start { background: #f0fdf4; border-color: #dcfce7; color: #166534; }
-    .summary-card-v2.end { background: #fef2f2; border-color: #fee2e2; color: #991b1b; }
+    .summary-card-v2.start { background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.2); color: #10b981; }
+    .summary-card-v2.end { background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.2); color: #ef4444; }
     .small-time-v2 { font-size: 1.25rem; font-weight: 900; letter-spacing: -0.5px; }
 
     .history-timeline-v2 { max-height: 240px; overflow-y: auto; }
     .timeline-step-v2 { display: flex; gap: 16px; padding-bottom: 24px; position: relative; }
-    .timeline-step-v2:not(.last)::before { content: ''; position: absolute; left: 7px; top: 18px; bottom: 0; width: 2px; background: #f1f5f9; }
-    .timeline-marker-v2 { width: 16px; height: 16px; border-radius: 50%; background: #e2e8f0; border: 3px solid white; flex-shrink: 0; z-index: 1; }
+    .timeline-step-v2:not(.last)::before { content: ''; position: absolute; left: 7px; top: 18px; bottom: 0; width: 2px; background: var(--glass-border); }
+    .timeline-marker-v2 { width: 16px; height: 16px; border-radius: 50%; background: var(--bg-deep); border: 3px solid var(--bg-surface); flex-shrink: 0; z-index: 1; }
     .timeline-marker-v2.is-start { background: #10b981; }
     .timeline-marker-v2.is-end { background: #ef4444; }
     
@@ -238,13 +237,16 @@ interface WorkerLocation {
     .badge-type.visita { background: #f1f5f9; color: #475569; }
 
     .avatar-sm-circle { width: 44px; height: 44px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; border: 1px solid rgba(255,255,255,0.3); }
-    .btn-back-list { background: var(--text-main); color: white; border: none; padding: 14px; border-radius: 14px; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
-    .btn-back-list:hover { opacity: 0.9; transform: translateY(-2px); }
+    .btn-back-list { background: var(--bg-deep); color: var(--text-main); border: 1.5px solid var(--glass-border); padding: 14px; border-radius: 14px; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
+    .btn-back-list:hover { background: var(--text-main); color: var(--bg-surface); transform: translateY(-2px); }
+    
+    .btn-close-sm { background: transparent; border: none; font-size: 1.5rem; line-height: 1; color: var(--text-muted); cursor: pointer; transition: 0.2s; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 8px; }
+    .btn-close-sm:hover { background: var(--bg-deep); color: var(--text-main); }
 
     .btn-map-toggle-v2 {
       position: absolute; top: 20px; right: 20px; z-index: 1000;
-      background: white; border: 1px solid #f1f5f9; padding: 12px 24px;
-      border-radius: 14px; font-weight: 700; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+      background: var(--bg-surface); color: var(--text-main); border: 1px solid var(--glass-border); padding: 12px 24px;
+      border-radius: 14px; font-weight: 700; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; box-shadow: var(--shadow-lg);
     }
   `]
 })

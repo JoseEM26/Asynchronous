@@ -35,14 +35,14 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
       </div>
 
       <!-- Filter Bar -->
-      <div class="glass-card mb-4 p-3 border border-1 border-white shadow-sm rounded-4 bg-white bg-opacity-75">
+      <div class="glass-card mb-4 p-3 shadow-sm rounded-4" style="background: var(--bg-surface) !important; border: 1px solid var(--glass-border) !important;">
         <div class="row g-3 align-items-center">
           <div class="col-lg-6">
             <div class="search-input-group position-relative">
               <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
               <input 
                 type="text" 
-                class="form-control ps-5 pe-5 rounded-pill border-0 bg-light-subtle shadow-none" 
+                class="form-control ps-5 pe-5 rounded-pill border-0 shadow-none custom-input-theme" 
                 placeholder="Buscar comunicado por título..."
                 [formControl]="searchControl"
               >
@@ -63,14 +63,14 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
         </div>
       </div>
 
-      <div class="glass-card main-list-card">
+      <div class="glass-card main-list-card" style="background: var(--bg-surface) !important;">
         <div class="position-relative">
           <div *ngIf="isLoading" class="loading-overlay rounded-4">
             <div class="spinner-border text-primary" role="status"></div>
           </div>
           
           <div class="table-responsive">
-            <table class="table table-custom mb-0">
+            <table class="table table-custom mb-0" style="--bs-table-bg: transparent;">
               <thead>
                 <tr>
                   <th class="ps-4 py-3 text-uppercase small ls-1">Fecha Pub.</th>
@@ -173,8 +173,10 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
       height: 45px; font-size: 0.9rem; transition: all 0.2s ease;
       border: 1px solid transparent !important;
     }
+    .custom-input-theme { background: var(--bg-deep) !important; color: var(--text-main) !important; }
+    .custom-input-theme::placeholder { color: var(--text-muted); }
     .search-input-group .form-control:focus {
-      background: white !important; border-color: var(--accent-primary) !important;
+      background: var(--bg-surface) !important; border-color: var(--accent-primary) !important;
       box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1) !important;
     }
     .btn-clear-search {
@@ -184,18 +186,30 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
     }
     .btn-clear-search:hover { color: var(--accent-danger); }
     .icon-box-primary {
-      padding: 10px; background: var(--grad-main); color: white;
+      padding: 10px; background: var(--grad-main); color: var(--bg-main);
       border-radius: 12px; display: flex; align-items: center; justify-content: center;
       box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
     }
-    .main-list-card {
-      border-radius: 20px; border: 1px solid var(--glass-border);
-      box-shadow: var(--shadow-xl); background: var(--bg-surface);
+    .comunicado-card {
+      background: var(--bg-surface); border-radius: 20px;
+      border: 1px solid var(--glass-border); padding: 24px;
+      transition: all 0.2s; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
     }
+    .glass-card { background: var(--glass-bg, var(--bg-surface)); }
+    .table-custom tr.list-row { background: var(--bg-surface); transition: background 0.2s ease; border-bottom: 1px solid var(--glass-border); }
+    .table-custom td { color: var(--text-main); }
     .table-custom thead th {
       background: var(--bg-deep); border-bottom: 2px solid var(--glass-border);
       color: var(--text-secondary); font-weight: 700;
     }
+    .file-attachment {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 16px; background: var(--bg-deep);
+      border-radius: 12px; border: 1px solid var(--glass-border);
+      font-size: 0.8rem; font-weight: 600; color: var(--text-primary);
+      text-decoration: none; transition: 0.2s;
+    }
+    .file-attachment:hover { background: rgba(37, 99, 235, 0.05); border-color: var(--accent-primary); }
     .status-pill {
       display: inline-flex; align-items: center; gap: 8px;
       padding: 6px 14px; border-radius: 30px; font-size: 0.75rem; font-weight: 700;
@@ -205,6 +219,12 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
     .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #94a3b8; }
     .active .status-dot { background: #10b981; box-shadow: 0 0 8px #10b981; }
     
+    .avatar-box {
+      width: 48px; height: 48px; border-radius: 14px;
+      background: var(--bg-deep); border: 1px solid var(--glass-border);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; color: var(--accent-primary); font-size: 1.2rem;
+    }
     .action-btn {
       width: 32px; height: 32px; border-radius: 8px; border: none;
       background: #f1f5f9; color: #64748b; display: flex; align-items: center; justify-content: center;

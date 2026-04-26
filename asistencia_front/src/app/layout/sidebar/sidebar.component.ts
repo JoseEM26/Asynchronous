@@ -94,7 +94,8 @@ import { NotificationService } from '../../services/notification.service';
       transition: var(--transition-smooth);
     }
 
-    .dark-mode .sidebar {
+    .dark-mode .sidebar,
+    [data-theme='dark'] .sidebar {
       background: var(--bg-surface);
       border-right-color: var(--glass-border);
     }
@@ -209,6 +210,29 @@ import { NotificationService } from '../../services/notification.service';
 
     .nav-link.active .nav-icon {
       color: var(--accent-primary);
+      opacity: 1;
+    }
+
+    /* Mejora de legibilidad en Modo Oscuro para los enlaces */
+    [data-theme='dark'] .nav-link {
+      color: #e2e8f0;
+      font-weight: 500;
+    }
+
+    [data-theme='dark'] .nav-link:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    [data-theme='dark'] .nav-link.active {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.1);
+      border-left: 3px solid var(--accent-primary);
+    }
+
+    [data-theme='dark'] .nav-link.active .nav-icon,
+    [data-theme='dark'] .nav-link:hover .nav-icon {
+      color: #ffffff;
       opacity: 1;
     }
 

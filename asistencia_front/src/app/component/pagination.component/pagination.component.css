@@ -9,12 +9,12 @@
   --secondary-light: #f1f5f9;
   --success-color: #10b981;
   --border-color: #e2e8f0;
-  --text-primary: #1e293b;
-  --text-secondary: #64748b;
-  --text-muted: #94a3b8;
-  --bg-white: #ffffff;
-  --bg-light: #f8fafc;
-  --bg-hover: #f1f5f9;
+  --text-primary: var(--text-main, #1e293b);
+  --text-secondary: var(--text-secondary, #64748b);
+  --text-muted: var(--text-muted, #94a3b8);
+  --bg-white: var(--bg-surface, #ffffff);
+  --bg-light: var(--bg-deep, #f8fafc);
+  --bg-hover: rgba(37, 99, 235, 0.05);
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
@@ -29,7 +29,7 @@
   background: var(--bg-white);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--glass-border, var(--border-color));
   overflow: hidden;
   transition: var(--transition);
 }
@@ -47,7 +47,7 @@
 .pagination-header {
   padding: 1.25rem 1.5rem;
   background: var(--bg-light);
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--glass-border, var(--border-color));
 }
 
 /* Información desktop */

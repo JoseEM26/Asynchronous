@@ -238,7 +238,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
     }
 
     .icon-box-primary {
-      padding: 10px; background: var(--grad-main); color: white;
+      padding: 10px; background: var(--grad-main); color: var(--bg-main);
       border-radius: 12px; display: flex; align-items: center; justify-content: center;
       box-shadow: 0 4px 12px rgba(249, 115, 22, 0.25);
     }

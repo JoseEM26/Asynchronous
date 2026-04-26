@@ -31,14 +31,14 @@ import { FormsModule } from '@angular/forms';
       </div>
 
       <!-- Filter Bar -->
-      <div class="glass-card mb-4 p-3 border border-1 border-white shadow-sm rounded-4 bg-white bg-opacity-75">
+      <div class="glass-card mb-4 p-3 shadow-sm rounded-4">
         <div class="row g-3 align-items-center">
           <div class="col-lg-6">
             <div class="search-input-group position-relative">
               <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
               <input 
                 type="text" 
-                class="form-control ps-5 rounded-pill border-0 bg-light-subtle shadow-none" 
+                class="form-control ps-5 rounded-pill border-0 shadow-none custom-input-theme" 
                 placeholder="Buscar por Nombre, DNI o Usuario..."
                 [(ngModel)]="searchTerm"
                 (ngModelChange)="onSearchChange($event)"
@@ -46,7 +46,7 @@ import { FormsModule } from '@angular/forms';
             </div>
           </div>
           <div class="col-md-3">
-            <select class="form-select rounded-pill border-0 bg-light-subtle shadow-none" [(ngModel)]="filterModalidad" (change)="aplicarFiltros()">
+            <select class="form-select rounded-pill border-0 shadow-none custom-input-theme" [(ngModel)]="filterModalidad" (change)="aplicarFiltros()">
               <option [value]="0">Todas las Modalidades</option>
               <option value="1">Presencial</option>
               <option value="2">Virtual</option>
@@ -63,14 +63,14 @@ import { FormsModule } from '@angular/forms';
         </div>
       </div>
 
-      <div class="glass-card main-list-card">
+      <div class="glass-card main-list-card" style="background: var(--bg-surface) !important;">
         <div class="position-relative">
           <div *ngIf="isLoading" class="loading-overlay rounded-4">
             <div class="spinner-border text-primary" role="status"></div>
           </div>
           
           <div class="table-responsive">
-            <table class="table table-custom mb-0">
+            <table class="table table-custom mb-0" style="--bs-table-bg: transparent;">
               <thead>
                 <tr>
                   <th class="ps-4 py-3 text-uppercase small ls-1">Personal / Usuario</th>
@@ -82,15 +82,15 @@ import { FormsModule } from '@angular/forms';
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let p of personalFiltrado" class="list-row animate-slide-up">
+                <tr *ngFor="let p of personalFiltrado" class="list-row animate-slide-up" style="background: var(--bg-surface) !important;">
                   <td class="ps-4">
                     <div class="d-flex align-items-center gap-3 py-1">
                       <div class="avatar-box">
                         <span class="avatar-text">{{ p.nombres[0] }}</span>
                       </div>
                       <div class="user-info">
-                        <div class="fw-bold text-primary-hover lh-1 mb-1">{{ p.nombres }} {{ p.apellidos }}</div>
-                        <div class="small text-secondary fw-medium opacity-75">@{{ p.username }}</div>
+                        <div class="fw-bold text-primary-hover lh-1 mb-1" style="color: var(--text-main) !important;">{{ p.nombres }} {{ p.apellidos }}</div>
+                        <div class="small fw-medium opacity-75" style="color: var(--text-secondary) !important;">@{{ p.username }}</div>
                       </div>
                     </div>
                   </td>
@@ -103,7 +103,7 @@ import { FormsModule } from '@angular/forms';
                     </div>
                   </td>
                   <td>
-                    <span class="badge bg-light text-dark border fw-bold small px-3 rounded-pill">
+                    <span class="badge border fw-bold small px-3 rounded-pill" style="background: var(--bg-deep); color: var(--text-main); border-color: var(--glass-border) !important;">
                       {{ p.rolNombre }}
                     </span>
                   </td>
@@ -149,17 +149,22 @@ import { FormsModule } from '@angular/forms';
   styles: [`
     .ls-1 { letter-spacing: 0.05rem; }
     .search-input-group .search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); opacity: 0.5; z-index: 5; }
-    .icon-box-primary { padding: 10px; background: var(--grad-main); color: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(249, 115, 22, 0.25); }
-    .main-list-card { border-radius: 20px; border: 1px solid var(--glass-border); box-shadow: var(--shadow-xl); background: var(--bg-surface); }
-    .table-custom thead th { background: var(--bg-deep); border-bottom: 2px solid var(--glass-border); color: var(--text-secondary); font-weight: 700; }
+    .icon-box-primary { padding: 10px; background: var(--grad-main); color: var(--bg-main); border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(249, 115, 22, 0.25); }
+    .glass-card { background: var(--glass-bg, var(--bg-surface)); }
+    .table-custom tr.list-row { background: var(--bg-surface); transition: background 0.2s ease; border-bottom: 1px solid var(--glass-border); }
+    .table-custom td { color: var(--text-main); }
+    .main-list-card { border-radius: 20px; border: 1px solid var(--glass-border); box-shadow: var(--shadow-xl); background: transparent; }
+    .custom-input-theme { background: var(--bg-deep); color: var(--text-primary); }
+    .custom-input-theme::placeholder { color: var(--text-muted); }
     .avatar-box { width: 42px; height: 42px; background: var(--bg-deep); border-radius: 12px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--glass-border); color: var(--accent-primary); font-weight: 800; }
-    .action-btn { width: 34px; height: 34px; border-radius: 10px; border: none; background: #f1f5f9; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
+    .action-btn { width: 34px; height: 34px; border-radius: 10px; border: 1px solid var(--glass-border); background: var(--bg-deep); color: var(--text-main); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
     .action-btn:hover { transform: scale(1.1); }
-    .action-btn.detail:hover { background: #e0f2fe; color: #0369a1; }
-    .action-btn.edit:hover { background: #fef3c7; color: #b45309; }
-    .status-pill { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 30px; font-size: 0.75rem; font-weight: 700; background: #f1f5f9; color: #475569; }
-    .status-pill.active { background: #ecfdf5; color: #065f46; }
-    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #94a3b8; }
+    .action-btn.detail:hover { background: rgba(3, 105, 161, 0.1); color: #0ea5e9; }
+    .action-btn.edit:hover { background: rgba(180, 83, 9, 0.1); color: #f59e0b; }
+    .btn-primary-grad { background: var(--text-main) !important; color: var(--bg-main) !important; }
+    .status-pill { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 30px; font-size: 0.75rem; font-weight: 700; background: var(--bg-deep); color: var(--text-primary); border: 1px solid var(--glass-border); }
+    .status-pill.active { background: rgba(16, 185, 129, 0.1); color: #10b981; border-color: rgba(16, 185, 129, 0.2); }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-muted); }
     .active .status-dot { background: #10b981; }
     .modality-badge { padding: 4px 10px; border-radius: 8px; font-size: 0.7rem; font-weight: 700; }
     .mod-presencial { background: #dcfce7; color: #166534; }
