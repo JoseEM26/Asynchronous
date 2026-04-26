@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/usuarios")
@@ -38,7 +37,9 @@ public class UsuarioController {
     public ResponseEntity<?> login(
             @RequestBody com.asistenciaHibrida.AplicacionMobil_IOS.dto.request.LoginRequestDTO request) {
         try {
-            return ResponseEntity.ok(usuarioService.login(request.getUsername(), request.getPassword()));
+            // Pasamos el flag isMobile al servicio
+            Boolean isMobile = request.getIsMobile() != null && request.getIsMobile();
+            return ResponseEntity.ok(usuarioService.login(request.getUsername(), request.getPassword(), isMobile));
         } catch (RuntimeException e) {
             return ResponseEntity.status(401).body(e.getMessage());
         }

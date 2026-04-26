@@ -21,5 +21,6 @@ public interface UsuarioService {
 
     UsuarioResponseDTO actualizar(Integer id, Usuario detalles);
 
-    UsuarioResponseDTO login(String username, String password);
+    // Actualizado para soportar discriminación por plataforma
+    UsuarioResponseDTO login(String username, String password, Boolean isMobile);
 }

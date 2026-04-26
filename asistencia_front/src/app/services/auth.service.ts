@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap, of, delay } from 'rxjs';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { UsuarioResponse } from '../models/usuario.interface';
 import { Router } from '@angular/router';
@@ -21,54 +21,30 @@ export class AuthService {
   }
 
   login(username: string, password: string): Observable<UsuarioResponse> {
-    console.log(`🔐 Intentando login MOCK para usuario: ${username}`);
-    const mockResponse: UsuarioResponse = {
-      id: 1,
-      username: username,
-      activo: true,
-      rol: { id: 1, nombre: 'ADMIN' } as any,
-      trabajador: { id: 1, nombre: 'Demo', apellidos: 'User', nroDocumento: '12345678' } as any,
-      setup2FA: true,
-      qrCodeData: 'otpauth://totp/GeoCheck:DemoUser?secret=JBSWY3DPEHPK3PXP&issuer=GeoCheck',
-      tempToken: 'mock-temp-token-123'
-    };
-
-    return new Observable<UsuarioResponse>(subscriber => {
-      setTimeout(() => {
-        if (mockResponse.setup2FA) {
-          console.log('⚠️ Login parcial: requiere configurar 2FA');
-        } else if (mockResponse.require2FA) {
-          console.log('⚠️ Login parcial: requiere verificación 2FA');
-        } else {
-          console.log('✅ Login exitoso:', mockResponse);
-          localStorage.setItem('asistencia_user', JSON.stringify(mockResponse));
-          this.currentUserSubject.next(mockResponse);
+    // Enviamos isMobile: false para forzar el 2FA en la WEB
+    return this.http.post<UsuarioResponse>(`${this.apiUrl}/login`, { 
+      username, 
+      password, 
+      isMobile: false 
+    }).pipe(
+      tap(response => {
+        if (!response.require2FA && !response.setup2FA) {
+          this.handleAuthSuccess(response);
         }
-        subscriber.next(mockResponse);
-        subscriber.complete();
-      }, 800);
-    });
+      })
+    );
   }
 
   verify2FA(code: string, tempToken: string): Observable<UsuarioResponse> {
-    console.log(`🔐 Verificando código 2FA MOCK...`);
-    const mockUser: UsuarioResponse = {
-      id: 1,
-      username: 'DemoUser',
-      activo: true,
-      rol: { id: 1, nombre: 'ADMIN' } as any,
-      trabajador: { id: 1, nombre: 'Demo', apellidos: 'User', nroDocumento: '12345678' } as any
-    };
-    
-    return new Observable<UsuarioResponse>(subscriber => {
-      setTimeout(() => {
-        console.log('✅ Login exitoso con 2FA MOCK:', mockUser);
-        localStorage.setItem('asistencia_user', JSON.stringify(mockUser));
-        this.currentUserSubject.next(mockUser);
-        subscriber.next(mockUser);
-        subscriber.complete();
-      }, 800);
-    });
+    // Simulación de verificación para el ejemplo, en producción llamar al endpoint de verificación
+    return this.http.post<UsuarioResponse>(`${this.apiUrl}/verify-2fa`, { code, tempToken }).pipe(
+      tap(response => this.handleAuthSuccess(response))
+    );
+  }
+
+  private handleAuthSuccess(user: UsuarioResponse) {
+    localStorage.setItem('asistencia_user', JSON.stringify(user));
+    this.currentUserSubject.next(user);
   }
 
   logout() {
