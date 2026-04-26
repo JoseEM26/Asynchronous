@@ -82,4 +82,10 @@ public class TrabajadorController {
         trabajadorService.registrarPuntoTerreno(jefeId, lat, lng, nombre);
         return ResponseEntity.ok().build();
     }
+
+    // Nuevo: Obtener los trabajadores asignados a un jefe
+    @GetMapping("/por-jefe/{jefeId}")
+    public List<TrabajadorResponseDTO> listarPorJefe(@PathVariable Integer jefeId) {
+        return trabajadorService.listarPorJefe(jefeId);
+    }
 }

@@ -18,4 +18,5 @@ public interface TrabajadorService {
     void actualizarUbicacionVirtual(Integer trabajadorId, java.math.BigDecimal lat, java.math.BigDecimal lng);
     void registrarPuntoTerreno(Integer jefeId, java.math.BigDecimal lat, java.math.BigDecimal lng, String nombre);
     void permitirCambioUbicacion(Integer trabajadorId, Boolean permitir);
+    List<TrabajadorResponseDTO> listarPorJefe(Integer jefeId);
 }

@@ -130,6 +130,7 @@ class LoginViewController: UIViewController {
         findAndStyleLogo(in: self.view)
     }
 
+    @available(iOS, deprecated: 17.0, message: "Use registerForTraitChanges instead")
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
         if #available(iOS 17.0, *) { return }

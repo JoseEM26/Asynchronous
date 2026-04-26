@@ -10,6 +10,23 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
     @IBOutlet weak var profileButton: UIButton!
     @IBOutlet weak var scannerButton: UIButton!
 
+    // MARK: - Botón Admin (programático, solo visible para admins/jefes)
+    private let adminButton: UIButton = {
+        let b = UIButton(type: .system)
+        b.translatesAutoresizingMaskIntoConstraints = false
+        b.isHidden = true
+        return b
+    }()
+
+    // MARK: - Stack View para ordenar todo automáticamente
+    private let mainStack: UIStackView = {
+        let s = UIStackView()
+        s.axis = .vertical
+        s.spacing = 16
+        s.translatesAutoresizingMaskIntoConstraints = false
+        return s
+    }()
+
     // MARK: - Properties
     var trabajadorId: Int?
     var userRole: String?
@@ -22,6 +39,7 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        reorganizeLayout()
         styleUI()
         setupActions()
         configurePermissionsByRole()
@@ -41,11 +59,49 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
         stopAutoRefresh()
     }
 
-    // MARK: - Estilizar los elementos del Storyboard para darles look premium
+    // MARK: - Reorganizar layout con StackView (elimina espacios en blanco)
+    private func reorganizeLayout() {
+        // Sacamos los botones de sus posiciones fijas del Storyboard
+        // y los metemos en un StackView que se ajusta automáticamente
+        profileButton.removeFromSuperview()
+        scannerButton.removeFromSuperview()
+        historyButton.removeFromSuperview()
+        logoutButton.removeFromSuperview()
+
+        // Configurar el StackView
+        mainStack.addArrangedSubview(profileButton)
+        mainStack.addArrangedSubview(scannerButton)
+        mainStack.addArrangedSubview(historyButton)
+        mainStack.addArrangedSubview(adminButton)
+        
+        // Spacer flexible para empujar el logout al fondo
+        let spacer = UIView()
+        spacer.setContentHuggingPriority(.defaultLow, for: .vertical)
+        mainStack.addArrangedSubview(spacer)
+        
+        mainStack.addArrangedSubview(logoutButton)
+
+        view.addSubview(mainStack)
+
+        NSLayoutConstraint.activate([
+            mainStack.topAnchor.constraint(equalTo: greetingLabel.bottomAnchor, constant: 24),
+            mainStack.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 24),
+            mainStack.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -24),
+            mainStack.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
+
+            profileButton.heightAnchor.constraint(equalToConstant: 80),
+            scannerButton.heightAnchor.constraint(equalToConstant: 80),
+            historyButton.heightAnchor.constraint(equalToConstant: 80),
+            adminButton.heightAnchor.constraint(equalToConstant: 80),
+            logoutButton.heightAnchor.constraint(equalToConstant: 50)
+        ])
+    }
+
+    // MARK: - Estilizar los elementos para darles look premium
     private func styleUI() {
         view.backgroundColor = .systemGroupedBackground
 
-        // Greeting Label - estilo premium
+        // Greeting Label
         greetingLabel.font = .systemFont(ofSize: 28, weight: .bold)
         greetingLabel.textColor = .label
         greetingLabel.text = "¡Hola! 👋"
@@ -54,6 +110,7 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
         styleCard(profileButton, title: "👤  Mi Perfil", color: .systemBlue)
         styleCard(scannerButton, title: "📸  Escanear QR", color: .systemOrange)
         styleCard(historyButton, title: "📅  Historial", color: .systemGreen)
+        styleCard(adminButton, title: "🏢  Configurar Oficina", color: .systemIndigo)
 
         // Logout button
         logoutButton.setTitle("Cerrar Sesión", for: .normal)
@@ -73,19 +130,22 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
     }
 
     private func styleCard(_ button: UIButton, title: String, color: UIColor) {
-        button.setTitle(title, for: .normal)
-        button.setTitleColor(.label, for: .normal)
+        if #available(iOS 15.0, *) {
+            var config = UIButton.Configuration.plain()
+            config.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 24, bottom: 0, trailing: 24)
+            config.title = title
+            config.baseForegroundColor = .label
+            button.configuration = config
+        } else {
+            button.setTitle(title, for: .normal)
+            button.setTitleColor(.label, for: .normal)
+            button.contentHorizontalAlignment = .left
+            button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 24, bottom: 0, right: 24)
+        }
         button.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
-        button.contentHorizontalAlignment = .left
-        button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 24, bottom: 0, right: 24)
         button.backgroundColor = .secondarySystemGroupedBackground
         button.layer.cornerRadius = 20
         button.clipsToBounds = true
-        button.layer.shadowColor = UIColor.black.cgColor
-        button.layer.shadowOpacity = 0.05
-        button.layer.shadowRadius = 8
-        button.layer.shadowOffset = CGSize(width: 0, height: 4)
-        button.layer.masksToBounds = false
     }
 
     // MARK: - Actions
@@ -93,6 +153,7 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
         profileButton.addTarget(self, action: #selector(profilePressed), for: .touchUpInside)
         scannerButton.addTarget(self, action: #selector(scannerPressed), for: .touchUpInside)
         historyButton.addTarget(self, action: #selector(historyPressed), for: .touchUpInside)
+        adminButton.addTarget(self, action: #selector(adminPressed), for: .touchUpInside)
         logoutButton.addTarget(self, action: #selector(logoutActionTriggered), for: .touchUpInside)
     }
 
@@ -115,6 +176,7 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
 
     private func updateVisibility() {
         guard let t = trabajadorData else { return }
+        // Si no es presencial ni híbrido, ocultar escáner (el StackView cierra el espacio automáticamente)
         scannerButton.isHidden = !(t.modalidadId == 1 || t.modalidadId == 3)
     }
 
@@ -168,10 +230,19 @@ class DashboardViewController: UIViewController, CLLocationManagerDelegate {
         present(nav, animated: true)
     }
 
+    @objc private func adminPressed() {
+        let vc = AdminSettingsViewController()
+        let nav = UINavigationController(rootViewController: vc)
+        nav.modalPresentationStyle = .pageSheet
+        present(nav, animated: true)
+    }
+
     private func configurePermissionsByRole() {
         let role = userRole ?? ""
-        // Solo ADMIN y SUPER_ADMIN pueden ver ciertos elementos
-        // Los botones base del storyboard están siempre visibles para todos
+        // ADMIN, SUPER_ADMIN y JEFE_TERRENO pueden configurar la ubicación de oficina
+        let canConfigureOffice = role == "SUPER_ADMIN" || role == "ADMIN" || role == "JEFE_TERRENO"
+            || role == "1" || role == "5" || role == "3"
+        adminButton.isHidden = !canConfigureOffice
     }
 
     @objc private func logoutActionTriggered() {
