@@ -1,0 +1,30 @@
+.config-page { padding: 3rem; background: #f8fafc; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+.main-wrapper { width: 100%; max-width: 1500px; height: 900px; box-shadow: 0 40px 100px rgba(0,0,0,0.06); border-radius: 40px; background: #fff; }
+.bg-sidebar { background: #fafbfc; border-right: 1px solid #f1f5f9; }
+
+.config-nav { display: flex; flex-direction: column; gap: 12px; }
+.nav-item {
+  display: flex; align-items: center; gap: 16px; padding: 14px 20px; border-radius: 16px;
+  background: transparent; border: 1.5px solid transparent; color: #64748b;
+  font-weight: 600; font-size: 0.95rem; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: left;
+}
+.nav-item:hover { background: #f1f5f9; color: #1e293b; }
+.nav-item.active {
+  background: #fff; border-color: #3b82f6; color: #3b82f6;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+}
+
+.icon-wrapper {
+  width: 40px; height: 40px; border-radius: 12px; background: #f1f5f9;
+  display: flex; align-items: center; justify-content: center; transition: inherit;
+}
+.active .icon-wrapper { background: #3b82f6; color: #fff; }
+
+.version-info { background: #fff; padding: 15px; border-radius: 20px; border: 1px solid #f1f5f9; }
+
+.animate-fade { animation: fadeIn 0.6s ease-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }

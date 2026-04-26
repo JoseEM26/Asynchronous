@@ -1,0 +1,82 @@
+<div class="config-page animate-fade">
+  <div class="config-container glass-card main-wrapper overflow-hidden">
+    <div class="row g-0 h-100">
+      
+      <!-- SIDEBAR IZQUIERDO -->
+      <div class="col-lg-3 border-end bg-sidebar d-flex flex-column p-4">
+        <div class="sidebar-header mb-5">
+           <div class="p-2">
+              <p class="text-secondary small mb-0 opacity-75">Personaliza la experiencia visual y los parámetros operativos de la plataforma.</p>
+           </div>
+        </div>
+
+        <nav class="config-nav flex-grow-1">
+          <button class="nav-item" [class.active]="activeTab === 'apariencia'" (click)="selectTab('apariencia')">
+            <div class="icon-wrapper">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            </div>
+            <span>Apariencia</span>
+          </button>
+
+          <button class="nav-item" [class.active]="activeTab === 'presencial'" (click)="selectTab('presencial')">
+            <div class="icon-wrapper">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+            </div>
+            <span>Presencial / Híbrido</span>
+          </button>
+
+          <button class="nav-item" [class.active]="activeTab === 'remoto'" (click)="selectTab('remoto')">
+            <div class="icon-wrapper">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+            </div>
+            <span>Virtual / Remoto</span>
+          </button>
+
+          <button class="nav-item" [class.active]="activeTab === 'terreno'" (click)="selectTab('terreno')">
+            <div class="icon-wrapper">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            </div>
+            <span>Terreno (Campo)</span>
+          </button>
+
+          <button class="nav-item" [class.active]="activeTab === 'seguridad'" (click)="selectTab('seguridad')">
+            <div class="icon-wrapper">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            </div>
+            <span>Seguridad y QR</span>
+          </button>
+        </nav>
+
+        <div class="sidebar-footer mt-auto p-3 text-center">
+           <div class="version-info">
+              <span class="d-block small text-muted opacity-50">Versión Sistema</span>
+              <span class="fw-bold text-primary">v2.4.0-PRO</span>
+           </div>
+        </div>
+      </div>
+
+      <!-- CONTENIDO DERECHO -->
+      <div class="col-lg-9 bg-white p-5 overflow-auto">
+        <app-config-apariencia *ngIf="activeTab === 'apariencia'" 
+                               [customColors]="customColors" 
+                               (colorsChanged)="onColorsChanged($event)">
+        </app-config-apariencia>
+
+        <app-config-presencial *ngIf="activeTab === 'presencial'" 
+                               [geoConfig]="geoConfig">
+        </app-config-presencial>
+
+        <app-config-remoto *ngIf="activeTab === 'remoto'">
+        </app-config-remoto>
+
+        <app-config-terreno *ngIf="activeTab === 'terreno'">
+        </app-config-terreno>
+
+        <app-config-seguridad *ngIf="activeTab === 'seguridad'" 
+                              [geoConfig]="geoConfig">
+        </app-config-seguridad>
+      </div>
+
+    </div>
+  </div>
+</div>
